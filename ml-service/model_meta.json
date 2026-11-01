@@ -1,0 +1,25 @@
+{
+  "model": "RandomForestClassifier",
+  "n_estimators": 200,
+  "scaler": "StandardScaler",
+  "states": [
+    "fast_navigator",
+    "reader",
+    "struggling",
+    "explorer"
+  ],
+  "fallback_state": "balanced",
+  "confidence_threshold": 0.45,
+  "feature_window_seconds": 20,
+  "feature_columns": [
+    "clicks_per_min",
+    "unique_click_ratio",
+    "repeat_click_ratio",
+    "scroll_speed",
+    "max_scroll_depth",
+    "key_presses_per_min",
+    "idle_ratio",
+    "view_switches_per_min"
+  ],
+  "training_data": "synthetic (generate_data.py)"
+}

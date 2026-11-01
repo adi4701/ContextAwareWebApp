@@ -1,107 +1,120 @@
+"""
+generate_data.py
+Generates synthetic training data for the behaviour-state classifier.
+
+States: fast_navigator, reader, struggling, explorer
+Features (8-window, ~20 s):
+  clicks_per_min, unique_click_ratio, repeat_click_ratio,
+  scroll_speed, max_scroll_depth, key_presses_per_min,
+  idle_ratio, view_switches_per_min
+
+Run: python generate_data.py
+"""
 import numpy as np
 import pandas as pd
 
 np.random.seed(42)
-N = 2500
+N = 2000  # samples per class
 
-# ── power_user ──────────────────────────────────────────────────────────────
-click_count_pu = np.clip(np.random.normal(85, 15, N), 40, 150)
-unique_pu = np.clip(
-    click_count_pu * np.random.uniform(0.6, 0.9, N), 0, click_count_pu
-)
-avg_scroll_pu = np.clip(np.random.normal(75, 10, N), 50, 100)
-session_dur_pu = np.clip(np.random.normal(180, 30, N), 120, 300)
-nav_depth_pu = np.clip(np.random.normal(8, 2, N), 5, 15)
-hour_pu = np.random.choice([9, 10, 11, 14, 15, 16], N)
-click_density_pu = click_count_pu / (session_dur_pu / 60)
-scroll_rate_pu = (avg_scroll_pu / 10) / session_dur_pu * 100
 
-df_power = pd.DataFrame({
-    'click_count': click_count_pu,
-    'unique_elements_clicked': unique_pu,
-    'avg_scroll_depth': avg_scroll_pu,
-    'session_duration': session_dur_pu,
-    'click_density': click_density_pu,
-    'navigation_depth': nav_depth_pu,
-    'scroll_rate': scroll_rate_pu,
-    'hour_of_day': hour_pu.astype(float),
-    'label': 'power_user'
+def clip(arr, lo, hi):
+    return np.clip(arr, lo, hi)
+
+
+# ── fast_navigator ───────────────────────────────────────────────────────────
+# High click rate, many unique targets, low idle, fast scroll, frequent switches
+cpm_fn = clip(np.random.normal(55, 12, N), 25, 100)
+ucr_fn = clip(np.random.uniform(0.65, 0.95, N), 0, 1)
+rcr_fn = clip(1 - ucr_fn + np.random.normal(0, 0.05, N), 0, 0.5)
+ss_fn  = clip(np.random.normal(0.7, 0.15, N), 0.3, 1.0)
+msd_fn = clip(np.random.normal(55, 18, N), 20, 95)
+kpm_fn = clip(np.random.normal(35, 10, N), 10, 70)
+ir_fn  = clip(np.random.normal(0.10, 0.06, N), 0, 0.35)
+vsm_fn = clip(np.random.normal(5.5, 1.5, N), 2, 10)
+
+df_fn = pd.DataFrame({
+    'clicks_per_min': cpm_fn,
+    'unique_click_ratio': ucr_fn,
+    'repeat_click_ratio': rcr_fn,
+    'scroll_speed': ss_fn,
+    'max_scroll_depth': msd_fn,
+    'key_presses_per_min': kpm_fn,
+    'idle_ratio': ir_fn,
+    'view_switches_per_min': vsm_fn,
+    'label': 'fast_navigator',
 })
 
-# ── casual_browser ───────────────────────────────────────────────────────────
-click_count_cb = np.clip(np.random.normal(15, 5, N), 5, 35)
-unique_cb = np.clip(
-    click_count_cb * np.random.uniform(0.7, 0.9, N), 0, click_count_cb
-)
-avg_scroll_cb = np.clip(np.random.normal(35, 15, N), 10, 70)
-session_dur_cb = np.clip(np.random.normal(300, 60, N), 120, 600)
-nav_depth_cb = np.clip(np.random.normal(2, 1, N), 1, 5)
-hour_cb = np.random.randint(0, 24, N)  # 0–23 inclusive
-click_density_cb = click_count_cb / (session_dur_cb / 60)
-scroll_rate_cb = (avg_scroll_cb / 10) / session_dur_cb * 100
+# ── reader ───────────────────────────────────────────────────────────────────
+# Low click rate, slow scroll, high scroll depth, high idle, few switches
+cpm_r = clip(np.random.normal(6, 3, N), 1, 20)
+ucr_r = clip(np.random.uniform(0.75, 1.0, N), 0, 1)
+rcr_r = clip(np.random.uniform(0, 0.15, N), 0, 0.3)
+ss_r  = clip(np.random.normal(0.15, 0.07, N), 0.02, 0.40)
+msd_r = clip(np.random.normal(82, 12, N), 50, 100)
+kpm_r = clip(np.random.normal(5, 3, N), 0, 18)
+ir_r  = clip(np.random.normal(0.55, 0.12, N), 0.2, 0.85)
+vsm_r = clip(np.random.normal(0.8, 0.5, N), 0, 3)
 
-df_casual = pd.DataFrame({
-    'click_count': click_count_cb,
-    'unique_elements_clicked': unique_cb,
-    'avg_scroll_depth': avg_scroll_cb,
-    'session_duration': session_dur_cb,
-    'click_density': click_density_cb,
-    'navigation_depth': nav_depth_cb,
-    'scroll_rate': scroll_rate_cb,
-    'hour_of_day': hour_cb.astype(float),
-    'label': 'casual_browser'
+df_r = pd.DataFrame({
+    'clicks_per_min': cpm_r,
+    'unique_click_ratio': ucr_r,
+    'repeat_click_ratio': rcr_r,
+    'scroll_speed': ss_r,
+    'max_scroll_depth': msd_r,
+    'key_presses_per_min': kpm_r,
+    'idle_ratio': ir_r,
+    'view_switches_per_min': vsm_r,
+    'label': 'reader',
 })
 
-# ── mobile_constrained ───────────────────────────────────────────────────────
-click_count_mc = np.clip(np.random.normal(25, 8, N), 10, 50)
-unique_mc = np.clip(
-    click_count_mc * np.random.uniform(0.5, 0.75, N), 0, click_count_mc
-)
-avg_scroll_mc = np.clip(np.random.normal(60, 20, N), 20, 95)
-session_dur_mc = np.clip(np.random.normal(120, 30, N), 60, 240)
-nav_depth_mc = np.clip(np.random.normal(3, 1, N), 1, 6)
-hour_mc = np.random.choice([19, 20, 21, 22], N)
-click_density_mc = click_count_mc / (session_dur_mc / 60)
-scroll_rate_mc = (avg_scroll_mc / 10) / session_dur_mc * 100
+# ── struggling ───────────────────────────────────────────────────────────────
+# High repeat clicks (same targets), low unique ratio, high idle, low scroll
+cpm_s = clip(np.random.normal(18, 7, N), 5, 40)
+ucr_s = clip(np.random.uniform(0.20, 0.55, N), 0, 1)
+rcr_s = clip(1 - ucr_s + np.random.normal(0, 0.07, N), 0.3, 0.9)
+ss_s  = clip(np.random.normal(0.20, 0.10, N), 0.02, 0.50)
+msd_s = clip(np.random.normal(28, 15, N), 5, 65)
+kpm_s = clip(np.random.normal(10, 6, N), 0, 30)
+ir_s  = clip(np.random.normal(0.45, 0.15, N), 0.15, 0.80)
+vsm_s = clip(np.random.normal(1.2, 0.7, N), 0, 4)
 
-df_mobile = pd.DataFrame({
-    'click_count': click_count_mc,
-    'unique_elements_clicked': unique_mc,
-    'avg_scroll_depth': avg_scroll_mc,
-    'session_duration': session_dur_mc,
-    'click_density': click_density_mc,
-    'navigation_depth': nav_depth_mc,
-    'scroll_rate': scroll_rate_mc,
-    'hour_of_day': hour_mc.astype(float),
-    'label': 'mobile_constrained'
+df_s = pd.DataFrame({
+    'clicks_per_min': cpm_s,
+    'unique_click_ratio': ucr_s,
+    'repeat_click_ratio': rcr_s,
+    'scroll_speed': ss_s,
+    'max_scroll_depth': msd_s,
+    'key_presses_per_min': kpm_s,
+    'idle_ratio': ir_s,
+    'view_switches_per_min': vsm_s,
+    'label': 'struggling',
 })
 
-# ── accessibility_focused ────────────────────────────────────────────────────
-click_count_af = np.clip(np.random.normal(40, 10, N), 20, 70)
-unique_af = np.clip(
-    click_count_af * np.random.uniform(0.85, 1.0, N), 0, click_count_af
-)
-avg_scroll_af = np.clip(np.random.normal(90, 8, N), 70, 100)
-session_dur_af = np.clip(np.random.normal(420, 60, N), 300, 600)
-nav_depth_af = np.clip(np.random.normal(6, 2, N), 3, 10)
-hour_af = np.random.choice([8, 9, 10, 11], N)
-click_density_af = click_count_af / (session_dur_af / 60)
-scroll_rate_af = (avg_scroll_af / 10) / session_dur_af * 100
+# ── explorer ─────────────────────────────────────────────────────────────────
+# Moderate clicks, high unique ratio, high key presses (search), many view switches
+cpm_e = clip(np.random.normal(22, 8, N), 8, 50)
+ucr_e = clip(np.random.uniform(0.80, 1.0, N), 0, 1)
+rcr_e = clip(np.random.uniform(0, 0.12, N), 0, 0.25)
+ss_e  = clip(np.random.normal(0.35, 0.12, N), 0.10, 0.70)
+msd_e = clip(np.random.normal(45, 20, N), 10, 90)
+kpm_e = clip(np.random.normal(55, 15, N), 20, 100)
+ir_e  = clip(np.random.normal(0.20, 0.09, N), 0.03, 0.50)
+vsm_e = clip(np.random.normal(7.0, 2.0, N), 3, 15)
 
-df_accessibility = pd.DataFrame({
-    'click_count': click_count_af,
-    'unique_elements_clicked': unique_af,
-    'avg_scroll_depth': avg_scroll_af,
-    'session_duration': session_dur_af,
-    'click_density': click_density_af,
-    'navigation_depth': nav_depth_af,
-    'scroll_rate': scroll_rate_af,
-    'hour_of_day': hour_af.astype(float),
-    'label': 'accessibility_focused'
+df_e = pd.DataFrame({
+    'clicks_per_min': cpm_e,
+    'unique_click_ratio': ucr_e,
+    'repeat_click_ratio': rcr_e,
+    'scroll_speed': ss_e,
+    'max_scroll_depth': msd_e,
+    'key_presses_per_min': kpm_e,
+    'idle_ratio': ir_e,
+    'view_switches_per_min': vsm_e,
+    'label': 'explorer',
 })
 
 # ── Combine, shuffle, save ───────────────────────────────────────────────────
-df = pd.concat([df_power, df_casual, df_mobile, df_accessibility], ignore_index=True)
+df = pd.concat([df_fn, df_r, df_s, df_e], ignore_index=True)
 df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 df.to_csv('training_data.csv', index=False)
 
