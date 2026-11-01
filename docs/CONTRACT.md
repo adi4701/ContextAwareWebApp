@@ -53,6 +53,35 @@
 
 ---
 
+### `POST /api/feedback`
+
+Recorded when a user manually locks or overrides an adaptation dimension via `OverridePanel`. This logs ground-truth user preferences alongside the live 8-feature vector for real-world model retraining.
+
+**Auth:** Optional `Authorization: Bearer <JWT>`  
+**Content-Type:** `application/json`
+
+#### Request body
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `sessionId` | string | yes | Browser session ID |
+| `featureVector` | object | yes | Current 8-feature rolling window vector |
+| `chosenSetting` | object | yes | Selected setting (e.g. `{ dimension: "state", value: "reader" }`) |
+| `previousState` | string | no | State active before override |
+| `targetState` | string | no | Target state resulting from override |
+
+#### Response body
+
+```json
+{
+  "success": true,
+  "message": "Feedback recorded successfully for real model retraining",
+  "feedbackId": "65432..."
+}
+```
+
+---
+
 ## 2. ML Service feature vector
 
 ### `POST /predict` (ML service, internal)

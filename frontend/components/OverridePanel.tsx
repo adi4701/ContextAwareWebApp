@@ -1,57 +1,96 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAdaptationStore } from '../store/adaptationStore';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import axios from 'axios';
+import { useAdaptationStore, STATE_PRESETS } from '../store/adaptationStore';
+import { useTelemetryStore } from '../store/telemetryStore';
+import { computeRollingFeatures } from '../lib/telemetry';
 
 export default function OverridePanel() {
   const [isOpen, setIsOpen] = useState(false);
+  const [feedbackStatus, setFeedbackStatus] = useState<string | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   const {
-    theme,
-    layoutDensity,
+    state,
+    adaptation,
     userOverrides,
-    lastUpdated,
-    detectedClass,
     setOverride,
     clearOverride,
     clearAllOverrides,
   } = useAdaptationStore();
 
-  const formatTimestamp = (date: Date | null): string => {
-    if (!date) return 'Awaiting signal...';
+  const sendFeedback = async (dimension: string, value: any) => {
+    const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
+    const sessionId = useTelemetryStore.getState().sessionId;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const currentFeatures = computeRollingFeatures();
+
     try {
-      const d = new Date(date);
-      return d.toTimeString().split(' ')[0];
+      await axios.post(
+        `${backendUrl}/api/feedback`,
+        {
+          sessionId,
+          featureVector: currentFeatures,
+          chosenSetting: { dimension, value },
+          previousState: state,
+          targetState: dimension === 'state' ? value : state,
+        },
+        {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            'Content-Type': 'application/json',
+          },
+          timeout: 4000,
+        }
+      );
+      setFeedbackStatus(`Locked ${dimension} & recorded feedback ✓`);
+      setTimeout(() => setFeedbackStatus(null), 3000);
     } catch {
-      return 'Just now';
+      setFeedbackStatus(`Locked ${dimension} locally`);
+      setTimeout(() => setFeedbackStatus(null), 2500);
     }
   };
 
-  const profileColors: Record<string, string> = {
-    power_user: 'bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300 border-purple-300 dark:border-purple-700',
-    casual_browser: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700',
-    mobile_constrained: 'bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300 border-amber-300 dark:border-amber-700',
-    accessibility_focused: 'bg-sky-100 text-sky-700 dark:bg-sky-900/60 dark:text-sky-300 border-sky-300 dark:border-sky-700',
+  const handleStateSelect = async (targetState: string) => {
+    setOverride('state', targetState);
+    await sendFeedback('state', targetState);
   };
 
+  const handleDensitySelect = async (density: 'compact' | 'standard' | 'spacious') => {
+    setOverride('density', density);
+    await sendFeedback('density', density);
+  };
+
+  const handleTextScaleSelect = async (scale: number) => {
+    setOverride('textScale', scale);
+    await sendFeedback('textScale', scale);
+  };
+
+  const handleTargetSizeSelect = async (size: 'normal' | 'large') => {
+    setOverride('targetSize', size);
+    await sendFeedback('targetSize', size);
+  };
+
+  const lockedKeys = Object.keys(userOverrides);
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-      {/* Floating Modal Panel */}
+    <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end font-sans">
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.88, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.88, y: 15 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="mb-3 w-80 rounded-2xl bg-white/85 dark:bg-gray-900/85 backdrop-blur-xl border border-gray-200/80 dark:border-gray-700/80 shadow-2xl p-4 text-gray-900 dark:text-gray-100"
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 15 }}
+            animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 15 }}
+            transition={{ duration: shouldReduceMotion ? 0.05 : 0.22, ease: 'easeOut' }}
+            className="mb-3 w-84 sm:w-96 rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200 dark:border-gray-700 shadow-2xl p-4 text-gray-900 dark:text-gray-100 max-h-[85vh] overflow-y-auto"
           >
             {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-800 mb-3">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-2">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <h4 className="font-bold text-sm">AI Adaptation Controls</h4>
+                <span className="flex h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse" />
+                <h4 className="font-bold text-sm">Adaptation Controls & Overrides</h4>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
@@ -62,141 +101,181 @@ export default function OverridePanel() {
               </button>
             </div>
 
-            {/* Row 1 — Detected Profile */}
-            <div className="mb-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1">
-                Detected Profile
+            {feedbackStatus && (
+              <div className="mt-2.5 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs text-center font-bold animate-in fade-in">
+                {feedbackStatus}
               </div>
-              <div>
-                <span
-                  className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full border ${
-                    profileColors[detectedClass] ||
-                    'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-gray-300 dark:border-gray-700'
-                  }`}
-                >
-                  {detectedClass ? detectedClass.replace('_', ' ') : 'Detecting behavior...'}
+            )}
+
+            {/* 1. State Simulation / Override */}
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Simulate / Lock Behaviour State
                 </span>
+                {'state' in userOverrides && (
+                  <button
+                    onClick={() => clearOverride('state')}
+                    className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+                  >
+                    Unlock
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-1.5">
+                {Object.keys(STATE_PRESETS).map((sKey) => {
+                  const isCurrent = state === sKey;
+                  const isLocked = userOverrides.state === sKey;
+                  return (
+                    <button
+                      key={sKey}
+                      id={`override-state-${sKey}`}
+                      onClick={() => handleStateSelect(sKey)}
+                      className={`px-2.5 py-2 rounded-xl text-xs font-bold transition-all text-left flex items-center justify-between border ${
+                        isCurrent
+                          ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border-blue-400 shadow-xs'
+                          : 'bg-gray-50 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                      }`}
+                    >
+                      <span className="capitalize">{sKey.replace('_', ' ')}</span>
+                      {isLocked && <span className="text-[10px]">🔒</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Row 2 — Theme Override */}
-            <div className="mb-3">
-              <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
-                <span>Theme</span>
-                {userOverrides.theme && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300">
-                      manual
-                    </span>
-                    <button
-                      onClick={() => clearOverride('theme')}
-                      className="text-red-500 hover:text-red-700 font-bold ml-1 text-xs"
-                      title="Clear theme override"
-                    >
-                      ✕
-                    </button>
-                  </div>
+            {/* 2. Density Override */}
+            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Layout Density
+                </span>
+                {'density' in userOverrides && (
+                  <button
+                    onClick={() => clearOverride('density')}
+                    className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+                  >
+                    Unlock
+                  </button>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                {(['light', 'dark'] as const).map((mode) => (
+              <div className="flex rounded-xl bg-gray-100 dark:bg-gray-800 p-1">
+                {(['compact', 'standard', 'spacious'] as const).map((d) => (
                   <button
-                    key={mode}
-                    onClick={() => setOverride('theme', mode)}
-                    className={`text-xs font-semibold py-1.5 px-3 rounded-lg border transition-all ${
-                      theme === mode
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-transparent hover:bg-gray-200 dark:hover:bg-gray-700'
+                    key={d}
+                    id={`override-density-${d}`}
+                    onClick={() => handleDensitySelect(d)}
+                    className={`flex-1 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all ${
+                      adaptation.density === d
+                        ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-xs'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
                     }`}
                   >
-                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    {d}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Row 3 — Layout Density Override */}
-            <div className="mb-3">
-              <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
-                <span>Layout Density</span>
-                {userOverrides.layoutDensity && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300">
-                      manual
-                    </span>
-                    <button
-                      onClick={() => clearOverride('layoutDensity')}
-                      className="text-red-500 hover:text-red-700 font-bold ml-1 text-xs"
-                      title="Clear density override"
-                    >
-                      ✕
-                    </button>
-                  </div>
+            {/* 3. Text Scale Override */}
+            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Text Scale
+                </span>
+                {'textScale' in userOverrides && (
+                  <button
+                    onClick={() => clearOverride('textScale')}
+                    className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+                  >
+                    Unlock
+                  </button>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-1.5">
-                {(['compact', 'standard', 'spacious'] as const).map((density) => (
+              <div className="flex rounded-xl bg-gray-100 dark:bg-gray-800 p-1">
+                {([1.0, 1.1, 1.2] as const).map((scale) => (
                   <button
-                    key={density}
-                    onClick={() => setOverride('layoutDensity', density)}
-                    className={`text-[11px] font-semibold py-1.5 px-2 rounded-lg border transition-all ${
-                      layoutDensity === density
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-transparent hover:bg-gray-200 dark:hover:bg-gray-700'
+                    key={scale}
+                    onClick={() => handleTextScaleSelect(scale)}
+                    className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                      adaptation.textScale === scale
+                        ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-xs'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
                     }`}
                   >
-                    {density.charAt(0).toUpperCase() + density.slice(1)}
+                    {scale === 1.0 ? '100% (Default)' : `${Math.round(scale * 100)}%`}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Row 4 — Reset Button */}
-            <div className="pt-2 border-t border-gray-200 dark:border-gray-800 mb-2">
-              <button
-                onClick={() => clearAllOverrides()}
-                className="w-full py-1.5 px-3 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-300 transition-colors"
-              >
-                Reset All Overrides (Auto Mode)
-              </button>
+            {/* 4. Target Size Override */}
+            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Target Hit Size
+                </span>
+                {'targetSize' in userOverrides && (
+                  <button
+                    onClick={() => clearOverride('targetSize')}
+                    className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+                  >
+                    Unlock
+                  </button>
+                )}
+              </div>
+              <div className="flex rounded-xl bg-gray-100 dark:bg-gray-800 p-1">
+                {(['normal', 'large'] as const).map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => handleTargetSizeSelect(size)}
+                    className={`flex-1 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all ${
+                      adaptation.targetSize === size
+                        ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-xs'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+                    }`}
+                  >
+                    {size === 'normal' ? 'Normal (Default)' : 'Large (48px Assisted)'}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Row 5 — Last Updated */}
-            <div className="text-[11px] text-center text-gray-400 dark:text-gray-500">
-              Last adapted: {formatTimestamp(lastUpdated)}
+            {/* Footer: Locked Dimensions Summary & Reset */}
+            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+              <span className="text-[11px] text-gray-400">
+                {lockedKeys.length > 0 ? `${lockedKeys.length} dimension(s) locked` : 'AI active (no locks)'}
+              </span>
+              {lockedKeys.length > 0 && (
+                <button
+                  onClick={clearAllOverrides}
+                  className="px-2.5 py-1 text-[11px] font-bold text-red-600 dark:text-red-400 hover:underline"
+                >
+                  Reset All to AI
+                </button>
+              )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Floating Trigger Button */}
+      {/* Floating Toggle Button */}
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-xl hover:scale-105 active:scale-95 transition-all focus:outline-none"
-        aria-label="Toggle AI Adaptation Settings"
+        id="toggle-override-panel-btn"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-500/30 text-xs font-bold transition-all active:scale-95"
       >
-        <svg
-          className={`w-6 h-6 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}
-          width={24}
-          height={24}
-          style={{ width: '24px', height: '24px' }}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
         </svg>
+        <span>Adaptation Controls</span>
+        {lockedKeys.length > 0 && (
+          <span className="w-4 h-4 rounded-full bg-amber-400 text-slate-900 text-[10px] flex items-center justify-center font-black">
+            {lockedKeys.length}
+          </span>
+        )}
       </button>
     </div>
   );

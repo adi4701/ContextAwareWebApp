@@ -10,6 +10,7 @@ const logger = require('./utils/logger');
 const authRouter = require('./routes/auth');
 const telemetryRouter = require('./routes/telemetry');
 const tasksRouter = require('./routes/tasks');
+const feedbackRouter = require('./routes/feedback');
 const socketModule = require('./socket/index');
 
 const app = express();
@@ -45,6 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api', telemetryRouter);
+app.use('/api', feedbackRouter);
 app.use('/api/tasks', tasksRouter);
 
 // Health check

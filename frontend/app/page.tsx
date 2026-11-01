@@ -101,6 +101,11 @@ export default function HomePage() {
   };
 
   const profileColors: Record<string, string> = {
+    fast_navigator: 'bg-purple-600 text-white',
+    reader: 'bg-emerald-600 text-white',
+    struggling: 'bg-amber-600 text-white',
+    explorer: 'bg-blue-600 text-white',
+    balanced: 'bg-slate-600 text-white',
     power_user: 'bg-purple-600 text-white',
     casual_browser: 'bg-emerald-600 text-white',
     mobile_constrained: 'bg-amber-600 text-white',
