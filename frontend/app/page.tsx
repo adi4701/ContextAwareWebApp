@@ -24,7 +24,7 @@ export default function HomePage() {
   const [currentUser, setCurrentUser] = useState('');
 
   // Stores
-  const { detectedClass, lastUpdated, adaptationsCount } = useAdaptationStore();
+  const { detectedClass, adaptationsCount } = useAdaptationStore();
   const events = useTelemetryStore((state) => state.events);
 
   const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -228,9 +228,19 @@ export default function HomePage() {
               </button>
             </form>
 
-            <div className="mt-4 text-center">
-              <span className="text-[11px] text-gray-400">
-                Demo Auth &bull; Stored in local MongoDB
+            <div className="mt-3 text-center space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAuthModal(false);
+                  setCurrentUser('Guest');
+                }}
+                className="w-full py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 transition-colors"
+              >
+                Try as Guest (Local workspace mode)
+              </button>
+              <span className="block text-[11px] text-gray-400">
+                Demo Auth &bull; Stored in local MongoDB or localStorage
               </span>
             </div>
           </div>
