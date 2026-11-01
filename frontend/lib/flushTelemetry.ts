@@ -17,7 +17,7 @@ export async function flushTelemetry(): Promise<void> {
   const avgScrollDepth = store.lastKnownScrollDepth;
   const navigationDepth = store.cumulativeNavigationDepth;
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+  const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
   try {
     await axios.post(

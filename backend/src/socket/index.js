@@ -5,10 +5,27 @@ const logger = require('../utils/logger');
 let io = null;
 
 function init(server) {
-  const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:3000'].filter(Boolean);
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+    'https://context-aware-web-app.vercel.app'
+  ].filter(Boolean);
+
   io = new Server(server, {
     cors: {
-      origin: allowedOrigins,
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+
+        const isAllowed =
+          allowedOrigins.includes(origin) ||
+          origin.endsWith('.vercel.app') ||
+          origin.includes('localhost');
+
+        if (isAllowed) {
+          return callback(null, true);
+        }
+        return callback(new Error(`Socket origin ${origin} not allowed by CORS`));
+      },
       methods: ['GET', 'POST'],
       credentials: true
     }

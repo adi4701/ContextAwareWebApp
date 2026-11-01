@@ -27,7 +27,7 @@ export default function HomePage() {
   const { detectedClass, lastUpdated, adaptationsCount } = useAdaptationStore();
   const events = useTelemetryStore((state) => state.events);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+  const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
   useEffect(() => {
     // Check local storage auth
