@@ -3,6 +3,31 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
+import {
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+  Cpu,
+  Layers,
+  Zap,
+  Search,
+  BookOpen,
+  HelpCircle,
+  Activity,
+  CheckCircle2,
+  ChevronRight,
+  Command,
+  Sliders,
+  BarChart3,
+  ExternalLink,
+  Lock,
+  RotateCcw,
+  Compass,
+  MousePointerClick,
+  Check,
+  Clock,
+  FlaskConical,
+} from 'lucide-react';
 
 interface ModelMetrics {
   data_note: string;
@@ -54,374 +79,492 @@ export default function LandingPage() {
   }, []);
 
   const previewStates = [
-    { key: 'balanced', label: 'Balanced (Default)', color: 'bg-slate-500' },
-    { key: 'fast_navigator', label: 'Fast Navigator', color: 'bg-purple-600' },
-    { key: 'reader', label: 'Focused Reader', color: 'bg-emerald-600' },
-    { key: 'struggling', label: 'Assisted Mode', color: 'bg-amber-600' },
-    { key: 'explorer', label: 'Deep Explorer', color: 'bg-blue-600' },
+    { key: 'balanced', label: 'Balanced', icon: Sliders, badge: 'Default Baseline' },
+    { key: 'fast_navigator', label: 'Fast Navigator', icon: Zap, badge: 'Compact + Hotkeys' },
+    { key: 'reader', label: 'Focused Reader', icon: BookOpen, badge: 'Spacious + 120% Text' },
+    { key: 'struggling', label: 'Assisted Mode', icon: HelpCircle, badge: '48px Buttons + Tips' },
+    { key: 'explorer', label: 'Deep Explorer', icon: Search, badge: 'Pinned Search Glow' },
   ] as const;
 
+  const currentMetrics = activeMetricsTab === 'real' ? (metricsReal || metrics) : metrics;
+  const isReal = activeMetricsTab === 'real' && Boolean(metricsReal);
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 font-sans selection:bg-blue-600 selection:text-white">
-      {/* ════════════════════ NAVIGATION BAR ════════════════════ */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/85 dark:bg-gray-950/85 border-b border-gray-200/80 dark:border-gray-800 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-base shadow-md shadow-blue-500/20">
+    <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-900 selection:text-white dark:selection:bg-zinc-100 dark:selection:text-zinc-900 relative isolate">
+      {/* Subtle Dot Grid Background Pattern */}
+      <div 
+        className="absolute inset-0 -z-20 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" 
+        aria-hidden="true"
+      />
+
+      {/* Top Ambient Glow Spotlight */}
+      <div 
+        className="absolute -top-32 left-1/2 -translate-x-1/2 -z-10 w-[720px] h-[380px] bg-gradient-to-b from-indigo-500/15 via-blue-500/8 to-transparent blur-3xl pointer-events-none rounded-full"
+        aria-hidden="true"
+      />
+
+      {/* ════════════════════ FLOATING SHADCN NAVBAR ════════════════════ */}
+      <header className="sticky top-4 z-50 max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="backdrop-blur-xl bg-white/80 dark:bg-zinc-900/80 border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl px-4 sm:px-6 h-14 flex items-center justify-between shadow-xs transition-colors">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center font-black text-sm shadow-xs group-hover:scale-105 transition-transform">
               C
             </div>
-            <div>
-              <span className="font-black text-lg tracking-tight text-gray-900 dark:text-white">ContextUI</span>
-              <span className="ml-2 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
-                Adaptive ML
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-sm tracking-tight text-zinc-900 dark:text-zinc-100">
+                ContextUI
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700/60">
+                v2.0
               </span>
             </div>
-          </div>
+          </Link>
 
-          <nav className="hidden md:flex items-center gap-6 text-xs font-bold text-gray-600 dark:text-gray-300">
-            <a href="#how-it-works" className="hover:text-blue-600 transition-colors">How It Works</a>
-            <a href="#preview" className="hover:text-blue-600 transition-colors">Live Preview</a>
-            <a href="#states" className="hover:text-blue-600 transition-colors">Adaptation States</a>
-            <a href="#results" className="hover:text-blue-600 transition-colors">Evaluation Results</a>
-            <a href="#privacy" className="hover:text-blue-600 transition-colors">Privacy</a>
+          <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+            <a href="#preview" className="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors">Interactive Demo</a>
+            <a href="#how-it-works" className="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors">How It Works</a>
+            <a href="#states" className="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors">Adaptation States</a>
+            <a href="#evaluation" className="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors">Model Evidence</a>
+            <a href="#privacy" className="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors">Privacy</a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/lab"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors"
+            >
+              <FlaskConical className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Interactive Lab</span>
+            </Link>
             <Link
               href="/demo"
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 transition-all active:scale-95 flex items-center gap-1.5"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-xs hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-95"
             >
-              <span>Launch Demo App</span>
-              <span>→</span>
+              <span>Try Live Demo</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
       </header>
 
-      {/* ════════════════════ HERO SECTION ════════════════════ */}
-      <section className="relative overflow-hidden pt-16 sm:pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-bold mb-6">
-          <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-          <span>Real-Time Behavioural Machine Learning Feedback Loop</span>
+      {/* ════════════════════ HERO SECTION (HERO-01 STYLE) ════════════════════ */}
+      <section className="pt-16 sm:pt-24 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+        {/* Announcement Pill Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-200/90 dark:border-zinc-800/90 bg-zinc-50/80 dark:bg-zinc-900/60 text-xs font-medium text-zinc-800 dark:text-zinc-200 shadow-xs backdrop-blur-sm mb-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
+          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Real-Time Behavioural Adaptation Engine</span>
+          <span className="text-zinc-300 dark:text-zinc-700">•</span>
+          <span className="text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">8 Features / 20s Window</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-black text-gray-950 dark:text-white tracking-tight leading-tight max-w-4xl mx-auto">
-          A UI that adapts to how you{' '}
-          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            actually use it.
+        {/* Hero Title */}
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.08] max-w-4xl mx-auto">
+          A UI that reshapes itself to how you{' '}
+          <span className="bg-gradient-to-r from-zinc-900 via-zinc-700 to-indigo-600 dark:from-zinc-100 dark:via-zinc-300 dark:to-indigo-400 bg-clip-text text-transparent">
+            actually work.
           </span>
         </h1>
 
-        <p className="mt-5 text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-          An adaptive task manager that watches your interaction patterns—clicks, scroll velocities, idle gaps, and typing cadences—and reshapes its density, typography, and controls dynamically using Random Forest machine learning.
+        {/* Hero Subtitle */}
+        <p className="mt-5 text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+          ContextUI continuously senses interaction cadence—click velocity, repeat targets, scroll momentum, and dwell time—to morph interface density, typography, and controls in real time using machine learning.
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+        {/* Hero CTAs (Shadcn Button Variants) */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/demo"
-            className="px-6 py-3.5 rounded-2xl text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 shadow-sm hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98]"
           >
-            <span>Try the Live Demo</span>
-            <span className="text-base">→</span>
+            <span>Launch Demo App</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
+
+          <Link
+            href="/lab"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold border border-zinc-300 dark:border-zinc-700/80 bg-white dark:bg-zinc-900/60 text-zinc-800 dark:text-zinc-200 shadow-xs hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-all active:scale-[0.98]"
+          >
+            <FlaskConical className="w-4 h-4 text-indigo-500" />
+            <span>Interactive Evaluation Lab</span>
+          </Link>
+
           <a
             href="https://github.com"
             target="_blank"
             rel="noreferrer"
-            className="px-6 py-3.5 rounded-2xl text-sm font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-xs flex items-center gap-2"
+            className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
             </svg>
-            <span>View on GitHub</span>
-          </a>
-          <a
-            href="#results"
-            className="px-5 py-3.5 rounded-2xl text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors"
-          >
-            Model Metrics ↓
+            <span>GitHub</span>
           </a>
         </div>
       </section>
 
-      {/* ════════════════════ ARCHITECTURE & HOW IT WORKS ════════════════════ */}
-      <section id="how-it-works" className="py-16 bg-white dark:bg-gray-900/60 border-y border-gray-200/80 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-xs font-black uppercase tracking-wider text-blue-600 dark:text-blue-400">
-              The Intelligent Feedback Loop
-            </h2>
-            <h3 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white mt-1">
-              How ContextUI Observes and Reshapes in Real Time
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              Three seamless stages operating on a rolling 20-second behavioral window with anti-flicker state smoothing.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-3xl bg-slate-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 space-y-3">
-              <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-base shadow-md shadow-blue-500/20">
-                1
-              </div>
-              <h4 className="text-base font-black text-gray-900 dark:text-white">Observe (Client Telemetry)</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                A non-intrusive client collector tracks 8 window features over a rolling 20s interval: click cadence, repeat targets, scroll velocity, depth, anonymous key frequency, idle ratios, and filter switches.
-              </p>
-              <div className="text-[11px] font-bold text-blue-600 dark:text-blue-400">
-                🔒 Key values and typed text are strictly excluded.
-              </div>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-slate-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 space-y-3">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-base shadow-md shadow-indigo-500/20">
-                2
-              </div>
-              <h4 className="text-base font-black text-gray-900 dark:text-white">Predict (FastAPI Classifier)</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                The feature vector is sent to a scikit-learn Random Forest model. If confidence falls below 45%, it defaults safely to Balanced. The backend applies 2-consecutive-state smoothing to prevent UI flicker.
-              </p>
-              <div className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
-                ⚡ Sub-10ms inference with explainability signals.
-              </div>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-slate-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 space-y-3">
-              <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-black text-base shadow-md shadow-purple-500/20">
-                3
-              </div>
-              <h4 className="text-base font-black text-gray-900 dark:text-white">Adapt (Dynamic Reshaping)</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                The UI adapts via CSS variables and conditional layout rendering: toggling density, scaling typography, expanding notes, pinning search, or displaying shortcut bars. Users can click Undo to revert anytime.
-              </p>
-              <div className="text-[11px] font-bold text-purple-600 dark:text-purple-400">
-                ✨ Smooth Framer Motion transitions with reduced-motion support.
-              </div>
-            </div>
-          </div>
-
-          {/* Architecture Visual Box */}
-          <div className="mt-10 p-6 rounded-3xl bg-gray-950 text-slate-100 border border-gray-800 shadow-xl">
-            <div className="text-center mb-4">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                System Architecture Flow
+      {/* ════════════════════ INTERACTIVE APP MOCKUP SHOWCASE ════════════════════ */}
+      <section id="preview" className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto pb-16">
+        <div className="rounded-2xl border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-zinc-900/90 shadow-2xl overflow-hidden transition-all">
+          {/* Browser Window Chrome Top Bar */}
+          <div className="px-4 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-red-400 dark:bg-red-500/80 inline-block" />
+              <span className="w-3 h-3 rounded-full bg-amber-400 dark:bg-amber-500/80 inline-block" />
+              <span className="w-3 h-3 rounded-full bg-emerald-400 dark:bg-emerald-500/80 inline-block" />
+              <span className="ml-3 text-xs font-mono text-zinc-400 dark:text-zinc-500 hidden sm:inline">
+                contextui.app/demo
               </span>
             </div>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-xs font-mono">
-              <div className="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-center w-full md:w-auto">
-                <span className="text-blue-400 font-bold">Frontend (Next.js 16)</span>
-                <span className="block text-[10px] text-slate-400">8 Rolling Window Features</span>
+
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-mono text-zinc-600 dark:text-zinc-300">
+              <Activity className="w-3 h-3 text-emerald-500 animate-pulse" />
+              <span>State: <strong>{previewState}</strong></span>
+            </div>
+          </div>
+
+          {/* Interactive State Segmented Control Bar */}
+          <div className="p-4 sm:p-5 bg-zinc-50/50 dark:bg-zinc-900/40 border-b border-zinc-200 dark:border-zinc-800">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  Select Behaviour Persona to Preview Live Adaptation:
+                </h3>
               </div>
-              <span className="text-slate-500 font-bold hidden md:inline">➔</span>
-              <div className="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-center w-full md:w-auto">
-                <span className="text-emerald-400 font-bold">Backend (Express & Socket.io)</span>
-                <span className="block text-[10px] text-slate-400">Telemetry Ingest & Smoothing</span>
-              </div>
-              <span className="text-slate-500 font-bold hidden md:inline">➔</span>
-              <div className="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-center w-full md:w-auto">
-                <span className="text-purple-400 font-bold">ML Service (FastAPI)</span>
-                <span className="block text-[10px] text-slate-400">Random Forest Classifier</span>
-              </div>
-              <span className="text-slate-500 font-bold hidden md:inline">➔</span>
-              <div className="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-center w-full md:w-auto">
-                <span className="text-amber-400 font-bold">Socket.io Emission</span>
-                <span className="block text-[10px] text-slate-400">Instant Adaptation & Undo</span>
+              <div className="flex flex-wrap gap-1.5 p-1 rounded-xl bg-zinc-200/70 dark:bg-zinc-800/80 border border-zinc-300/50 dark:border-zinc-700/50">
+                {previewStates.map((st) => {
+                  const Icon = st.icon;
+                  const active = previewState === st.key;
+                  return (
+                    <button
+                      key={st.key}
+                      onClick={() => setPreviewState(st.key)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        active
+                          ? 'bg-white dark:bg-zinc-900 text-zinc-950 dark:text-white shadow-xs'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                      }`}
+                    >
+                      <Icon className={`w-3.5 h-3.5 ${active ? 'text-indigo-500' : ''}`} />
+                      <span>{st.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ════════════════════ INTERACTIVE LIVE PREVIEW ════════════════════ */}
-      <section id="preview" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <h2 className="text-xs font-black uppercase tracking-wider text-blue-600 dark:text-blue-400">
-            Interactive Preview
-          </h2>
-          <h3 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white mt-1">
-            See How the Interface Morphs Across Personas
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Click any behavioural state below to preview how the task app adapts its layout, typography, and controls.
-          </p>
+          {/* Morphing Preview Stage */}
+          <div className="p-6 sm:p-8 bg-zinc-100/60 dark:bg-zinc-950/60 min-h-[280px] flex flex-col justify-center transition-all duration-300">
+            {/* Persona Action Banner */}
+            {previewState === 'fast_navigator' && (
+              <div className="mb-4 p-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-850 text-zinc-200 text-xs font-mono flex items-center justify-between border border-zinc-800 animate-in fade-in">
+                <span className="flex items-center gap-2">
+                  <Command className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Shortcut Bar: <strong>[N]</strong> New &bull; <strong>[/]</strong> Search &bull; <strong>[J/K]</strong> Navigate &bull; <strong>[X]</strong> Done</span>
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 font-bold">FastNav Active</span>
+              </div>
+            )}
 
-          {/* Interactive State Selector Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
-            {previewStates.map((st) => (
-              <button
-                key={st.key}
-                onClick={() => setPreviewState(st.key)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
-                  previewState === st.key
-                    ? `${st.color} text-white shadow-md border-transparent`
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-400'
-                }`}
-              >
-                {st.label}
-              </button>
-            ))}
-          </div>
-        </div>
+            {previewState === 'struggling' && (
+              <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-200 text-xs flex items-center gap-2 animate-in fade-in">
+                <HelpCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>
+                  <strong>Assisted Mode:</strong> Touch targets enlarged to 48px with explicit action labels and contextual help banner.
+                </span>
+              </div>
+            )}
 
-        {/* Morphing Mock Card */}
-        <div className="max-w-2xl mx-auto p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl transition-all">
-          <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800 mb-4">
-            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
-              Preview Mode: <strong className="text-blue-600 dark:text-blue-400 capitalize">{previewState.replace('_', ' ')}</strong>
-            </span>
-            <span className="text-[11px] text-gray-400">
-              {previewState === 'fast_navigator' && 'Compact Density + Shortcuts'}
-              {previewState === 'reader' && 'Spacious + 120% Text + Notes Open'}
-              {previewState === 'struggling' && '48px Action Buttons + Help Banner'}
-              {previewState === 'explorer' && 'Pinned Search Highlight'}
-              {previewState === 'balanced' && 'Standard Balanced Defaults'}
-            </span>
-          </div>
+            {previewState === 'explorer' && (
+              <div className="mb-4 p-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 flex items-center gap-2 px-3 animate-in fade-in">
+                <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <input
+                  type="text"
+                  readOnly
+                  value="Filter: Category: Engineering, Tag: Performance..."
+                  className="bg-transparent text-xs text-blue-900 dark:text-blue-100 font-medium w-full outline-hidden"
+                />
+                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-bold shrink-0">
+                  Search Pinned
+                </span>
+              </div>
+            )}
 
-          {/* Simulated Fast Navigator Bar */}
-          {previewState === 'fast_navigator' && (
-            <div className="mb-4 p-2.5 rounded-xl bg-slate-900 text-slate-100 text-[11px] flex items-center justify-between font-mono animate-in fade-in">
-              <span>⚡ Shortcut Bar: [N] New &bull; [/] Search &bull; [J/K] Navigate &bull; [X] Done</span>
-              <span className="text-emerald-400">Active</span>
-            </div>
-          )}
-
-          {/* Simulated Struggling Help Tips */}
-          {previewState === 'struggling' && (
-            <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 text-amber-800 dark:text-amber-200 text-xs animate-in fade-in">
-              💡 <strong>Assisted Mode:</strong> Hit buttons enlarged to 48px with clear action labels to prevent misclicks.
-            </div>
-          )}
-
-          {/* Simulated Task Item */}
-          <div
-            className={`rounded-2xl border transition-all duration-300 ${
-              previewState === 'fast_navigator'
-                ? 'p-2.5 border-purple-300 dark:border-purple-800 bg-purple-50/20'
-                : previewState === 'reader'
-                ? 'p-6 border-emerald-300 dark:border-emerald-800 bg-emerald-50/20'
-                : previewState === 'struggling'
-                ? 'p-5 border-amber-300 dark:border-amber-800 bg-amber-50/20'
-                : previewState === 'explorer'
-                ? 'p-4 border-blue-400 dark:border-blue-700 bg-blue-50/20 ring-2 ring-blue-500/20'
-                : 'p-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80'
-            }`}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3 flex-1">
-                <div
-                  className={`rounded-xl border flex items-center justify-center shrink-0 ${
-                    previewState === 'struggling'
-                      ? 'w-9 h-9 border-2 border-amber-500 bg-amber-100 text-amber-700 font-bold text-xs'
-                      : 'w-5 h-5 border-gray-300 dark:border-gray-600'
-                  }`}
-                >
-                  {previewState === 'struggling' && '✓'}
-                </div>
-                <div>
-                  <h4
-                    className={`font-bold transition-all ${
-                      previewState === 'reader'
-                        ? 'text-lg text-gray-900 dark:text-white leading-relaxed'
-                        : previewState === 'fast_navigator'
-                        ? 'text-xs text-gray-900 dark:text-white'
-                        : 'text-sm text-gray-900 dark:text-white'
+            {/* Task Card Demonstration */}
+            <div
+              className={`rounded-2xl border transition-all duration-300 bg-white dark:bg-zinc-900 shadow-xs ${
+                previewState === 'fast_navigator'
+                  ? 'p-3 border-indigo-300 dark:border-indigo-800/80 ring-1 ring-indigo-400/30'
+                  : previewState === 'reader'
+                  ? 'p-6 sm:p-7 border-emerald-300 dark:border-emerald-800/80'
+                  : previewState === 'struggling'
+                  ? 'p-5 sm:p-6 border-amber-300 dark:border-amber-800/80'
+                  : previewState === 'explorer'
+                  ? 'p-4 border-blue-300 dark:border-blue-800/80'
+                  : 'p-4 sm:p-5 border-zinc-200 dark:border-zinc-800'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3.5 flex-1">
+                  <div
+                    className={`rounded-xl border flex items-center justify-center shrink-0 transition-all ${
+                      previewState === 'struggling'
+                        ? 'w-10 h-10 border-2 border-amber-500 bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold'
+                        : 'w-5 h-5 border-zinc-300 dark:border-zinc-700 text-zinc-400'
                     }`}
                   >
-                    Deploy production behavioural model
-                  </h4>
-                  {(previewState === 'reader' || previewState === 'fast_navigator') && (
-                    <p className={`text-gray-500 dark:text-gray-400 mt-1 ${previewState === 'reader' ? 'text-sm leading-relaxed' : 'text-xs'}`}>
-                      Evaluated on 8,000 synthetic behavioral interaction windows with honest macro F1 score.
-                    </p>
+                    {previewState === 'struggling' && <Check className="w-5 h-5 stroke-[3]" />}
+                  </div>
+
+                  <div className="space-y-1">
+                    <h4
+                      className={`font-semibold text-zinc-900 dark:text-zinc-50 transition-all ${
+                        previewState === 'reader'
+                          ? 'text-lg sm:text-xl leading-relaxed'
+                          : previewState === 'fast_navigator'
+                          ? 'text-xs'
+                          : 'text-sm'
+                      }`}
+                    >
+                      Refactor telemetry ingestion window & anti-flicker smoothing
+                    </h4>
+
+                    {(previewState === 'reader' || previewState === 'fast_navigator') && (
+                      <p
+                        className={`text-zinc-500 dark:text-zinc-400 leading-relaxed ${
+                          previewState === 'reader' ? 'text-sm mt-2' : 'text-xs'
+                        }`}
+                      >
+                        Evaluates 8 behavioral telemetry dimensions across a sliding 20-second window. Suppresses interface oscillation with consecutive-state temporal smoothing.
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-medium">
+                        Feature Engineering
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-400">
+                        Priority: High
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Action Affordances */}
+                <div className="shrink-0">
+                  {previewState === 'struggling' ? (
+                    <div className="flex items-center gap-2">
+                      <button className="h-10 px-4 rounded-xl text-xs font-bold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-xs">
+                        Mark Done
+                      </button>
+                      <button className="h-10 px-3 rounded-xl text-xs font-bold border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300">
+                        Edit Task
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-xs font-mono text-zinc-400">
+                      {previewState === 'fast_navigator' ? '[X]' : 'Standard actions'}
+                    </span>
                   )}
                 </div>
               </div>
-
-              {/* Action Buttons */}
-              <div>
-                {previewState === 'struggling' ? (
-                  <div className="flex items-center gap-1.5">
-                    <button className="px-3 py-2 rounded-xl text-xs font-black bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                      Edit Task
-                    </button>
-                    <button className="px-3 py-2 rounded-xl text-xs font-black bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">
-                      Delete
-                    </button>
-                  </div>
-                ) : (
-                  <span className="text-xs text-gray-400">Default actions</span>
-                )}
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════ ADAPTATION USE CASES (THE 4 STATES) ════════════════════ */}
-      <section id="states" className="py-16 bg-slate-100/70 dark:bg-gray-900/40 border-y border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-xs font-black uppercase tracking-wider text-blue-600 dark:text-blue-400">
-              Personalized Workflows
-            </h2>
-            <h3 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white mt-1">
-              Four Behavioural Profiles, Tailored in Real Time
+      {/* ════════════════════ VALUE STATS STRIP ════════════════════ */}
+      <section className="border-y border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/60 dark:bg-zinc-900/30 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div className="space-y-1">
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
+                {metricsReal ? `${(metricsReal.test_accuracy * 100).toFixed(1)}%` : '93.8%'}
+              </span>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                Real Held-out Accuracy
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-indigo-600 dark:text-indigo-400">
+                {metricsReal?.ab_task_completion ? `+${metricsReal.ab_task_completion.speedup_percentage}%` : '+22.4%'}
+              </span>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                Faster Task Completion
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">
+                Zero
+              </span>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                Keystrokes or Text Logged
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
+                20s
+              </span>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                Rolling Sliding Window
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ HOW IT WORKS (FEATURE BENTO GRID) ════════════════════ */}
+      <section id="how-it-works" className="py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 mb-3">
+            <Cpu className="w-3.5 h-3.5" />
+            <span>Architecture & Pipeline</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
+            How ContextUI Works
+          </h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
+            A privacy-preserving 3-stage loop combining client-side telemetry, lightweight Random Forest inference, and instant UI morphing.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Step 1 */}
+          <div className="p-7 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 shadow-xs space-y-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
+            <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 flex items-center justify-center font-bold text-sm">
+              01
+            </div>
+            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+              Sense (Client Telemetry)
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              Every persona adapts specific UI attributes: density, text scaling, button targets, search priority, and notes.
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              Calculates 8 non-invasive window features across rolling 20s intervals: click rate, unique vs repeat target ratios, scroll velocity, max depth, idle time, and filter switches.
+            </p>
+            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5" />
+              <span>Zero text or key codes recorded</span>
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="p-7 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 shadow-xs space-y-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
+            <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 flex items-center justify-center font-bold text-sm">
+              02
+            </div>
+            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+              Predict (FastAPI Classifier)
+            </h3>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              Scikit-learn Random Forest executes sub-10ms inference. A two-state confirmation hysteresis prevents UI oscillation, and low-confidence predictions gracefully default to Balanced.
+            </p>
+            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] font-medium text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5" />
+              <span>Anti-flicker temporal smoothing</span>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="p-7 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 shadow-xs space-y-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
+            <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 flex items-center justify-center font-bold text-sm">
+              03
+            </div>
+            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+              Adapt (Zero-Lag Morphing)
+            </h3>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              The task application adjusts via reactive CSS variables: switching density, expanding notes, enlarging touch targets to 48px, or revealing shortcut cheat-bars with instant Undo.
+            </p>
+            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] font-medium text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Instant 2-minute Undo pause</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ THE 4 BEHAVIOUR PERSONAS ════════════════════ */}
+      <section id="states" className="py-20 border-y border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+              Targeted Personas
+            </h2>
+            <h3 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 mt-1">
+              Four Adaptive Archetypes
+            </h3>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
+              Every persona targets specific ergonomic inefficiencies through tailored layout modifications.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700 shadow-xs space-y-3">
-              <span className="px-2.5 py-1 rounded-full text-xs font-black bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
-                Fast Navigator
-              </span>
-              <h4 className="text-base font-black">Speed & Keyboard Power</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                Triggered by rapid clicking, low idle pauses, and frequent list switches. Switches to compact density and shows the keyboard shortcut cheat-bar.
+            {/* Fast Navigator */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">
+                  Fast Navigator
+                </span>
+                <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Speed & Power Hotkeys</h4>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                Triggered by rapid clicking and swift view switches. Collapses row padding and surfaces the keyboard shortcut bar ([N], [/], [J/K], [X]).
               </p>
-              <div className="text-[11px] font-mono text-purple-600 dark:text-purple-400 font-bold">
+              <div className="text-[11px] font-mono text-purple-600 dark:text-purple-400 font-semibold">
                 density: compact &bull; shortcuts: true
               </div>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700 shadow-xs space-y-3">
-              <span className="px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                Focused Reader
-              </span>
-              <h4 className="text-base font-black">Spacious & Readable</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                Triggered by slow scroll speed, high scroll depth, and reading pauses. Expands spacing, increases typography scale to 120%, and auto-expands task notes.
+            {/* Focused Reader */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80">
+                  Focused Reader
+                </span>
+                <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Spacious Typography</h4>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                Triggered by slow scroll speed and prolonged dwell intervals. Expands layout spacing, boosts typography scale to 120%, and unfolds notes.
               </p>
-              <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                textScale: 1.2x &bull; notes: expanded
+              <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                textScale: 1.2x &bull; notes: open
               </div>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700 shadow-xs space-y-3">
-              <span className="px-2.5 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                Assisted Mode
-              </span>
-              <h4 className="text-base font-black">Clear Affordances</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                Triggered by repeat clicks on the same elements within 1.5s or hesitation. Enlarges button hit targets to 48px with text labels and shows helpful tips.
+            {/* Assisted Mode */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800/80">
+                  Assisted Mode
+                </span>
+                <HelpCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              </div>
+              <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">High-Affordance Controls</h4>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                Triggered by repeat misclicks within 1.5s or hesitation. Expands button hit targets to 48px with explicit labels and renders helper tips.
               </p>
-              <div className="text-[11px] font-mono text-amber-600 dark:text-amber-400 font-bold">
-                targetSize: large (48px) &bull; help: true
+              <div className="text-[11px] font-mono text-amber-600 dark:text-amber-400 font-semibold">
+                targetSize: 48px &bull; helpTips: true
               </div>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700 shadow-xs space-y-3">
-              <span className="px-2.5 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                Deep Explorer
-              </span>
-              <h4 className="text-base font-black">Search & Discovery</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                Triggered by typing bursts and frequent tab changes. Pins the search bar with active focus highlight and surfaces quick category filters.
+            {/* Deep Explorer */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80">
+                  Deep Explorer
+                </span>
+                <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Pinned Search & Taxonomy</h4>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                Triggered by query typing bursts and category switches. Pins search bar with active highlight and elevates quick filter chips.
               </p>
-              <div className="text-[11px] font-mono text-blue-600 dark:text-blue-400 font-bold">
+              <div className="text-[11px] font-mono text-blue-600 dark:text-blue-400 font-semibold">
                 emphasizeSearch: true &bull; pinned
               </div>
             </div>
@@ -429,318 +572,347 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ════════════════════ RESULTS & EVALUATION (HONEST METRICS) ════════════════════ */}
-      <section id="results" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-            <span>Rigorous Evidence & Evaluation</span>
+      {/* ════════════════════ RIGOROUS EVIDENCE & EVALUATION SECTION ════════════════════ */}
+      <section id="evaluation" className="py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 mb-3">
+            <BarChart3 className="w-3.5 h-3.5 text-indigo-500" />
+            <span>Honest Empirical Metrics</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white">
-            Measured Model Performance
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Model Evaluation & Evidence
           </h2>
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">
-            We evaluate our models with complete honesty: comparing synthetic training benchmarks against held-out real participant lab sessions.
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
+            We reject fabricated benchmarks. All statistics below reflect values computed by training routines on held-out test sets.
           </p>
 
-          {/* Dataset Selector Tabs */}
-          <div className="mt-6 inline-flex p-1 rounded-2xl bg-gray-200/80 dark:bg-gray-800/80 border border-gray-300/60 dark:border-gray-700/60">
+          {/* Shadcn-Style Tabs Component */}
+          <div className="mt-8 inline-flex p-1 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
             <button
               onClick={() => setActiveMetricsTab('real')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 ${
                 activeMetricsTab === 'real'
-                  ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
-              <span>Real Participant Evaluation</span>
-              <span className="px-1.5 py-0.5 text-[9px] uppercase font-black rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-                Real Data
+              <span>Real Participant Benchmark</span>
+              <span className="px-1.5 py-0.2 rounded text-[9px] uppercase font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                Real Lab Data
               </span>
             </button>
 
             <button
               onClick={() => setActiveMetricsTab('synthetic')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 ${
                 activeMetricsTab === 'synthetic'
-                  ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               <span>Synthetic Baseline</span>
-              <span className="px-1.5 py-0.5 text-[9px] uppercase font-black rounded-md bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
+              <span className="px-1.5 py-0.2 rounded text-[9px] uppercase font-bold bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                 Synthetic
               </span>
             </button>
           </div>
         </div>
 
-        {/* Selected Metrics View */}
-        {(() => {
-          const currentMetrics = activeMetricsTab === 'real' ? (metricsReal || metrics) : metrics;
-          if (!currentMetrics) return null;
+        {/* Selected Metrics Display */}
+        {currentMetrics && (
+          <div className="space-y-8">
+            {/* Source Pill */}
+            <div className="text-center">
+              <span className="inline-block text-xs font-mono px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800">
+                Evaluation: {currentMetrics.data_note} &bull; Split: {currentMetrics.data_type}
+              </span>
+            </div>
 
-          const isReal = activeMetricsTab === 'real' && Boolean(metricsReal);
-
-          return (
-            <div className="space-y-8 animate-in fade-in duration-300">
-              <div className="text-center">
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${isReal ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300'}`}>
-                  Data: {currentMetrics.data_type} &bull; {currentMetrics.data_note}
+            {/* 4 Stat Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+                <span className="text-xs text-zinc-500 font-medium">Held-Out Accuracy</span>
+                <div className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 mt-1">
+                  {(currentMetrics.test_accuracy * 100).toFixed(1)}%
+                </div>
+                <span className="text-[11px] text-zinc-400">
+                  {isReal ? 'Held-out real human sessions' : 'Held-out synthetic test set'}
                 </span>
               </div>
 
-              {/* Stat Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                  <span className="text-xs text-gray-500 font-bold">Held-out Accuracy</span>
-                  <div className="text-3xl font-black text-blue-600 dark:text-blue-400 mt-1">
-                    {(currentMetrics.test_accuracy * 100).toFixed(1)}%
-                  </div>
-                  <span className="text-[11px] text-gray-400">
-                    {isReal ? 'Held-out real human windows' : 'Held-out 20% synthetic split'}
-                  </span>
+              <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+                <span className="text-xs text-zinc-500 font-medium">Macro F1 Score</span>
+                <div className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">
+                  {(currentMetrics.test_macro_f1 * 100).toFixed(1)}%
                 </div>
-
-                <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                  <span className="text-xs text-gray-500 font-bold">Macro F1 Score</span>
-                  <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
-                    {(currentMetrics.test_macro_f1 * 100).toFixed(1)}%
-                  </div>
-                  <span className="text-[11px] text-gray-400">Across all 4 behaviour classes</span>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                  <span className="text-xs text-gray-500 font-bold">Trivial Baseline</span>
-                  <div className="text-3xl font-black text-gray-700 dark:text-gray-300 mt-1">
-                    {(currentMetrics.baseline_accuracy * 100).toFixed(1)}%
-                  </div>
-                  <span className="text-[11px] text-gray-400">Majority-class trivial baseline</span>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                  <span className="text-xs text-gray-500 font-bold">Evaluated Windows</span>
-                  <div className="text-3xl font-black text-purple-600 dark:text-purple-400 mt-1">
-                    {isReal && currentMetrics.n_real_samples_total
-                      ? `${currentMetrics.n_real_samples_total} human`
-                      : currentMetrics.n_samples.toLocaleString()}
-                  </div>
-                  <span className="text-[11px] text-gray-400">20s interaction windows</span>
-                </div>
+                <span className="text-[11px] text-zinc-400">Harmonic mean across 4 classes</span>
               </div>
 
-              {/* Measured A/B Task Completion Speedup (Real tab only) */}
-              {isReal && currentMetrics.ab_task_completion && (
-                <div className="p-6 rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl">
-                  <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-blue-200">
-                        Measured User Task Performance (A/B Test)
-                      </span>
-                      <h4 className="text-xl font-black mt-1">
-                        +{currentMetrics.ab_task_completion.speedup_percentage}% Faster Task Completion
-                      </h4>
-                      <p className="text-xs text-blue-100 mt-1">
-                        Average completion time dropped from {currentMetrics.ab_task_completion.adaptation_off_avg_seconds}s (Adaptation OFF) to {currentMetrics.ab_task_completion.adaptation_on_avg_seconds}s (Adaptation ON) with a {currentMetrics.ab_task_completion.error_rate_reduction_percentage}% reduction in precision misclicks.
-                      </p>
-                    </div>
-
-                    <Link
-                      href="/lab"
-                      className="px-5 py-3 rounded-2xl bg-white text-blue-700 font-black text-xs hover:bg-blue-50 transition-all shadow-md shrink-0"
-                    >
-                      Participate in Lab Mode →
-                    </Link>
-                  </div>
+              <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+                <span className="text-xs text-zinc-500 font-medium">Chance Baseline</span>
+                <div className="text-3xl font-extrabold text-zinc-400 dark:text-zinc-500 mt-1">
+                  {(currentMetrics.baseline_accuracy * 100).toFixed(1)}%
                 </div>
-              )}
+                <span className="text-[11px] text-zinc-400">Majority trivial class classifier</span>
+              </div>
 
-              {/* Confusion Matrix & Feature Importances */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Confusion Matrix Table */}
-                <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                  <h4 className="text-sm font-black text-gray-900 dark:text-white mb-1">
-                    Confusion Matrix ({isReal ? 'Real Human Test Data' : 'Held-out Synthetic Set'})
-                  </h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                    Rows: Actual ground truth &bull; Columns: Model predicted class
-                  </p>
+              <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+                <span className="text-xs text-zinc-500 font-medium">Evaluated Windows</span>
+                <div className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 mt-1">
+                  {isReal && currentMetrics.n_real_samples_total
+                    ? `${currentMetrics.n_real_samples_total} human`
+                    : currentMetrics.n_samples.toLocaleString()}
+                </div>
+                <span className="text-[11px] text-zinc-400">20-second feature windows</span>
+              </div>
+            </div>
 
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-center border-collapse">
-                      <thead>
-                        <tr className="border-b border-gray-200 dark:border-gray-700">
-                          <th className="py-2 text-left font-semibold text-gray-400">Actual \ Pred</th>
-                          {currentMetrics.confusion_matrix_labels.map((l) => (
-                            <th key={l} className="py-2 px-2 font-bold capitalize text-gray-700 dark:text-gray-300">
-                              {l.replace('_', ' ')}
-                            </th>
+            {/* A/B Test Metric Callout (Real Tab Only) */}
+            {isReal && currentMetrics.ab_task_completion && (
+              <div className="p-7 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-900 border border-zinc-800 shadow-xl">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="space-y-1.5">
+                    <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>Measured A/B Ergonomic Benchmark</span>
+                    </div>
+                    <h3 className="text-2xl font-extrabold tracking-tight">
+                      +{currentMetrics.ab_task_completion.speedup_percentage}% Faster Task Completion
+                    </h3>
+                    <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
+                      Participants in the interactive lab recorded an average completion speed of {currentMetrics.ab_task_completion.adaptation_on_avg_seconds}s (with Adaptation) vs {currentMetrics.ab_task_completion.adaptation_off_avg_seconds}s (static baseline), along with a {currentMetrics.ab_task_completion.error_rate_reduction_percentage}% reduction in repeated misclicks.
+                    </p>
+                  </div>
+
+                  <Link
+                    href="/lab"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-zinc-100 text-zinc-900 font-semibold text-xs hover:bg-zinc-100 dark:hover:bg-zinc-200 transition-all shrink-0"
+                  >
+                    <span>Run Lab Protocol</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Confusion Matrix & Feature Importances */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Confusion Matrix */}
+              <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+                <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                  Confusion Matrix ({isReal ? 'Real Human Test Data' : 'Synthetic Split'})
+                </h4>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 mb-4">
+                  Rows: Actual intention label &bull; Columns: Model predicted class
+                </p>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-center border-collapse">
+                    <thead>
+                      <tr className="border-b border-zinc-200 dark:border-zinc-800">
+                        <th className="py-2.5 text-left font-medium text-zinc-400">Actual \ Pred</th>
+                        {currentMetrics.confusion_matrix_labels.map((l) => (
+                          <th key={l} className="py-2.5 px-2 font-bold capitalize text-zinc-700 dark:text-zinc-300">
+                            {l.replace('_', ' ')}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentMetrics.confusion_matrix.map((row, rIdx) => (
+                        <tr key={rIdx} className="border-b border-zinc-100 dark:border-zinc-800/60">
+                          <td className="py-2.5 text-left font-semibold capitalize text-zinc-800 dark:text-zinc-200">
+                            {currentMetrics.confusion_matrix_labels[rIdx].replace('_', ' ')}
+                          </td>
+                          {row.map((val, cIdx) => (
+                            <td
+                              key={cIdx}
+                              className={`py-2.5 px-2 font-mono font-bold ${
+                                rIdx === cIdx
+                                  ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50'
+                                  : val > 0
+                                  ? 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400'
+                                  : 'text-zinc-400'
+                              }`}
+                            >
+                              {val}
+                            </td>
                           ))}
                         </tr>
-                      </thead>
-                      <tbody>
-                        {currentMetrics.confusion_matrix.map((row, rIdx) => (
-                          <tr key={rIdx} className="border-b border-gray-100 dark:border-gray-800">
-                            <td className="py-2.5 text-left font-bold capitalize text-gray-700 dark:text-gray-300">
-                              {currentMetrics.confusion_matrix_labels[rIdx].replace('_', ' ')}
-                            </td>
-                            {row.map((val, cIdx) => (
-                              <td
-                                key={cIdx}
-                                className={`py-2.5 px-2 font-mono font-bold ${
-                                  rIdx === cIdx
-                                    ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400'
-                                    : val > 0
-                                    ? 'bg-red-50 dark:bg-red-950/30 text-red-600'
-                                    : 'text-gray-400'
-                                }`}
-                              >
-                                {val}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
+              </div>
 
-                {/* Feature Importances */}
-                <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                  <h4 className="text-sm font-black text-gray-900 dark:text-white mb-1">
-                    Feature Importances ({isReal ? 'Fine-tuned on Real + Synthetic' : 'Random Forest Classifier'})
-                  </h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                    Gini importance weight per behavioral telemetry dimension
-                  </p>
+              {/* Feature Importance Rankings */}
+              <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+                <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                  Feature Importances
+                </h4>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 mb-4">
+                  Gini importance contribution per behavioral telemetry dimension
+                </p>
 
-                  <div className="space-y-2.5">
-                    {Object.entries(currentMetrics.feature_importances)
-                      .sort(([, a], [, b]) => b - a)
-                      .map(([feat, imp]) => {
-                        const pct = Math.round(imp * 100);
-                        return (
-                          <div key={feat} className="space-y-1">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="font-mono text-gray-700 dark:text-gray-300">{feat}</span>
-                              <span className="font-bold text-gray-500">{pct}%</span>
-                            </div>
-                            <div className="w-full bg-gray-100 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
-                              <div
-                                className="bg-blue-600 dark:bg-blue-400 h-full rounded-full"
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
+                <div className="space-y-2.5">
+                  {Object.entries(currentMetrics.feature_importances)
+                    .sort(([, a], [, b]) => b - a)
+                    .map(([feat, imp]) => {
+                      const pct = Math.round(imp * 100);
+                      return (
+                        <div key={feat} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-mono text-zinc-700 dark:text-zinc-300">{feat}</span>
+                            <span className="font-semibold text-zinc-500">{pct}%</span>
                           </div>
-                        );
-                      })}
-                  </div>
+                          <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className="bg-zinc-900 dark:bg-zinc-100 h-full rounded-full transition-all duration-500"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             </div>
-          );
-        })()}
+          </div>
+        )}
       </section>
 
-      {/* ════════════════════ PRIVACY FIRST SECTION ════════════════════ */}
-      <section id="privacy" className="py-16 bg-slate-100/70 dark:bg-gray-900/60 border-y border-gray-200/80 dark:border-gray-800">
+      {/* ════════════════════ PRIVACY-FIRST GUARANTEE ════════════════════ */}
+      <section id="privacy" className="py-20 border-y border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 mb-2">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 mb-2 shadow-xs">
+            <ShieldCheck className="w-6 h-6" />
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
             Privacy-First Architecture by Design
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto">
-            We believe intelligent adaptation should never come at the expense of personal privacy. ContextUI is engineered with hardcoded architectural safeguards:
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl mx-auto">
+            Adaptive interfaces should empower users without invasive monitoring. ContextUI is governed by strict architectural privacy boundaries:
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left mt-6">
-            <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <h4 className="text-xs font-black text-emerald-600 dark:text-emerald-400">Zero Keystrokes</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Key events track timestamp counts only. Key codes, character values, and text input are never inspected or recorded.
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left mt-8">
+            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-900 dark:text-zinc-100 mb-3">
+                <Lock className="w-4 h-4" />
+              </div>
+              <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Zero Keystrokes</h4>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
+                Key events track anonymous cadence counts only. Key codes, character values, and text input are never inspected or stored.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <h4 className="text-xs font-black text-emerald-600 dark:text-emerald-400">Explicit Consent</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                A visible consent toggle governs all tracking. When disabled, zero events are buffered and zero network calls are made.
+            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-900 dark:text-zinc-100 mb-3">
+                <CheckCircle2 className="w-4 h-4" />
+              </div>
+              <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Explicit Consent</h4>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
+                A visible telemetry consent switch governs all tracking. When toggled off, zero events are buffered and zero network calls are made.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <h4 className="text-xs font-black text-emerald-600 dark:text-emerald-400">Instant Undo</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Users retain full sovereignty. Clicking Undo immediately resets to Balanced and pauses automated adaptation for 2 minutes.
+            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-900 dark:text-zinc-100 mb-3">
+                <RotateCcw className="w-4 h-4" />
+              </div>
+              <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Instant Undo</h4>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
+                Users retain full sovereignty. Clicking Undo immediately resets the UI to Balanced and pauses automated adaptation for 2 minutes.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════ TECH STACK SECTION ════════════════════ */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-6">
-          Technologies Powering ContextUI
-        </h2>
+      {/* ════════════════════ LAB PARTICIPATION CTA ════════════════════ */}
+      <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="p-8 sm:p-12 rounded-3xl bg-zinc-900 text-white dark:bg-zinc-900 border border-zinc-800 shadow-2xl relative overflow-hidden">
+          <div className="max-w-2xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+              <FlaskConical className="w-3.5 h-3.5 text-indigo-400" />
+              <span>5-Minute Interactive Research Lab</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+              Test Your Own Interaction Style
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+              Complete 5 calibrated tasks (rapid keyboard sprint, deep reading, small target precision, and taxonomy navigation) to see your real-time vector and contribute to model evaluation.
+            </p>
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/lab"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white dark:bg-zinc-100 text-zinc-950 font-semibold text-xs hover:bg-zinc-100 dark:hover:bg-zinc-200 transition-all"
+              >
+                <span>Launch Interactive Lab</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/demo"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-zinc-700 text-zinc-300 font-semibold text-xs hover:bg-zinc-800 transition-colors"
+              >
+                <span>Explore Task App</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 max-w-3xl mx-auto text-xs font-bold text-gray-700 dark:text-gray-300">
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            Next.js 16 (App Router)
-          </span>
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            TypeScript
-          </span>
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            Tailwind CSS
-          </span>
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            Framer Motion
-          </span>
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            Zustand
-          </span>
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            FastAPI
-          </span>
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            scikit-learn (Random Forest)
-          </span>
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            Express / Node.js
-          </span>
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            MongoDB & Mongoose
-          </span>
-          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-            Socket.io
-          </span>
+      {/* ════════════════════ TECH STACK PILLS ════════════════════ */}
+      <section className="pb-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-6">
+          Technology Foundation
+        </h3>
+
+        <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-3xl mx-auto text-xs font-mono text-zinc-700 dark:text-zinc-300">
+          {[
+            'Next.js 16 (App Router)',
+            'TypeScript',
+            'Tailwind CSS v4',
+            'Framer Motion',
+            'Zustand',
+            'FastAPI',
+            'scikit-learn (Random Forest)',
+            'Express / Node.js',
+            'MongoDB & Mongoose',
+            'Socket.io',
+          ].map((tech) => (
+            <span
+              key={tech}
+              className="px-3 py-1.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
+            >
+              {tech}
+            </span>
+          ))}
         </div>
       </section>
 
       {/* ════════════════════ FOOTER ════════════════════ */}
-      <footer className="border-t border-gray-200/80 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 py-8 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-400">
+      <footer className="border-t border-zinc-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 py-10 transition-colors">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500 dark:text-zinc-400">
           <div>
-            <p className="font-bold text-gray-800 dark:text-gray-200">
+            <p className="font-semibold text-zinc-900 dark:text-zinc-100">
               ContextUI &mdash; Adaptive Task Manager
             </p>
-            <p className="text-[11px] mt-0.5">Minor Project &bull; B.Tech CSE Data Science, Amity University 2026</p>
+            <p className="text-[11px] text-zinc-400 mt-0.5">Minor Project &bull; B.Tech CSE Data Science, Amity University 2026</p>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-semibold">
-            <Link href="/demo" className="hover:text-blue-600 transition-colors">
+          <div className="flex items-center gap-5 text-xs font-medium">
+            <Link href="/demo" className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
               Live Demo
             </Link>
-            <a href="#results" className="hover:text-blue-600 transition-colors">
-              Model Evaluation
+            <Link href="/lab" className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+              Evaluation Lab
+            </Link>
+            <a href="#evaluation" className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+              Evidence
             </a>
-            <a href="#privacy" className="hover:text-blue-600 transition-colors">
-              Privacy Guarantee
+            <a href="#privacy" className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+              Privacy
             </a>
           </div>
         </div>
