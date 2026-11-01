@@ -4,16 +4,24 @@ import React, { useEffect } from 'react';
 import { startTracking, stopTracking } from '../lib/telemetry';
 import { flushTelemetry } from '../lib/flushTelemetry';
 import { getSocket } from '../lib/socket';
-import { useAdaptationStore } from '../store/adaptationStore';
+import { useAdaptationStore, AdaptationSignal } from '../store/adaptationStore';
+import { useTelemetryStore } from '../store/telemetryStore';
+import ConsentBanner from './ConsentBanner';
 
 interface AdaptationProviderProps {
   children: React.ReactNode;
 }
 
 export default function AdaptationProvider({ children }: AdaptationProviderProps) {
+  const consentGiven = useTelemetryStore((state) => state.consentGiven);
+
   useEffect(() => {
-    // 1. Start interaction tracking
-    startTracking();
+    // 1. Manage tracking based on consent
+    if (consentGiven) {
+      startTracking();
+    } else {
+      stopTracking();
+    }
 
     // 2. Set up 5-second telemetry flush
     const intervalId = setInterval(() => {
@@ -22,7 +30,7 @@ export default function AdaptationProvider({ children }: AdaptationProviderProps
 
     // 3. Connect socket and listen for real-time adaptations
     const socket = getSocket();
-    const handleAdaptationUpdate = (signal: any) => {
+    const handleAdaptationUpdate = (signal: AdaptationSignal) => {
       if (signal) {
         useAdaptationStore.getState().setAdaptation(signal);
       }
@@ -40,7 +48,12 @@ export default function AdaptationProvider({ children }: AdaptationProviderProps
         socket.off('adaptation:update', handleAdaptationUpdate);
       }
     };
-  }, []);
+  }, [consentGiven]);
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <ConsentBanner />
+    </>
+  );
 }

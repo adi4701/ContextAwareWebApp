@@ -111,11 +111,12 @@ router.post('/telemetry', authMiddleware, telemetryLimiter, async (req, res) => 
     const hourOfDay = new Date().getHours();
 
     // ── STEP 2: New 8-feature window vector ───────────────────────────────────
-    const featureVector = computeFeatures(rawEvents, {
+    const computedVector = computeFeatures(rawEvents, {
       sessionScrollDepthMax: sessionScrollDepthMax ?? avgScrollDepth,
       viewSwitchCount: viewSwitchCount ?? navigationDepth,
       sessionStartMs: sessionStartMs ?? (Date.now() - sessionDuration * 1000),
     });
+    const featureVector = req.body.features || req.body.featureVector || computedVector;
 
     // ── STEP 3: Call ML service ───────────────────────────────────────────────
     let rawSignal = DEFAULT_SIGNAL;

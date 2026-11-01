@@ -19,21 +19,27 @@
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `sessionId` | string | yes | UUID identifying the current browser session |
-| `clickCount` | number | no | Cumulative clicks since session start (default 0) |
-| `uniqueElementsClicked` | number | no | Count of distinct DOM targets clicked |
-| `avgScrollDepth` | number | no | Percentage (0–100) of page scrolled |
-| `sessionDuration` | number | no | Seconds since session start (default 1) |
-| `navigationDepth` | number | no | Number of route/view changes |
-| `rawEvents` | array | no | Raw event buffer (see §1.1) |
+| `features` | object | no | 8-feature rolling 20s vector computed on client (see §2) |
+| `sessionScrollDepthMax` | number | no | Max scroll depth (0–100) reached this session |
+| `viewSwitchCount` | number | no | Total route/tab/filter changes this session |
+| `sessionStartMs` | number | no | Epoch ms when session started |
+| `clickCount` | number | no | Cumulative clicks since session start (legacy) |
+| `uniqueElementsClicked` | number | no | Count of distinct DOM targets clicked (legacy) |
+| `avgScrollDepth` | number | no | Percentage (0–100) of page scrolled (legacy) |
+| `sessionDuration` | number | no | Seconds since session start (legacy) |
+| `navigationDepth` | number | no | Number of route/view changes (legacy) |
+| `rawEvents` | array | no | Raw event buffer within rolling window (see §1.1) |
 
-> **Privacy:** `rawEvents` must contain only counts and positions — **never** key values or text content.
+> **Privacy:** `rawEvents` must contain only counts and positions — **never** key values or text content. Telemetry collection is strictly conditional on user consent (persisted in `localStorage.getItem('telemetry_consent')`). When consent is false, no events are recorded and zero HTTP requests are emitted.
 
 #### §1.1 Raw event object
 
 ```json
-{ "type": "click", "elementId": "btn.search", "x": 320, "y": 240 }
-{ "type": "scroll", "depth": 42 }
-{ "type": "navigate", "route": "/demo" }
+{ "type": "click", "elementId": "btn.search", "x": 320, "y": 240, "timestamp": 1730472000000 }
+{ "type": "scroll", "depth": 42, "timestamp": 1730472001000 }
+{ "type": "keypress", "timestamp": 1730472002000 }
+{ "type": "view_switch", "route": "active-tasks", "timestamp": 1730472003000 }
+{ "type": "navigate", "route": "/demo", "timestamp": 1730472004000 }
 ```
 
 #### Response body
