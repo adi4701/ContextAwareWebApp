@@ -62,4 +62,31 @@ router.post('/feedback', optionalAuth, async (req, res) => {
   }
 });
 
+// GET /api/feedback/export — exports all recorded feedback windows for retraining
+router.get('/feedback/export', async (req, res) => {
+  try {
+    const feedbackList = await Feedback.find({}).sort({ timestamp: -1 });
+    const formatted = feedbackList.map((item) => {
+      const label = item.targetState || (item.chosenSetting?.state || item.chosenSetting?.value || 'balanced');
+      return {
+        _id: item._id,
+        sessionId: item.sessionId,
+        label,
+        featureVector: item.featureVector,
+        chosenSetting: item.chosenSetting,
+        previousState: item.previousState,
+        timestamp: item.timestamp,
+      };
+    });
+
+    return res.status(200).json({
+      count: formatted.length,
+      data: formatted,
+    });
+  } catch (err) {
+    logger.error(`Error exporting feedback: ${err.message}`);
+    return res.status(500).json({ error: 'Failed to export feedback data' });
+  }
+});
+
 module.exports = router;

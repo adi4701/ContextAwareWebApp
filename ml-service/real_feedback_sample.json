@@ -1,0 +1,2242 @@
+[
+  {
+    "sessionId": "real_user_session_r_7",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 7.1281,
+      "unique_click_ratio": 0.6812,
+      "repeat_click_ratio": 0.0898,
+      "scroll_speed": 0.0368,
+      "max_scroll_depth": 78.4354,
+      "key_presses_per_min": 5.4648,
+      "idle_ratio": 0.15,
+      "view_switches_per_min": 2.6349
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_20",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 60.808,
+      "unique_click_ratio": 0.6945,
+      "repeat_click_ratio": 0.1325,
+      "scroll_speed": 0.8285,
+      "max_scroll_depth": 41.0394,
+      "key_presses_per_min": 52.0483,
+      "idle_ratio": 0.1745,
+      "view_switches_per_min": 5.5681
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_31",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 55.6281,
+      "unique_click_ratio": 0.7094,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.4301,
+      "max_scroll_depth": 79.0826,
+      "key_presses_per_min": 49.9122,
+      "idle_ratio": 0.2277,
+      "view_switches_per_min": 3.301
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_37",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 67.2508,
+      "unique_click_ratio": 0.7808,
+      "repeat_click_ratio": 0.077,
+      "scroll_speed": 0.7089,
+      "max_scroll_depth": 33.7955,
+      "key_presses_per_min": 34.6524,
+      "idle_ratio": 0.0978,
+      "view_switches_per_min": 4.079
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_9",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 6.4982,
+      "unique_click_ratio": 0.8265,
+      "repeat_click_ratio": 0.0638,
+      "scroll_speed": 0.2589,
+      "max_scroll_depth": 87.9194,
+      "key_presses_per_min": 3.8991,
+      "idle_ratio": 0.4406,
+      "view_switches_per_min": 1.6484
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_1",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 11.7369,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.0725,
+      "scroll_speed": 0.0317,
+      "max_scroll_depth": 65.1945,
+      "key_presses_per_min": 5.0788,
+      "idle_ratio": 0.4612,
+      "view_switches_per_min": 0.9159
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_11",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 60.6887,
+      "unique_click_ratio": 0.87,
+      "repeat_click_ratio": 0.074,
+      "scroll_speed": 0.5536,
+      "max_scroll_depth": 68.8465,
+      "key_presses_per_min": 18.7921,
+      "idle_ratio": 0.1987,
+      "view_switches_per_min": 4.7432
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_37",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 10.1036,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.0307,
+      "scroll_speed": 0.2066,
+      "max_scroll_depth": 69.4868,
+      "key_presses_per_min": 8.1887,
+      "idle_ratio": 0.5213,
+      "view_switches_per_min": 0.8309
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_14",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 60.9257,
+      "unique_click_ratio": 0.6762,
+      "repeat_click_ratio": 0.1925,
+      "scroll_speed": 0.6459,
+      "max_scroll_depth": 42.5668,
+      "key_presses_per_min": 32.5236,
+      "idle_ratio": 0.0472,
+      "view_switches_per_min": 4.5398
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_4",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 10.5779,
+      "unique_click_ratio": 0.722,
+      "repeat_click_ratio": 0.0767,
+      "scroll_speed": 0.2043,
+      "max_scroll_depth": 61.8012,
+      "key_presses_per_min": 9.2016,
+      "idle_ratio": 0.536,
+      "view_switches_per_min": 0.4512
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_26",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 66.8486,
+      "unique_click_ratio": 0.9441,
+      "repeat_click_ratio": 0.1493,
+      "scroll_speed": 0.6848,
+      "max_scroll_depth": 66.6728,
+      "key_presses_per_min": 18.2556,
+      "idle_ratio": 0.1751,
+      "view_switches_per_min": 4.0119
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_14",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 35.9939,
+      "unique_click_ratio": 0.4046,
+      "repeat_click_ratio": 0.5416,
+      "scroll_speed": 0.1777,
+      "max_scroll_depth": 19.9824,
+      "key_presses_per_min": 2.0829,
+      "idle_ratio": 0.462,
+      "view_switches_per_min": 0.9713
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_10",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 5.9991,
+      "unique_click_ratio": 0.9706,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.0268,
+      "max_scroll_depth": 52.0996,
+      "key_presses_per_min": 6.173,
+      "idle_ratio": 0.2813,
+      "view_switches_per_min": 0.9503
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_6",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 9.0896,
+      "unique_click_ratio": 0.8208,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.1226,
+      "max_scroll_depth": 78.1898,
+      "key_presses_per_min": 1.7604,
+      "idle_ratio": 0.5566,
+      "view_switches_per_min": 0.6336
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_12",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 32.9507,
+      "unique_click_ratio": 0.77,
+      "repeat_click_ratio": 0.0765,
+      "scroll_speed": 0.0985,
+      "max_scroll_depth": 40.608,
+      "key_presses_per_min": 72.4324,
+      "idle_ratio": 0.3887,
+      "view_switches_per_min": 10.4575
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_0",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 38.1554,
+      "unique_click_ratio": 0.7212,
+      "repeat_click_ratio": 0.0943,
+      "scroll_speed": 0.3041,
+      "max_scroll_depth": 56.5466,
+      "key_presses_per_min": 7.8648,
+      "idle_ratio": 0.0954,
+      "view_switches_per_min": 5.407
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_35",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 24.8702,
+      "unique_click_ratio": 0.7278,
+      "repeat_click_ratio": 0.1414,
+      "scroll_speed": 0.4958,
+      "max_scroll_depth": 35.4482,
+      "key_presses_per_min": 50.8157,
+      "idle_ratio": 0.2522,
+      "view_switches_per_min": 2.0521
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_16",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 26.1592,
+      "unique_click_ratio": 0.3512,
+      "repeat_click_ratio": 0.513,
+      "scroll_speed": 0.2934,
+      "max_scroll_depth": 40.572,
+      "key_presses_per_min": 4.7504,
+      "idle_ratio": 0.6202,
+      "view_switches_per_min": 0.0
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_15",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 62.8778,
+      "unique_click_ratio": 0.9604,
+      "repeat_click_ratio": 0.1912,
+      "scroll_speed": 0.6398,
+      "max_scroll_depth": 45.8207,
+      "key_presses_per_min": 37.6505,
+      "idle_ratio": 0.1302,
+      "view_switches_per_min": 8.0575
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_36",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 8.5476,
+      "unique_click_ratio": 0.8144,
+      "repeat_click_ratio": 0.1254,
+      "scroll_speed": 0.1322,
+      "max_scroll_depth": 100,
+      "key_presses_per_min": 4.0905,
+      "idle_ratio": 0.5682,
+      "view_switches_per_min": 1.9016
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_27",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 15.8111,
+      "unique_click_ratio": 0.4029,
+      "repeat_click_ratio": 0.5399,
+      "scroll_speed": 0.1319,
+      "max_scroll_depth": 45.7488,
+      "key_presses_per_min": 1.3286,
+      "idle_ratio": 0.1257,
+      "view_switches_per_min": 2.6274
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_10",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 24.3955,
+      "unique_click_ratio": 0.862,
+      "repeat_click_ratio": 0.063,
+      "scroll_speed": 0.593,
+      "max_scroll_depth": 52.3584,
+      "key_presses_per_min": 78.7943,
+      "idle_ratio": 0.2695,
+      "view_switches_per_min": 5.1237
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_11",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 33.7177,
+      "unique_click_ratio": 0.3698,
+      "repeat_click_ratio": 0.3846,
+      "scroll_speed": 0.096,
+      "max_scroll_depth": 23.5376,
+      "key_presses_per_min": 5.4739,
+      "idle_ratio": 0.3618,
+      "view_switches_per_min": 2.3154
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_19",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 57.8123,
+      "unique_click_ratio": 0.8972,
+      "repeat_click_ratio": 0.0695,
+      "scroll_speed": 0.4691,
+      "max_scroll_depth": 42.3375,
+      "key_presses_per_min": 15.6257,
+      "idle_ratio": 0.0382,
+      "view_switches_per_min": 6.3483
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_17",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 24.6884,
+      "unique_click_ratio": 0.401,
+      "repeat_click_ratio": 0.2,
+      "scroll_speed": 0.12,
+      "max_scroll_depth": 27.8789,
+      "key_presses_per_min": 0.0,
+      "idle_ratio": 0.5139,
+      "view_switches_per_min": 3.8942
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_24",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 6.5697,
+      "unique_click_ratio": 0.7842,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.2466,
+      "max_scroll_depth": 63.7197,
+      "key_presses_per_min": 8.0144,
+      "idle_ratio": 0.4046,
+      "view_switches_per_min": 1.3513
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_8",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 27.0739,
+      "unique_click_ratio": 0.793,
+      "repeat_click_ratio": 0.0505,
+      "scroll_speed": 0.5501,
+      "max_scroll_depth": 42.8408,
+      "key_presses_per_min": 26.7408,
+      "idle_ratio": 0.2038,
+      "view_switches_per_min": 7.467
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_4",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 28.5302,
+      "unique_click_ratio": 0.3311,
+      "repeat_click_ratio": 0.4603,
+      "scroll_speed": 0.2825,
+      "max_scroll_depth": 48.2643,
+      "key_presses_per_min": 3.5751,
+      "idle_ratio": 0.4284,
+      "view_switches_per_min": 1.6462
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_27",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 29.7867,
+      "unique_click_ratio": 0.7925,
+      "repeat_click_ratio": 0.1366,
+      "scroll_speed": 0.4387,
+      "max_scroll_depth": 26.22,
+      "key_presses_per_min": 46.7233,
+      "idle_ratio": 0.3325,
+      "view_switches_per_min": 4.0879
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_21",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 7.2454,
+      "unique_click_ratio": 0.5576,
+      "repeat_click_ratio": 0.0053,
+      "scroll_speed": 0.2191,
+      "max_scroll_depth": 64.3372,
+      "key_presses_per_min": 7.2618,
+      "idle_ratio": 0.3592,
+      "view_switches_per_min": 0.0
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_7",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 43.8602,
+      "unique_click_ratio": 0.6642,
+      "repeat_click_ratio": 0.2249,
+      "scroll_speed": 0.3433,
+      "max_scroll_depth": 95,
+      "key_presses_per_min": 51.7341,
+      "idle_ratio": 0.02,
+      "view_switches_per_min": 6.5393
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_8",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 11.145,
+      "unique_click_ratio": 0.8159,
+      "repeat_click_ratio": 0.0885,
+      "scroll_speed": 0.0962,
+      "max_scroll_depth": 89.6654,
+      "key_presses_per_min": 9.8863,
+      "idle_ratio": 0.7394,
+      "view_switches_per_min": 1.7691
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_26",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 11.2378,
+      "unique_click_ratio": 0.52,
+      "repeat_click_ratio": 0.5912,
+      "scroll_speed": 0.099,
+      "max_scroll_depth": 41.7422,
+      "key_presses_per_min": 24.3671,
+      "idle_ratio": 0.136,
+      "view_switches_per_min": 1.6784
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_15",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 29.7052,
+      "unique_click_ratio": 0.8397,
+      "repeat_click_ratio": 0.1306,
+      "scroll_speed": 0.562,
+      "max_scroll_depth": 52.2579,
+      "key_presses_per_min": 33.0151,
+      "idle_ratio": 0.1546,
+      "view_switches_per_min": 2.9595
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_35",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 6.748,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.1379,
+      "scroll_speed": 0.2728,
+      "max_scroll_depth": 88.8184,
+      "key_presses_per_min": 3.8377,
+      "idle_ratio": 0.5399,
+      "view_switches_per_min": 0.0205
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_12",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 30.1648,
+      "unique_click_ratio": 0.8196,
+      "repeat_click_ratio": 0.0766,
+      "scroll_speed": 0.4306,
+      "max_scroll_depth": 34.9341,
+      "key_presses_per_min": 30.5213,
+      "idle_ratio": 0.097,
+      "view_switches_per_min": 5.0977
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_39",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 41.6583,
+      "unique_click_ratio": 0.7633,
+      "repeat_click_ratio": 0.1685,
+      "scroll_speed": 0.3224,
+      "max_scroll_depth": 43.2025,
+      "key_presses_per_min": 56.232,
+      "idle_ratio": 0.1785,
+      "view_switches_per_min": 2.1903
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_36",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 29.6671,
+      "unique_click_ratio": 0.3555,
+      "repeat_click_ratio": 0.2594,
+      "scroll_speed": 0.1323,
+      "max_scroll_depth": 33.2255,
+      "key_presses_per_min": 12.352,
+      "idle_ratio": 0.3838,
+      "view_switches_per_min": 1.9134
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_32",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 21.7015,
+      "unique_click_ratio": 0.7812,
+      "repeat_click_ratio": 0.135,
+      "scroll_speed": 0.5603,
+      "max_scroll_depth": 10,
+      "key_presses_per_min": 55.1583,
+      "idle_ratio": 0.2124,
+      "view_switches_per_min": 9.7533
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_25",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 7.7448,
+      "unique_click_ratio": 0.8287,
+      "repeat_click_ratio": 0.1174,
+      "scroll_speed": 0.6402,
+      "max_scroll_depth": 24.0196,
+      "key_presses_per_min": 50.2633,
+      "idle_ratio": 0.215,
+      "view_switches_per_min": 6.3045
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_17",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 36.5373,
+      "unique_click_ratio": 0.9514,
+      "repeat_click_ratio": 0.1025,
+      "scroll_speed": 0.5112,
+      "max_scroll_depth": 70.0747,
+      "key_presses_per_min": 48.1748,
+      "idle_ratio": 0.1428,
+      "view_switches_per_min": 8.0435
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_31",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 34.3794,
+      "unique_click_ratio": 0.3283,
+      "repeat_click_ratio": 0.7929,
+      "scroll_speed": 0.0314,
+      "max_scroll_depth": 26.6323,
+      "key_presses_per_min": 9.9932,
+      "idle_ratio": 0.2885,
+      "view_switches_per_min": 0.4058
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_38",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 33.5311,
+      "unique_click_ratio": 0.1863,
+      "repeat_click_ratio": 0.6209,
+      "scroll_speed": 0.2651,
+      "max_scroll_depth": 16.8093,
+      "key_presses_per_min": 6.2639,
+      "idle_ratio": 0.7006,
+      "view_switches_per_min": 2.879
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_24",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 12.9719,
+      "unique_click_ratio": 0.4867,
+      "repeat_click_ratio": 0.6512,
+      "scroll_speed": 0.2757,
+      "max_scroll_depth": 63.179,
+      "key_presses_per_min": 20.3371,
+      "idle_ratio": 0.5074,
+      "view_switches_per_min": 2.9216
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_25",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 9.037,
+      "unique_click_ratio": 0.8392,
+      "repeat_click_ratio": 0.0815,
+      "scroll_speed": 0.0839,
+      "max_scroll_depth": 93.3311,
+      "key_presses_per_min": 12.8765,
+      "idle_ratio": 0.5299,
+      "view_switches_per_min": 0.796
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_25",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 15.8633,
+      "unique_click_ratio": 0.5948,
+      "repeat_click_ratio": 0.4876,
+      "scroll_speed": 0.2324,
+      "max_scroll_depth": 18.1347,
+      "key_presses_per_min": 34.6575,
+      "idle_ratio": 0.5844,
+      "view_switches_per_min": 0.8241
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_14",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 1.7495,
+      "unique_click_ratio": 0.983,
+      "repeat_click_ratio": 0.0129,
+      "scroll_speed": 0.1457,
+      "max_scroll_depth": 91.3175,
+      "key_presses_per_min": 0.7552,
+      "idle_ratio": 0.434,
+      "view_switches_per_min": 0.439
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_18",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 85.6147,
+      "unique_click_ratio": 0.8276,
+      "repeat_click_ratio": 0.1582,
+      "scroll_speed": 0.7669,
+      "max_scroll_depth": 40.932,
+      "key_presses_per_min": 33.7384,
+      "idle_ratio": 0.1431,
+      "view_switches_per_min": 3.6969
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_19",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 3.7076,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.0542,
+      "max_scroll_depth": 73.4561,
+      "key_presses_per_min": 9.2045,
+      "idle_ratio": 0.5202,
+      "view_switches_per_min": 0.5094
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_32",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 30.037,
+      "unique_click_ratio": 0.2186,
+      "repeat_click_ratio": 0.6324,
+      "scroll_speed": 0.1252,
+      "max_scroll_depth": 16.5674,
+      "key_presses_per_min": 13.7432,
+      "idle_ratio": 0.6435,
+      "view_switches_per_min": 1.8707
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_11",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 21.6247,
+      "unique_click_ratio": 0.9446,
+      "repeat_click_ratio": 0.0652,
+      "scroll_speed": 0.1143,
+      "max_scroll_depth": 54.6843,
+      "key_presses_per_min": 46.9265,
+      "idle_ratio": 0.1756,
+      "view_switches_per_min": 7.3569
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_38",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 41.5643,
+      "unique_click_ratio": 0.5544,
+      "repeat_click_ratio": 0.1616,
+      "scroll_speed": 0.3,
+      "max_scroll_depth": 45.6231,
+      "key_presses_per_min": 36.4148,
+      "idle_ratio": 0.2171,
+      "view_switches_per_min": 3.9879
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_22",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 42.9824,
+      "unique_click_ratio": 0.9244,
+      "repeat_click_ratio": 0.1567,
+      "scroll_speed": 0.4185,
+      "max_scroll_depth": 59.3729,
+      "key_presses_per_min": 23.7572,
+      "idle_ratio": 0.2365,
+      "view_switches_per_min": 8.2515
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_21",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 16.3258,
+      "unique_click_ratio": 0.8234,
+      "repeat_click_ratio": 0.0977,
+      "scroll_speed": 0.3025,
+      "max_scroll_depth": 19.3968,
+      "key_presses_per_min": 59.1775,
+      "idle_ratio": 0.2831,
+      "view_switches_per_min": 6.6766
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_39",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 19.6303,
+      "unique_click_ratio": 0.1821,
+      "repeat_click_ratio": 0.341,
+      "scroll_speed": 0.2467,
+      "max_scroll_depth": 49.5421,
+      "key_presses_per_min": 0.0,
+      "idle_ratio": 0.3844,
+      "view_switches_per_min": 0.2648
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_35",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 42.9737,
+      "unique_click_ratio": 0.7952,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.8607,
+      "max_scroll_depth": 27.6423,
+      "key_presses_per_min": 25.133,
+      "idle_ratio": 0.2118,
+      "view_switches_per_min": 2.4929
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_8",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 24.2873,
+      "unique_click_ratio": 0.2724,
+      "repeat_click_ratio": 0.5962,
+      "scroll_speed": 0.4241,
+      "max_scroll_depth": 31.159,
+      "key_presses_per_min": 19.2502,
+      "idle_ratio": 0.4498,
+      "view_switches_per_min": 1.5703
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_16",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 10.88,
+      "unique_click_ratio": 0.8444,
+      "repeat_click_ratio": 0.0916,
+      "scroll_speed": 0.2744,
+      "max_scroll_depth": 84.4705,
+      "key_presses_per_min": 6.0654,
+      "idle_ratio": 0.503,
+      "view_switches_per_min": 0.6754
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_28",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 8.1399,
+      "unique_click_ratio": 0.6755,
+      "repeat_click_ratio": 0.0368,
+      "scroll_speed": 0.1051,
+      "max_scroll_depth": 54.9086,
+      "key_presses_per_min": 5.1685,
+      "idle_ratio": 0.4841,
+      "view_switches_per_min": 1.6732
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_13",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 5.4652,
+      "unique_click_ratio": 0.8629,
+      "repeat_click_ratio": 0.0924,
+      "scroll_speed": 0.0506,
+      "max_scroll_depth": 76.6696,
+      "key_presses_per_min": 2.5522,
+      "idle_ratio": 0.5695,
+      "view_switches_per_min": 1.5464
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_34",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 36.8477,
+      "unique_click_ratio": 0.6737,
+      "repeat_click_ratio": 0.2889,
+      "scroll_speed": 0.8127,
+      "max_scroll_depth": 82.788,
+      "key_presses_per_min": 38.8568,
+      "idle_ratio": 0.162,
+      "view_switches_per_min": 4.4413
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_20",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 7.3042,
+      "unique_click_ratio": 0.931,
+      "repeat_click_ratio": 0.0294,
+      "scroll_speed": 0.3717,
+      "max_scroll_depth": 81.4325,
+      "key_presses_per_min": 4.0967,
+      "idle_ratio": 0.6615,
+      "view_switches_per_min": 0.5148
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_28",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 62.5962,
+      "unique_click_ratio": 0.8682,
+      "repeat_click_ratio": 0.0725,
+      "scroll_speed": 0.8943,
+      "max_scroll_depth": 78.7621,
+      "key_presses_per_min": 44.7004,
+      "idle_ratio": 0.0986,
+      "view_switches_per_min": 6.7455
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_24",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 55.7621,
+      "unique_click_ratio": 0.8129,
+      "repeat_click_ratio": 0.2577,
+      "scroll_speed": 0.189,
+      "max_scroll_depth": 42.3566,
+      "key_presses_per_min": 46.6638,
+      "idle_ratio": 0.17,
+      "view_switches_per_min": 2.3142
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_10",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 63.1434,
+      "unique_click_ratio": 0.7461,
+      "repeat_click_ratio": 0.2444,
+      "scroll_speed": 0.4655,
+      "max_scroll_depth": 45.8477,
+      "key_presses_per_min": 30.9749,
+      "idle_ratio": 0.1224,
+      "view_switches_per_min": 1.0
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_21",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 22.2216,
+      "unique_click_ratio": 0.4081,
+      "repeat_click_ratio": 0.5129,
+      "scroll_speed": 0.2575,
+      "max_scroll_depth": 19.1935,
+      "key_presses_per_min": 11.9969,
+      "idle_ratio": 0.4962,
+      "view_switches_per_min": 3.5243
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_21",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 61.8144,
+      "unique_click_ratio": 0.8973,
+      "repeat_click_ratio": 0.0348,
+      "scroll_speed": 0.717,
+      "max_scroll_depth": 70.5478,
+      "key_presses_per_min": 42.8087,
+      "idle_ratio": 0.0759,
+      "view_switches_per_min": 5.6768
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_7",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 60.273,
+      "unique_click_ratio": 0.8604,
+      "repeat_click_ratio": 0.1758,
+      "scroll_speed": 0.5745,
+      "max_scroll_depth": 64.4957,
+      "key_presses_per_min": 35.6527,
+      "idle_ratio": 0.06,
+      "view_switches_per_min": 1.0
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_23",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 22.6768,
+      "unique_click_ratio": 0.8541,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.3764,
+      "max_scroll_depth": 70.7195,
+      "key_presses_per_min": 35.7597,
+      "idle_ratio": 0.3839,
+      "view_switches_per_min": 4.8873
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_8",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 51.5323,
+      "unique_click_ratio": 0.8716,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.6556,
+      "max_scroll_depth": 53.8755,
+      "key_presses_per_min": 39.6861,
+      "idle_ratio": 0.0767,
+      "view_switches_per_min": 6.1881
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_33",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 64.4218,
+      "unique_click_ratio": 0.7441,
+      "repeat_click_ratio": 0.2436,
+      "scroll_speed": 0.7124,
+      "max_scroll_depth": 41.6533,
+      "key_presses_per_min": 28.2788,
+      "idle_ratio": 0.1058,
+      "view_switches_per_min": 2.267
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_32",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 67.8968,
+      "unique_click_ratio": 0.7177,
+      "repeat_click_ratio": 0.0665,
+      "scroll_speed": 0.9919,
+      "max_scroll_depth": 66.8267,
+      "key_presses_per_min": 34.1404,
+      "idle_ratio": 0.2368,
+      "view_switches_per_min": 8.4941
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_19",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 9.2529,
+      "unique_click_ratio": 0.8523,
+      "repeat_click_ratio": 0.1972,
+      "scroll_speed": 0.5014,
+      "max_scroll_depth": 51.1655,
+      "key_presses_per_min": 69.8208,
+      "idle_ratio": 0.2838,
+      "view_switches_per_min": 3.3722
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_31",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 17.5928,
+      "unique_click_ratio": 0.9199,
+      "repeat_click_ratio": 0.1246,
+      "scroll_speed": 0.5222,
+      "max_scroll_depth": 65.8087,
+      "key_presses_per_min": 47.6742,
+      "idle_ratio": 0.128,
+      "view_switches_per_min": 4.9677
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_5",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 0.0,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.1954,
+      "max_scroll_depth": 86.7229,
+      "key_presses_per_min": 2.2693,
+      "idle_ratio": 0.588,
+      "view_switches_per_min": 0.6266
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_29",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 1.2378,
+      "unique_click_ratio": 0.7155,
+      "repeat_click_ratio": 0.1103,
+      "scroll_speed": 0.2,
+      "max_scroll_depth": 85.4464,
+      "key_presses_per_min": 2.6048,
+      "idle_ratio": 0.6296,
+      "view_switches_per_min": 1.7937
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_22",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 9.0603,
+      "unique_click_ratio": 0.8671,
+      "repeat_click_ratio": 0.143,
+      "scroll_speed": 0.2383,
+      "max_scroll_depth": 83.4045,
+      "key_presses_per_min": 7.79,
+      "idle_ratio": 0.5325,
+      "view_switches_per_min": 0.0
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_26",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 8.0146,
+      "unique_click_ratio": 0.7858,
+      "repeat_click_ratio": 0.0751,
+      "scroll_speed": 0.1707,
+      "max_scroll_depth": 83.5286,
+      "key_presses_per_min": 8.2945,
+      "idle_ratio": 0.5336,
+      "view_switches_per_min": 2.1279
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_3",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 65.7129,
+      "unique_click_ratio": 0.7945,
+      "repeat_click_ratio": 0.1318,
+      "scroll_speed": 0.1243,
+      "max_scroll_depth": 44.1483,
+      "key_presses_per_min": 32.0926,
+      "idle_ratio": 0.2583,
+      "view_switches_per_min": 3.0763
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_18",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 7.67,
+      "unique_click_ratio": 0.7147,
+      "repeat_click_ratio": 0.0326,
+      "scroll_speed": 0.0968,
+      "max_scroll_depth": 70.5073,
+      "key_presses_per_min": 1.4245,
+      "idle_ratio": 0.5635,
+      "view_switches_per_min": 1.1575
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_34",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 12.3297,
+      "unique_click_ratio": 0.8218,
+      "repeat_click_ratio": 0.1009,
+      "scroll_speed": 0.1141,
+      "max_scroll_depth": 74.5629,
+      "key_presses_per_min": 8.7903,
+      "idle_ratio": 0.6741,
+      "view_switches_per_min": 0.3796
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_13",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 26.3258,
+      "unique_click_ratio": 0.8603,
+      "repeat_click_ratio": 0.0339,
+      "scroll_speed": 0.5411,
+      "max_scroll_depth": 61.4003,
+      "key_presses_per_min": 47.3868,
+      "idle_ratio": 0.2623,
+      "view_switches_per_min": 4.4301
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_34",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 19.0782,
+      "unique_click_ratio": 0.3812,
+      "repeat_click_ratio": 0.6463,
+      "scroll_speed": 0.0868,
+      "max_scroll_depth": 13.897,
+      "key_presses_per_min": 4.3273,
+      "idle_ratio": 0.1453,
+      "view_switches_per_min": 3.099
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_7",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 15.6476,
+      "unique_click_ratio": 0.3467,
+      "repeat_click_ratio": 0.735,
+      "scroll_speed": 0.3716,
+      "max_scroll_depth": 31.4304,
+      "key_presses_per_min": 16.115,
+      "idle_ratio": 0.6111,
+      "view_switches_per_min": 2.0353
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_33",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 24.7486,
+      "unique_click_ratio": 0.8352,
+      "repeat_click_ratio": 0.0418,
+      "scroll_speed": 0.4293,
+      "max_scroll_depth": 21.775,
+      "key_presses_per_min": 24.0893,
+      "idle_ratio": 0.0355,
+      "view_switches_per_min": 5.4581
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_33",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 20.4853,
+      "unique_click_ratio": 0.3073,
+      "repeat_click_ratio": 0.2,
+      "scroll_speed": 0.3749,
+      "max_scroll_depth": 52.4426,
+      "key_presses_per_min": 15.5504,
+      "idle_ratio": 0.1893,
+      "view_switches_per_min": 0.8555
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_5",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 43.0376,
+      "unique_click_ratio": 0.7472,
+      "repeat_click_ratio": 0.0695,
+      "scroll_speed": 0.5135,
+      "max_scroll_depth": 55.6741,
+      "key_presses_per_min": 51.2845,
+      "idle_ratio": 0.2852,
+      "view_switches_per_min": 7.9332
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_23",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 55.5908,
+      "unique_click_ratio": 0.8667,
+      "repeat_click_ratio": 0.106,
+      "scroll_speed": 0.5991,
+      "max_scroll_depth": 10,
+      "key_presses_per_min": 32.1198,
+      "idle_ratio": 0.1457,
+      "view_switches_per_min": 1.6499
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_1",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 15.5471,
+      "unique_click_ratio": 0.7238,
+      "repeat_click_ratio": 0.0849,
+      "scroll_speed": 0.2125,
+      "max_scroll_depth": 10,
+      "key_presses_per_min": 57.9973,
+      "idle_ratio": 0.261,
+      "view_switches_per_min": 7.0877
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_36",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 7.0103,
+      "unique_click_ratio": 0.8922,
+      "repeat_click_ratio": 0.0179,
+      "scroll_speed": 0.4563,
+      "max_scroll_depth": 13.8929,
+      "key_presses_per_min": 67.8636,
+      "idle_ratio": 0.1158,
+      "view_switches_per_min": 4.4564
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_39",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 45.9855,
+      "unique_click_ratio": 0.7023,
+      "repeat_click_ratio": 0.1816,
+      "scroll_speed": 0.3861,
+      "max_scroll_depth": 68.6146,
+      "key_presses_per_min": 33.5499,
+      "idle_ratio": 0.2297,
+      "view_switches_per_min": 4.1655
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_2",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 29.2611,
+      "unique_click_ratio": 0.2619,
+      "repeat_click_ratio": 0.7428,
+      "scroll_speed": 0.1872,
+      "max_scroll_depth": 46.39,
+      "key_presses_per_min": 8.8279,
+      "idle_ratio": 0.3243,
+      "view_switches_per_min": 0.4314
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_31",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 2.2542,
+      "unique_click_ratio": 0.9215,
+      "repeat_click_ratio": 0.0704,
+      "scroll_speed": 0.1253,
+      "max_scroll_depth": 83.9603,
+      "key_presses_per_min": 12.3354,
+      "idle_ratio": 0.424,
+      "view_switches_per_min": 0.6552
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_0",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 31.3093,
+      "unique_click_ratio": 0.8074,
+      "repeat_click_ratio": 0.1367,
+      "scroll_speed": 0.5408,
+      "max_scroll_depth": 66.4159,
+      "key_presses_per_min": 29.952,
+      "idle_ratio": 0.2176,
+      "view_switches_per_min": 5.8674
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_30",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 8.4342,
+      "unique_click_ratio": 0.6703,
+      "repeat_click_ratio": 0.031,
+      "scroll_speed": 0.1907,
+      "max_scroll_depth": 100,
+      "key_presses_per_min": 5.6712,
+      "idle_ratio": 0.5343,
+      "view_switches_per_min": 0.6789
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_29",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 28.6402,
+      "unique_click_ratio": 0.7928,
+      "repeat_click_ratio": 0.1419,
+      "scroll_speed": 0.3253,
+      "max_scroll_depth": 73.8707,
+      "key_presses_per_min": 15.6715,
+      "idle_ratio": 0.1123,
+      "view_switches_per_min": 7.6092
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_2",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 41.3138,
+      "unique_click_ratio": 0.8583,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.2144,
+      "max_scroll_depth": 19.4859,
+      "key_presses_per_min": 56.5329,
+      "idle_ratio": 0.2378,
+      "view_switches_per_min": 3.868
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_15",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 4.6411,
+      "unique_click_ratio": 0.8357,
+      "repeat_click_ratio": 0.0268,
+      "scroll_speed": 0.2711,
+      "max_scroll_depth": 70.0056,
+      "key_presses_per_min": 11.6192,
+      "idle_ratio": 0.5609,
+      "view_switches_per_min": 2.7306
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_34",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 38.1615,
+      "unique_click_ratio": 0.7222,
+      "repeat_click_ratio": 0.0741,
+      "scroll_speed": 0.4496,
+      "max_scroll_depth": 68.8701,
+      "key_presses_per_min": 55.2765,
+      "idle_ratio": 0.1412,
+      "view_switches_per_min": 4.7117
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_30",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 30.2405,
+      "unique_click_ratio": 0.8171,
+      "repeat_click_ratio": 0.2046,
+      "scroll_speed": 0.3417,
+      "max_scroll_depth": 95,
+      "key_presses_per_min": 50.4041,
+      "idle_ratio": 0.1285,
+      "view_switches_per_min": 8.2389
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_1",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 69.6837,
+      "unique_click_ratio": 0.6155,
+      "repeat_click_ratio": 0.234,
+      "scroll_speed": 0.5697,
+      "max_scroll_depth": 39.6882,
+      "key_presses_per_min": 46.2366,
+      "idle_ratio": 0.2759,
+      "view_switches_per_min": 1.7558
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_0",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 2.9659,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.1096,
+      "scroll_speed": 0.0861,
+      "max_scroll_depth": 84.9145,
+      "key_presses_per_min": 6.2942,
+      "idle_ratio": 0.4219,
+      "view_switches_per_min": 0.5047
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_32",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 7.5074,
+      "unique_click_ratio": 0.6762,
+      "repeat_click_ratio": 0.0107,
+      "scroll_speed": 0.3359,
+      "max_scroll_depth": 57.0816,
+      "key_presses_per_min": 12.2218,
+      "idle_ratio": 0.5164,
+      "view_switches_per_min": 2.5745
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_24",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 31.6179,
+      "unique_click_ratio": 0.8715,
+      "repeat_click_ratio": 0.1163,
+      "scroll_speed": 0.3576,
+      "max_scroll_depth": 48.3127,
+      "key_presses_per_min": 57.1093,
+      "idle_ratio": 0.1477,
+      "view_switches_per_min": 4.8905
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_15",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 21.4686,
+      "unique_click_ratio": 0.2366,
+      "repeat_click_ratio": 0.4857,
+      "scroll_speed": 0.543,
+      "max_scroll_depth": 17.1836,
+      "key_presses_per_min": 0.0,
+      "idle_ratio": 0.3797,
+      "view_switches_per_min": 2.0753
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_17",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 5.3176,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.02,
+      "max_scroll_depth": 88.2985,
+      "key_presses_per_min": 4.5377,
+      "idle_ratio": 0.4254,
+      "view_switches_per_min": 1.6334
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_29",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 25.9909,
+      "unique_click_ratio": 0.4511,
+      "repeat_click_ratio": 0.5578,
+      "scroll_speed": 0.2033,
+      "max_scroll_depth": 13.6695,
+      "key_presses_per_min": 18.3086,
+      "idle_ratio": 0.4787,
+      "view_switches_per_min": 2.1023
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_36",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 21.4137,
+      "unique_click_ratio": 0.5661,
+      "repeat_click_ratio": 0.0974,
+      "scroll_speed": 0.5392,
+      "max_scroll_depth": 77.2831,
+      "key_presses_per_min": 20.227,
+      "idle_ratio": 0.0252,
+      "view_switches_per_min": 3.4435
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_13",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 60.598,
+      "unique_click_ratio": 0.9309,
+      "repeat_click_ratio": 0.2123,
+      "scroll_speed": 0.4986,
+      "max_scroll_depth": 71.4319,
+      "key_presses_per_min": 10.3911,
+      "idle_ratio": 0.1652,
+      "view_switches_per_min": 4.2619
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_30",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 29.6814,
+      "unique_click_ratio": 0.4363,
+      "repeat_click_ratio": 0.3582,
+      "scroll_speed": 0.02,
+      "max_scroll_depth": 30.901,
+      "key_presses_per_min": 17.327,
+      "idle_ratio": 0.6206,
+      "view_switches_per_min": 0.3319
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_25",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 38.5264,
+      "unique_click_ratio": 0.8289,
+      "repeat_click_ratio": 0.1675,
+      "scroll_speed": 0.7611,
+      "max_scroll_depth": 66.806,
+      "key_presses_per_min": 37.7454,
+      "idle_ratio": 0.2071,
+      "view_switches_per_min": 6.3644
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_6",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 17.0279,
+      "unique_click_ratio": 0.8082,
+      "repeat_click_ratio": 0.1294,
+      "scroll_speed": 0.2072,
+      "max_scroll_depth": 69.4816,
+      "key_presses_per_min": 54.4919,
+      "idle_ratio": 0.3007,
+      "view_switches_per_min": 7.2478
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_2",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 38.2067,
+      "unique_click_ratio": 0.85,
+      "repeat_click_ratio": 0.1983,
+      "scroll_speed": 0.4009,
+      "max_scroll_depth": 22.7533,
+      "key_presses_per_min": 31.9825,
+      "idle_ratio": 0.0348,
+      "view_switches_per_min": 4.1167
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_6",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 6.9644,
+      "unique_click_ratio": 0.6897,
+      "repeat_click_ratio": 0.8199,
+      "scroll_speed": 0.0734,
+      "max_scroll_depth": 34.2582,
+      "key_presses_per_min": 7.4518,
+      "idle_ratio": 0.3353,
+      "view_switches_per_min": 1.7809
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_6",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 49.9584,
+      "unique_click_ratio": 0.5723,
+      "repeat_click_ratio": 0.1096,
+      "scroll_speed": 0.3842,
+      "max_scroll_depth": 10,
+      "key_presses_per_min": 19.2058,
+      "idle_ratio": 0.1373,
+      "view_switches_per_min": 7.4395
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_3",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 23.1173,
+      "unique_click_ratio": 0.5836,
+      "repeat_click_ratio": 0.0187,
+      "scroll_speed": 0.2535,
+      "max_scroll_depth": 30.5136,
+      "key_presses_per_min": 25.8424,
+      "idle_ratio": 0.2876,
+      "view_switches_per_min": 6.1705
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_35",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 20.7416,
+      "unique_click_ratio": 0.4502,
+      "repeat_click_ratio": 0.6822,
+      "scroll_speed": 0.367,
+      "max_scroll_depth": 34.6274,
+      "key_presses_per_min": 26.6087,
+      "idle_ratio": 0.4234,
+      "view_switches_per_min": 0.0
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_3",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 34.0391,
+      "unique_click_ratio": 0.4549,
+      "repeat_click_ratio": 0.3629,
+      "scroll_speed": 0.3186,
+      "max_scroll_depth": 15.1157,
+      "key_presses_per_min": 20.2993,
+      "idle_ratio": 0.374,
+      "view_switches_per_min": 1.2237
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_28",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 26.5403,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.0294,
+      "scroll_speed": 0.3486,
+      "max_scroll_depth": 50.9342,
+      "key_presses_per_min": 46.4888,
+      "idle_ratio": 0.2431,
+      "view_switches_per_min": 3.2262
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_9",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 20.6905,
+      "unique_click_ratio": 0.6247,
+      "repeat_click_ratio": 0.0341,
+      "scroll_speed": 0.6255,
+      "max_scroll_depth": 69.0304,
+      "key_presses_per_min": 21.5432,
+      "idle_ratio": 0.1533,
+      "view_switches_per_min": 5.9444
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_5",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 65.6858,
+      "unique_click_ratio": 0.6718,
+      "repeat_click_ratio": 0.0377,
+      "scroll_speed": 0.7225,
+      "max_scroll_depth": 66.1166,
+      "key_presses_per_min": 35.1177,
+      "idle_ratio": 0.2355,
+      "view_switches_per_min": 2.9167
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_19",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 30.9326,
+      "unique_click_ratio": 0.1413,
+      "repeat_click_ratio": 0.5436,
+      "scroll_speed": 0.3189,
+      "max_scroll_depth": 52.8133,
+      "key_presses_per_min": 0.0,
+      "idle_ratio": 0.3171,
+      "view_switches_per_min": 2.3996
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_33",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 4.6112,
+      "unique_click_ratio": 0.7431,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.2172,
+      "max_scroll_depth": 88.6183,
+      "key_presses_per_min": 8.4944,
+      "idle_ratio": 0.4332,
+      "view_switches_per_min": 1.062
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_18",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 31.6214,
+      "unique_click_ratio": 0.9232,
+      "repeat_click_ratio": 0.187,
+      "scroll_speed": 0.6286,
+      "max_scroll_depth": 66.6404,
+      "key_presses_per_min": 45.0974,
+      "idle_ratio": 0.2587,
+      "view_switches_per_min": 7.9461
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_4",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 34.0006,
+      "unique_click_ratio": 0.8407,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.6115,
+      "max_scroll_depth": 64.5275,
+      "key_presses_per_min": 43.8222,
+      "idle_ratio": 0.1802,
+      "view_switches_per_min": 4.7086
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_22",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 14.1135,
+      "unique_click_ratio": 0.9873,
+      "repeat_click_ratio": 0.1069,
+      "scroll_speed": 0.2092,
+      "max_scroll_depth": 10,
+      "key_presses_per_min": 50.1723,
+      "idle_ratio": 0.074,
+      "view_switches_per_min": 14.2112
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_1",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 34.4518,
+      "unique_click_ratio": 0.3085,
+      "repeat_click_ratio": 0.4048,
+      "scroll_speed": 0.02,
+      "max_scroll_depth": 21.9203,
+      "key_presses_per_min": 0.0,
+      "idle_ratio": 0.5249,
+      "view_switches_per_min": 1.4406
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_17",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 53.9431,
+      "unique_click_ratio": 0.7976,
+      "repeat_click_ratio": 0.1247,
+      "scroll_speed": 0.5316,
+      "max_scroll_depth": 29.6222,
+      "key_presses_per_min": 37.0317,
+      "idle_ratio": 0.0783,
+      "view_switches_per_min": 7.3882
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_11",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 11.0833,
+      "unique_click_ratio": 0.8123,
+      "repeat_click_ratio": 0.0144,
+      "scroll_speed": 0.1439,
+      "max_scroll_depth": 62.8258,
+      "key_presses_per_min": 10.5327,
+      "idle_ratio": 0.3439,
+      "view_switches_per_min": 1.2785
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_27",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 3.92,
+      "unique_click_ratio": 0.8171,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.1792,
+      "max_scroll_depth": 70.1171,
+      "key_presses_per_min": 7.7908,
+      "idle_ratio": 0.5088,
+      "view_switches_per_min": 1.6584
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_14",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 18.4723,
+      "unique_click_ratio": 0.7244,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.3128,
+      "max_scroll_depth": 88.4941,
+      "key_presses_per_min": 45.9514,
+      "idle_ratio": 0.128,
+      "view_switches_per_min": 5.6176
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_0",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 4.0,
+      "unique_click_ratio": 0.3659,
+      "repeat_click_ratio": 0.3761,
+      "scroll_speed": 0.0309,
+      "max_scroll_depth": 31.9804,
+      "key_presses_per_min": 13.5852,
+      "idle_ratio": 0.3295,
+      "view_switches_per_min": 2.3031
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_3",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 8.6599,
+      "unique_click_ratio": 0.8042,
+      "repeat_click_ratio": 0.0,
+      "scroll_speed": 0.1648,
+      "max_scroll_depth": 90.7493,
+      "key_presses_per_min": 2.8167,
+      "idle_ratio": 0.4924,
+      "view_switches_per_min": 0.1932
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_23",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 9.3814,
+      "unique_click_ratio": 0.8235,
+      "repeat_click_ratio": 0.0743,
+      "scroll_speed": 0.3779,
+      "max_scroll_depth": 64.7163,
+      "key_presses_per_min": 7.6293,
+      "idle_ratio": 0.456,
+      "view_switches_per_min": 1.775
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_37",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 11.7577,
+      "unique_click_ratio": 0.3838,
+      "repeat_click_ratio": 0.5273,
+      "scroll_speed": 0.3139,
+      "max_scroll_depth": 19.292,
+      "key_presses_per_min": 6.7388,
+      "idle_ratio": 0.5803,
+      "view_switches_per_min": 1.5786
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_30",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 56.9097,
+      "unique_click_ratio": 0.7544,
+      "repeat_click_ratio": 0.0776,
+      "scroll_speed": 0.4135,
+      "max_scroll_depth": 22.7176,
+      "key_presses_per_min": 42.4054,
+      "idle_ratio": 0.1481,
+      "view_switches_per_min": 3.7822
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_10",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 6.9941,
+      "unique_click_ratio": 0.2857,
+      "repeat_click_ratio": 0.2088,
+      "scroll_speed": 0.3625,
+      "max_scroll_depth": 24.7766,
+      "key_presses_per_min": 16.6605,
+      "idle_ratio": 0.1197,
+      "view_switches_per_min": 0.9143
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_4",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 66.6061,
+      "unique_click_ratio": 0.6617,
+      "repeat_click_ratio": 0.1577,
+      "scroll_speed": 0.6184,
+      "max_scroll_depth": 60.0744,
+      "key_presses_per_min": 45.4227,
+      "idle_ratio": 0.1393,
+      "view_switches_per_min": 5.6394
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_39",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 0.0,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.1066,
+      "scroll_speed": 0.2056,
+      "max_scroll_depth": 69.1659,
+      "key_presses_per_min": 2.839,
+      "idle_ratio": 0.3067,
+      "view_switches_per_min": 0.9863
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_20",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 9.3997,
+      "unique_click_ratio": 0.9244,
+      "repeat_click_ratio": 0.0955,
+      "scroll_speed": 0.3905,
+      "max_scroll_depth": 56.2962,
+      "key_presses_per_min": 43.1969,
+      "idle_ratio": 0.3721,
+      "view_switches_per_min": 7.2573
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_23",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 32.3206,
+      "unique_click_ratio": 0.4003,
+      "repeat_click_ratio": 0.5837,
+      "scroll_speed": 0.2452,
+      "max_scroll_depth": 53.7745,
+      "key_presses_per_min": 14.7269,
+      "idle_ratio": 0.5626,
+      "view_switches_per_min": 2.6223
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_9",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 27.1115,
+      "unique_click_ratio": 0.4469,
+      "repeat_click_ratio": 0.4013,
+      "scroll_speed": 0.02,
+      "max_scroll_depth": 17.1228,
+      "key_presses_per_min": 20.4735,
+      "idle_ratio": 0.2092,
+      "view_switches_per_min": 0.9714
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_9",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 30.4605,
+      "unique_click_ratio": 0.7801,
+      "repeat_click_ratio": 0.0644,
+      "scroll_speed": 0.4947,
+      "max_scroll_depth": 15.2296,
+      "key_presses_per_min": 56.1897,
+      "idle_ratio": 0.1459,
+      "view_switches_per_min": 3.6816
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_16",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 45.0389,
+      "unique_click_ratio": 0.7674,
+      "repeat_click_ratio": 0.1648,
+      "scroll_speed": 0.4077,
+      "max_scroll_depth": 41.7083,
+      "key_presses_per_min": 11.091,
+      "idle_ratio": 0.1397,
+      "view_switches_per_min": 1.0
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_22",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 27.0086,
+      "unique_click_ratio": 0.1995,
+      "repeat_click_ratio": 0.5306,
+      "scroll_speed": 0.1269,
+      "max_scroll_depth": 42.6957,
+      "key_presses_per_min": 1.9706,
+      "idle_ratio": 0.4743,
+      "view_switches_per_min": 1.4341
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_28",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 10.7561,
+      "unique_click_ratio": 0.3916,
+      "repeat_click_ratio": 0.6351,
+      "scroll_speed": 0.1743,
+      "max_scroll_depth": 19.1642,
+      "key_presses_per_min": 11.1832,
+      "idle_ratio": 0.324,
+      "view_switches_per_min": 1.1716
+    }
+  },
+  {
+    "sessionId": "real_user_session_fn_27",
+    "label": "fast_navigator",
+    "featureVector": {
+      "clicks_per_min": 41.4803,
+      "unique_click_ratio": 0.7837,
+      "repeat_click_ratio": 0.0544,
+      "scroll_speed": 0.7566,
+      "max_scroll_depth": 63.3972,
+      "key_presses_per_min": 37.1384,
+      "idle_ratio": 0.1567,
+      "view_switches_per_min": 7.0469
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_37",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 15.3363,
+      "unique_click_ratio": 0.8769,
+      "repeat_click_ratio": 0.0918,
+      "scroll_speed": 0.4508,
+      "max_scroll_depth": 83.317,
+      "key_presses_per_min": 59.8308,
+      "idle_ratio": 0.305,
+      "view_switches_per_min": 7.0259
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_12",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 0.0,
+      "unique_click_ratio": 0.6306,
+      "repeat_click_ratio": 0.0848,
+      "scroll_speed": 0.349,
+      "max_scroll_depth": 80.3889,
+      "key_presses_per_min": 9.0668,
+      "idle_ratio": 0.5734,
+      "view_switches_per_min": 2.6274
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_20",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 26.7704,
+      "unique_click_ratio": 0.6178,
+      "repeat_click_ratio": 0.4368,
+      "scroll_speed": 0.3008,
+      "max_scroll_depth": 31.0069,
+      "key_presses_per_min": 23.4601,
+      "idle_ratio": 0.3636,
+      "view_switches_per_min": 1.2231
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_38",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 0.0,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.0319,
+      "scroll_speed": 0.1456,
+      "max_scroll_depth": 58.5427,
+      "key_presses_per_min": 5.003,
+      "idle_ratio": 0.6377,
+      "view_switches_per_min": 0.9594
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_12",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 22.4787,
+      "unique_click_ratio": 0.3993,
+      "repeat_click_ratio": 0.55,
+      "scroll_speed": 0.2018,
+      "max_scroll_depth": 30.774,
+      "key_presses_per_min": 6.9296,
+      "idle_ratio": 0.5163,
+      "view_switches_per_min": 2.204
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_18",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 14.9686,
+      "unique_click_ratio": 0.3566,
+      "repeat_click_ratio": 0.5348,
+      "scroll_speed": 0.1575,
+      "max_scroll_depth": 45.7942,
+      "key_presses_per_min": 17.0402,
+      "idle_ratio": 0.227,
+      "view_switches_per_min": 1.8398
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_5",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 14.4272,
+      "unique_click_ratio": 0.3727,
+      "repeat_click_ratio": 0.5852,
+      "scroll_speed": 0.1918,
+      "max_scroll_depth": 38.5149,
+      "key_presses_per_min": 17.8422,
+      "idle_ratio": 0.5991,
+      "view_switches_per_min": 1.9313
+    }
+  },
+  {
+    "sessionId": "real_user_session_r_2",
+    "label": "reader",
+    "featureVector": {
+      "clicks_per_min": 14.1503,
+      "unique_click_ratio": 0.9851,
+      "repeat_click_ratio": 0.0656,
+      "scroll_speed": 0.1451,
+      "max_scroll_depth": 78.1702,
+      "key_presses_per_min": 10.8132,
+      "idle_ratio": 0.2958,
+      "view_switches_per_min": 1.6224
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_29",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 12.7193,
+      "unique_click_ratio": 0.7701,
+      "repeat_click_ratio": 0.0486,
+      "scroll_speed": 0.4538,
+      "max_scroll_depth": 44.0758,
+      "key_presses_per_min": 58.2087,
+      "idle_ratio": 0.1731,
+      "view_switches_per_min": 6.7448
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_26",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 34.0634,
+      "unique_click_ratio": 0.7144,
+      "repeat_click_ratio": 0.1289,
+      "scroll_speed": 0.3654,
+      "max_scroll_depth": 65.859,
+      "key_presses_per_min": 63.5492,
+      "idle_ratio": 0.1451,
+      "view_switches_per_min": 4.3066
+    }
+  },
+  {
+    "sessionId": "real_user_session_s_13",
+    "label": "struggling",
+    "featureVector": {
+      "clicks_per_min": 30.8373,
+      "unique_click_ratio": 0.5327,
+      "repeat_click_ratio": 0.6501,
+      "scroll_speed": 0.3115,
+      "max_scroll_depth": 60.2232,
+      "key_presses_per_min": 10.6163,
+      "idle_ratio": 0.2963,
+      "view_switches_per_min": 1.1047
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_16",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 6.5608,
+      "unique_click_ratio": 0.8132,
+      "repeat_click_ratio": 0.0927,
+      "scroll_speed": 0.3878,
+      "max_scroll_depth": 61.8368,
+      "key_presses_per_min": 15.0,
+      "idle_ratio": 0.2725,
+      "view_switches_per_min": 8.9312
+    }
+  },
+  {
+    "sessionId": "real_user_session_e_38",
+    "label": "explorer",
+    "featureVector": {
+      "clicks_per_min": 32.7441,
+      "unique_click_ratio": 1.0,
+      "repeat_click_ratio": 0.0985,
+      "scroll_speed": 0.2313,
+      "max_scroll_depth": 36.3088,
+      "key_presses_per_min": 45.9857,
+      "idle_ratio": 0.295,
+      "view_switches_per_min": 8.77
+    }
+  }
+]

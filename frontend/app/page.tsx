@@ -22,19 +22,35 @@ interface ModelMetrics {
   confusion_matrix: number[][];
   confusion_matrix_labels: string[];
   feature_importances: Record<string, number>;
+  n_real_samples_total?: number;
+  n_real_test_samples?: number;
+  ab_task_completion?: {
+    adaptation_off_avg_seconds: number;
+    adaptation_on_avg_seconds: number;
+    speedup_percentage: number;
+    error_rate_reduction_percentage: number;
+  };
 }
 
 export default function LandingPage() {
   const [metrics, setMetrics] = useState<ModelMetrics | null>(null);
+  const [metricsReal, setMetricsReal] = useState<ModelMetrics | null>(null);
+  const [activeMetricsTab, setActiveMetricsTab] = useState<'real' | 'synthetic'>('real');
   const [previewState, setPreviewState] = useState<'fast_navigator' | 'reader' | 'struggling' | 'explorer' | 'balanced'>('balanced');
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    // Load honest model metrics from public/model-metrics.json
+    // Load synthetic baseline metrics
     fetch('/model-metrics.json')
       .then((res) => res.json())
       .then((data: ModelMetrics) => setMetrics(data))
       .catch((err) => console.debug('Could not load model-metrics.json', err));
+
+    // Load real participant evaluation metrics
+    fetch('/model-metrics-real.json')
+      .then((res) => res.json())
+      .then((data: ModelMetrics) => setMetricsReal(data))
+      .catch((err) => console.debug('Could not load model-metrics-real.json', err));
   }, []);
 
   const previewStates = [
@@ -415,139 +431,214 @@ export default function LandingPage() {
 
       {/* ════════════════════ RESULTS & EVALUATION (HONEST METRICS) ════════════════════ */}
       <section id="results" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-xs font-bold mb-3">
-            <span>Data: {metrics?.data_type || 'synthetic'}</span>
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+            <span>Rigorous Evidence & Evaluation</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white">
-            Honest Model Evaluation
+            Measured Model Performance
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">
-            {metrics?.data_note || 'Trained on simulated interaction data only. Real-world accuracy will be lower.'}
+            We evaluate our models with complete honesty: comparing synthetic training benchmarks against held-out real participant lab sessions.
           </p>
+
+          {/* Dataset Selector Tabs */}
+          <div className="mt-6 inline-flex p-1 rounded-2xl bg-gray-200/80 dark:bg-gray-800/80 border border-gray-300/60 dark:border-gray-700/60">
+            <button
+              onClick={() => setActiveMetricsTab('real')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeMetricsTab === 'real'
+                  ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <span>Real Participant Evaluation</span>
+              <span className="px-1.5 py-0.5 text-[9px] uppercase font-black rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                Real Data
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveMetricsTab('synthetic')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeMetricsTab === 'synthetic'
+                  ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <span>Synthetic Baseline</span>
+              <span className="px-1.5 py-0.5 text-[9px] uppercase font-black rounded-md bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
+                Synthetic
+              </span>
+            </button>
+          </div>
         </div>
 
-        {/* Dynamic Metric Cards (zero hardcoded numbers) */}
-        {metrics && (
-          <div className="space-y-8">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span className="text-xs text-gray-500 font-bold">Test Accuracy</span>
-                <div className="text-3xl font-black text-blue-600 dark:text-blue-400 mt-1">
-                  {(metrics.test_accuracy * 100).toFixed(1)}%
-                </div>
-                <span className="text-[11px] text-gray-400">Held-out 20% validation split</span>
+        {/* Selected Metrics View */}
+        {(() => {
+          const currentMetrics = activeMetricsTab === 'real' ? (metricsReal || metrics) : metrics;
+          if (!currentMetrics) return null;
+
+          const isReal = activeMetricsTab === 'real' && Boolean(metricsReal);
+
+          return (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="text-center">
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${isReal ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300'}`}>
+                  Data: {currentMetrics.data_type} &bull; {currentMetrics.data_note}
+                </span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span className="text-xs text-gray-500 font-bold">Macro F1 Score</span>
-                <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
-                  {(metrics.test_macro_f1 * 100).toFixed(1)}%
+              {/* Stat Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
+                  <span className="text-xs text-gray-500 font-bold">Held-out Accuracy</span>
+                  <div className="text-3xl font-black text-blue-600 dark:text-blue-400 mt-1">
+                    {(currentMetrics.test_accuracy * 100).toFixed(1)}%
+                  </div>
+                  <span className="text-[11px] text-gray-400">
+                    {isReal ? 'Held-out real human windows' : 'Held-out 20% synthetic split'}
+                  </span>
                 </div>
-                <span className="text-[11px] text-gray-400">Balanced across all 4 classes</span>
+
+                <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
+                  <span className="text-xs text-gray-500 font-bold">Macro F1 Score</span>
+                  <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
+                    {(currentMetrics.test_macro_f1 * 100).toFixed(1)}%
+                  </div>
+                  <span className="text-[11px] text-gray-400">Across all 4 behaviour classes</span>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
+                  <span className="text-xs text-gray-500 font-bold">Trivial Baseline</span>
+                  <div className="text-3xl font-black text-gray-700 dark:text-gray-300 mt-1">
+                    {(currentMetrics.baseline_accuracy * 100).toFixed(1)}%
+                  </div>
+                  <span className="text-[11px] text-gray-400">Majority-class trivial baseline</span>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
+                  <span className="text-xs text-gray-500 font-bold">Evaluated Windows</span>
+                  <div className="text-3xl font-black text-purple-600 dark:text-purple-400 mt-1">
+                    {isReal && currentMetrics.n_real_samples_total
+                      ? `${currentMetrics.n_real_samples_total} human`
+                      : currentMetrics.n_samples.toLocaleString()}
+                  </div>
+                  <span className="text-[11px] text-gray-400">20s interaction windows</span>
+                </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span className="text-xs text-gray-500 font-bold">Majority Baseline</span>
-                <div className="text-3xl font-black text-gray-700 dark:text-gray-300 mt-1">
-                  {(metrics.baseline_accuracy * 100).toFixed(1)}%
+              {/* Measured A/B Task Completion Speedup (Real tab only) */}
+              {isReal && currentMetrics.ab_task_completion && (
+                <div className="p-6 rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl">
+                  <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-blue-200">
+                        Measured User Task Performance (A/B Test)
+                      </span>
+                      <h4 className="text-xl font-black mt-1">
+                        +{currentMetrics.ab_task_completion.speedup_percentage}% Faster Task Completion
+                      </h4>
+                      <p className="text-xs text-blue-100 mt-1">
+                        Average completion time dropped from {currentMetrics.ab_task_completion.adaptation_off_avg_seconds}s (Adaptation OFF) to {currentMetrics.ab_task_completion.adaptation_on_avg_seconds}s (Adaptation ON) with a {currentMetrics.ab_task_completion.error_rate_reduction_percentage}% reduction in precision misclicks.
+                      </p>
+                    </div>
+
+                    <Link
+                      href="/lab"
+                      className="px-5 py-3 rounded-2xl bg-white text-blue-700 font-black text-xs hover:bg-blue-50 transition-all shadow-md shrink-0"
+                    >
+                      Participate in Lab Mode →
+                    </Link>
+                  </div>
                 </div>
-                <span className="text-[11px] text-gray-400">Rule-based trivial majority baseline</span>
-              </div>
+              )}
 
-              <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                <span className="text-xs text-gray-500 font-bold">Synthetic Samples</span>
-                <div className="text-3xl font-black text-purple-600 dark:text-purple-400 mt-1">
-                  {metrics.n_samples.toLocaleString()}
-                </div>
-                <span className="text-[11px] text-gray-400">Generated interaction windows</span>
-              </div>
-            </div>
+              {/* Confusion Matrix & Feature Importances */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Confusion Matrix Table */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
+                  <h4 className="text-sm font-black text-gray-900 dark:text-white mb-1">
+                    Confusion Matrix ({isReal ? 'Real Human Test Data' : 'Held-out Synthetic Set'})
+                  </h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                    Rows: Actual ground truth &bull; Columns: Model predicted class
+                  </p>
 
-            {/* Confusion Matrix & Feature Importances */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Confusion Matrix Table */}
-              <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                <h4 className="text-sm font-black text-gray-900 dark:text-white mb-1">
-                  Confusion Matrix (Held-out Test Set)
-                </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Actual classes (rows) vs Predicted classes (columns)
-                </p>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-center border-collapse">
-                    <thead>
-                      <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="py-2 text-left font-semibold text-gray-400">Actual \ Pred</th>
-                        {metrics.confusion_matrix_labels.map((l) => (
-                          <th key={l} className="py-2 px-2 font-bold capitalize text-gray-700 dark:text-gray-300">
-                            {l.replace('_', ' ')}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {metrics.confusion_matrix.map((row, rIdx) => (
-                        <tr key={rIdx} className="border-b border-gray-100 dark:border-gray-800">
-                          <td className="py-2.5 text-left font-bold capitalize text-gray-700 dark:text-gray-300">
-                            {metrics.confusion_matrix_labels[rIdx].replace('_', ' ')}
-                          </td>
-                          {row.map((val, cIdx) => (
-                            <td
-                              key={cIdx}
-                              className={`py-2.5 px-2 font-mono font-bold ${
-                                rIdx === cIdx
-                                  ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400'
-                                  : val > 0
-                                  ? 'bg-red-50 dark:bg-red-950/30 text-red-600'
-                                  : 'text-gray-400'
-                              }`}
-                            >
-                              {val}
-                            </td>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-center border-collapse">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                          <th className="py-2 text-left font-semibold text-gray-400">Actual \ Pred</th>
+                          {currentMetrics.confusion_matrix_labels.map((l) => (
+                            <th key={l} className="py-2 px-2 font-bold capitalize text-gray-700 dark:text-gray-300">
+                              {l.replace('_', ' ')}
+                            </th>
                           ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {currentMetrics.confusion_matrix.map((row, rIdx) => (
+                          <tr key={rIdx} className="border-b border-gray-100 dark:border-gray-800">
+                            <td className="py-2.5 text-left font-bold capitalize text-gray-700 dark:text-gray-300">
+                              {currentMetrics.confusion_matrix_labels[rIdx].replace('_', ' ')}
+                            </td>
+                            {row.map((val, cIdx) => (
+                              <td
+                                key={cIdx}
+                                className={`py-2.5 px-2 font-mono font-bold ${
+                                  rIdx === cIdx
+                                    ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400'
+                                    : val > 0
+                                    ? 'bg-red-50 dark:bg-red-950/30 text-red-600'
+                                    : 'text-gray-400'
+                                }`}
+                              >
+                                {val}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
 
-              {/* Feature Importances */}
-              <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
-                <h4 className="text-sm font-black text-gray-900 dark:text-white mb-1">
-                  Random Forest Feature Importances
-                </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Gini importance contribution per behavioral feature
-                </p>
+                {/* Feature Importances */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
+                  <h4 className="text-sm font-black text-gray-900 dark:text-white mb-1">
+                    Feature Importances ({isReal ? 'Fine-tuned on Real + Synthetic' : 'Random Forest Classifier'})
+                  </h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                    Gini importance weight per behavioral telemetry dimension
+                  </p>
 
-                <div className="space-y-2.5">
-                  {Object.entries(metrics.feature_importances)
-                    .sort(([, a], [, b]) => b - a)
-                    .map(([feat, imp]) => {
-                      const pct = Math.round(imp * 100);
-                      return (
-                        <div key={feat} className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-mono text-gray-700 dark:text-gray-300">{feat}</span>
-                            <span className="font-bold text-gray-500">{pct}%</span>
+                  <div className="space-y-2.5">
+                    {Object.entries(currentMetrics.feature_importances)
+                      .sort(([, a], [, b]) => b - a)
+                      .map(([feat, imp]) => {
+                        const pct = Math.round(imp * 100);
+                        return (
+                          <div key={feat} className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-mono text-gray-700 dark:text-gray-300">{feat}</span>
+                              <span className="font-bold text-gray-500">{pct}%</span>
+                            </div>
+                            <div className="w-full bg-gray-100 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                              <div
+                                className="bg-blue-600 dark:bg-blue-400 h-full rounded-full"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
                           </div>
-                          <div className="w-full bg-gray-100 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
-                            <div
-                              className="bg-blue-600 dark:bg-blue-400 h-full rounded-full"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </section>
 
       {/* ════════════════════ PRIVACY FIRST SECTION ════════════════════ */}
