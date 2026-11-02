@@ -20,6 +20,11 @@ import {
   Filter,
   Eye,
   Sliders,
+  Lock,
+  Unlock,
+  RefreshCw,
+  Cpu,
+  Layers,
 } from 'lucide-react';
 import { useAdaptationStore } from '../store/adaptationStore';
 import { useTelemetryStore } from '../store/telemetryStore';
@@ -223,6 +228,8 @@ export default function NewsSandbox() {
     explainBanner,
     toggleXaiModal,
     simulateState,
+    unlockAutoMode,
+    userOverrides,
   } = useAdaptationStore();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -235,6 +242,7 @@ export default function NewsSandbox() {
   const [readingProgress, setReadingProgress] = useState(0);
 
   const dwellStartRef = useRef<{ id: string; time: number } | null>(null);
+  const isSimulationLocked = 'state' in userOverrides;
 
   // Clean speech synthesis on unmount
   useEffect(() => {
@@ -351,12 +359,12 @@ export default function NewsSandbox() {
 
   const activeArticle = ARTICLES.find((a) => a.id === selectedArticleId) || ARTICLES[0];
 
-  // Visual Styling Classes derived from 7 tokens
-  const themeClasses: Record<string, string> = {
-    dark: 'bg-[#070709] text-zinc-100 border-zinc-800/80',
-    light: 'bg-[#FAF9F6] text-zinc-900 border-zinc-200/80',
-    sepia: 'bg-[#FBF8F1] dark:bg-[#1A1814] text-[#332F28] dark:text-[#E8E2D5] border-[#EADFCB] dark:border-[#38332A]',
-    high_contrast: 'bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-white font-medium',
+  // Visual Theme Containers derived directly from active theme mode
+  const themeContainerStyles: Record<string, string> = {
+    dark: 'bg-[#040711] text-emerald-400 border-2 border-emerald-500/40 shadow-[0_0_50px_rgba(16,185,129,0.12)]',
+    light: 'bg-[#FFFFFF] text-zinc-900 border border-zinc-200/90 shadow-2xl',
+    sepia: 'bg-[#FDF9F0] dark:bg-[#1A1612] text-[#2C241C] dark:text-[#EAE0D2] border-2 border-[#E3D3BE] dark:border-[#382F24] shadow-2xl',
+    high_contrast: 'bg-white dark:bg-black text-black dark:text-white border-4 border-black dark:border-white shadow-[0_0_0_4px_rgba(0,0,0,0.2)]',
   };
 
   const motionClasses: Record<string, string> = {
@@ -367,19 +375,188 @@ export default function NewsSandbox() {
   };
 
   return (
-    <div className={`w-full rounded-3xl p-5 sm:p-7 lg:p-9 shadow-2xl border ${themeClasses[activeTheme] || themeClasses.light} ${motionClasses[motionLevel] || motionClasses.smooth_350} relative overflow-hidden bg-grid-minimal`}>
-      {/* Reading Progress Indicator */}
+    <div className={`w-full rounded-3xl p-5 sm:p-7 lg:p-9 border ${themeContainerStyles[activeTheme] || themeContainerStyles.light} ${motionClasses[motionLevel] || motionClasses.smooth_350} relative overflow-hidden`}>
+      {/* Pinned Top Reading Progress Bar for Focus Reader */}
       {layoutShell === 'centered_editorial' && (
-        <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-amber-200/30">
+        <div className="fixed top-0 left-0 right-0 z-50 h-1.5 bg-[#E4D5C2]/40">
           <div
-            className="h-full bg-emerald-500 transition-all duration-150 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
+            className="h-full bg-gradient-to-r from-amber-500 to-emerald-500 transition-all duration-150 shadow-[0_0_12px_rgba(245,158,11,0.8)]"
             style={{ width: `${readingProgress}%` }}
           />
         </div>
       )}
 
+      {/* ════════════════════ HIGH-VISIBILITY PERSONA CONTROLLER BAR ════════════════════ */}
+      <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-zinc-900/95 dark:bg-zinc-950/95 border border-zinc-700/80 shadow-xl text-white">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4 pb-4 border-b border-zinc-800">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="flex h-2.5 w-2.5 relative">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isSimulationLocked ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+                <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isSimulationLocked ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+              </span>
+              <h3 className="font-mono text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-white flex items-center gap-2">
+                Interactive Persona Morphing Sandbox
+              </h3>
+            </div>
+            <p className="text-xs text-zinc-400 mt-1 font-sans">
+              Switch between 5 distinct visual & cognitive states below. Every element re-renders in real time.
+            </p>
+          </div>
+
+          {/* Mode Lock / Auto ML Status Badge & Toggle */}
+          <div className="flex items-center gap-3">
+            {isSimulationLocked ? (
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-mono font-bold flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Simulation Locked ({activeState.replace('_', ' ')})</span>
+                </span>
+                <button
+                  onClick={unlockAutoMode}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-mono font-bold flex items-center gap-1.5 shadow-md transition-all active:scale-98"
+                  title="Unlock to observe real user scrolling, clicks, and dwell time"
+                >
+                  <Unlock className="w-3.5 h-3.5" />
+                  <span>Switch to Live Auto ML</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[11px] font-mono font-bold flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 animate-pulse" />
+                  <span>Auto ML Active (Flush: {hudCountdown}s)</span>
+                </span>
+                <button
+                  onClick={() => simulateState('power_user')}
+                  className="px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-mono font-bold flex items-center gap-1 transition-all"
+                  title="Lock to manual simulation mode"
+                >
+                  <Lock className="w-3 h-3" />
+                  <span>Lock Persona</span>
+                </button>
+              </div>
+            )}
+
+            <button
+              onClick={() => toggleXaiModal(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-emerald-400 border border-zinc-700 text-xs font-mono font-bold flex items-center gap-1.5 transition-all"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>XAI Audit</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 5 Distinct Persona Simulation Buttons */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+          <button
+            onClick={() => simulateState('power_user')}
+            className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden ${
+              activeState === 'power_user' || activeState === 'fast_navigator'
+                ? 'bg-emerald-950/70 border-emerald-400 text-white shadow-[0_0_15px_rgba(16,185,129,0.35)] ring-2 ring-emerald-500/60'
+                : 'bg-zinc-900/90 border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-mono text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <Terminal className="w-4 h-4" /> Analyst Terminal
+              </span>
+              <kbd className="text-[9px] font-mono bg-zinc-800 px-1.5 py-0.5 rounded text-emerald-300">[J/K]</kbd>
+            </div>
+            <div className="text-[11px] text-zinc-300 font-sans leading-tight">
+              3-Col Split &bull; Dark Matrix &bull; Live Benchmarks
+            </div>
+          </button>
+
+          <button
+            onClick={() => simulateState('fast_scanner')}
+            className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden ${
+              activeState === 'fast_scanner' || activeState === 'explorer'
+                ? 'bg-sky-950/70 border-sky-400 text-white shadow-[0_0_15px_rgba(56,189,248,0.35)] ring-2 ring-sky-500/60'
+                : 'bg-zinc-900/90 border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-mono text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4" /> Skimmer Feed
+              </span>
+              <span className="text-[9px] font-mono bg-sky-900/50 text-sky-300 px-1.5 py-0.5 rounded">TL;DR</span>
+            </div>
+            <div className="text-[11px] text-zinc-300 font-sans leading-tight">
+              3-Col Masonry &bull; AI Digest &bull; Stopwatch Badges
+            </div>
+          </button>
+
+          <button
+            onClick={() => simulateState('deep_reader')}
+            className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden ${
+              activeState === 'deep_reader' || activeState === 'reader'
+                ? 'bg-amber-950/70 border-amber-400 text-white shadow-[0_0_15px_rgba(245,158,11,0.35)] ring-2 ring-amber-500/60'
+                : 'bg-zinc-900/90 border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-mono text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                <BookOpen className="w-4 h-4" /> Focus Reader
+              </span>
+              <span className="text-[9px] font-mono bg-amber-900/50 text-amber-300 px-1.5 py-0.5 rounded">Sepia</span>
+            </div>
+            <div className="text-[11px] text-zinc-300 font-sans leading-tight">
+              Warm Paper &bull; 68ch Editorial &bull; Scroll Progress
+            </div>
+          </button>
+
+          <button
+            onClick={() => simulateState('assistive_mode')}
+            className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden ${
+              activeState === 'assistive_mode' || activeState === 'struggling'
+                ? 'bg-rose-950/70 border-rose-400 text-white shadow-[0_0_15px_rgba(244,63,94,0.35)] ring-2 ring-rose-500/60'
+                : 'bg-zinc-900/90 border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-mono text-xs font-bold text-rose-400 flex items-center gap-1.5">
+                <HelpCircle className="w-4 h-4" /> Cognitive Assist
+              </span>
+              <span className="text-[9px] font-mono bg-rose-900/50 text-rose-300 px-1.5 py-0.5 rounded">AAA</span>
+            </div>
+            <div className="text-[11px] text-zinc-300 font-sans leading-tight">
+              3px Borders &bull; 48px Buttons &bull; Speech Audio
+            </div>
+          </button>
+
+          <button
+            onClick={() => simulateState('balanced')}
+            className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden ${
+              activeState === 'balanced'
+                ? 'bg-zinc-800 border-zinc-400 text-white shadow-md ring-2 ring-zinc-400/40'
+                : 'bg-zinc-900/90 border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-mono text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+                <Sliders className="w-4 h-4" /> Balanced Baseline
+              </span>
+              <span className="text-[9px] font-mono bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded">Default</span>
+            </div>
+            <div className="text-[11px] text-zinc-400 font-sans leading-tight">
+              Standard Grid &bull; 1.0x Scale &bull; Minimal Baseline
+            </div>
+          </button>
+        </div>
+      </div>
+
       {/* ════════════════════ BESPOKE ADAPTATION EXPLAIN BANNER ════════════════════ */}
-      <div className="mb-7 flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl glass-panel border border-zinc-200/70 dark:border-zinc-800/70 text-xs">
+      <div className={`mb-6 flex flex-wrap items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl text-xs ${
+        activeTheme === 'dark'
+          ? 'bg-zinc-900/80 border border-emerald-500/30 text-emerald-300'
+          : activeTheme === 'sepia'
+          ? 'bg-[#F4ECE1] dark:bg-[#25201A] border border-[#DECFBD] dark:border-[#3D3325] text-[#3A3025] dark:text-[#EAE0D2]'
+          : activeTheme === 'high_contrast'
+          ? 'bg-zinc-100 dark:bg-zinc-900 border-2 border-black dark:border-white font-bold'
+          : 'bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800'
+      }`}>
         <div className="flex items-center gap-3">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -389,18 +566,21 @@ export default function NewsSandbox() {
             {activeState ? activeState.replace('_', ' ') : 'Balanced'}
           </span>
           <span className="text-zinc-300 dark:text-zinc-700">|</span>
-          <span className="text-zinc-600 dark:text-zinc-300 font-sans">
+          <span className="font-sans font-medium">
             {explainBanner}
           </span>
         </div>
 
-        <button
-          onClick={() => toggleXaiModal(true)}
-          className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-mono text-xs font-bold flex items-center gap-2 transition-all shadow-md active:scale-98"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
-          <span>Inspect Decision</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[10px] text-zinc-400">Confidence: {Math.round((confidence || 0.85) * 100)}%</span>
+          <button
+            onClick={() => toggleXaiModal(true)}
+            className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-mono text-[11px] font-bold flex items-center gap-1.5 transition-all shadow-xs"
+          >
+            <Sparkles className="w-3 h-3 text-emerald-400 dark:text-emerald-600" />
+            <span>Why it changed</span>
+          </button>
+        </div>
       </div>
 
       {/* ════════════════════ MINIMALIST FILTER BAR ════════════════════ */}
@@ -428,25 +608,25 @@ export default function NewsSandbox() {
         </div>
 
         {navMode === 'command_hotkeys' && (
-          <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400 bg-zinc-900/80 px-3 py-1.5 rounded-xl border border-zinc-800">
-            <span className="text-zinc-500 uppercase tracking-widest">Hotkeys</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-emerald-400 font-bold">[J]</kbd> Next
-            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-emerald-400 font-bold">[K]</kbd> Prev
-            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-emerald-400 font-bold">[/]</kbd> Filter
+          <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400 bg-zinc-950 px-3 py-1.5 rounded-xl border border-emerald-500/40">
+            <span className="text-emerald-500 uppercase tracking-widest font-bold">Terminal Hotkeys</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-emerald-300 font-bold">[J]</kbd> Next
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-emerald-300 font-bold">[K]</kbd> Prev
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-emerald-300 font-bold">[/]</kbd> Domain
           </div>
         )}
 
         {navMode === 'large_speech_toggle' && (
           <button
             onClick={() => handleToggleSpeech(activeArticle.title + '. ' + activeArticle.lead)}
-            className={`min-h-[48px] px-5 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2.5 transition-all shadow-md ${
+            className={`min-h-[48px] px-6 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2.5 transition-all shadow-lg ${
               isSpeaking
-                ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                ? 'bg-rose-600 hover:bg-rose-700 text-white animate-pulse'
                 : 'bg-emerald-600 hover:bg-emerald-500 text-black'
             }`}
           >
             {isSpeaking ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-            {isSpeaking ? 'Halt Audio' : 'Play Audio Synthesis'}
+            {isSpeaking ? 'Halt Audio Synthesis' : 'Read Article Aloud (TTS)'}
           </button>
         )}
       </div>
@@ -469,12 +649,12 @@ export default function NewsSandbox() {
                 onMouseLeave={() => handleMouseLeaveArticle(art.id)}
                 className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
                   selectedArticleId === art.id
-                    ? 'bg-emerald-950/20 border-emerald-500/60 text-white shadow-lg'
-                    : 'bg-zinc-900/40 border-zinc-800/80 hover:border-zinc-700 text-zinc-400'
+                    ? 'bg-emerald-950/40 border-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] ring-1 ring-emerald-500'
+                    : 'bg-zinc-950/60 border-zinc-800/80 hover:border-zinc-700 text-zinc-400'
                 }`}
               >
                 <div className="flex items-center justify-between text-[10px] text-zinc-500 mb-1">
-                  <span>{art.category}</span>
+                  <span className="text-emerald-400">{art.category}</span>
                   <span>{art.readTime}</span>
                 </div>
                 <h5 className="text-xs font-bold text-zinc-200 line-clamp-2">
@@ -485,23 +665,27 @@ export default function NewsSandbox() {
           </div>
 
           {/* Reader */}
-          <div className="lg:col-span-5 p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800/90 space-y-4">
+          <div className="lg:col-span-5 p-6 rounded-3xl bg-zinc-950/80 border border-emerald-500/40 space-y-4 shadow-xl">
             <div className="flex items-center justify-between text-xs text-zinc-400">
-              <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20 text-[10px] uppercase tracking-wider">
+              <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 text-[10px] uppercase tracking-wider">
                 {activeArticle.category}
               </span>
-              <span className="text-[11px]">{activeArticle.date} &bull; {activeArticle.readTime}</span>
+              <span className="text-[11px] text-zinc-500">{activeArticle.date} &bull; {activeArticle.readTime}</span>
+            </div>
+
+            <div className="text-[11px] text-emerald-400 font-mono">
+              user@context-terminal:~$ cat {activeArticle.id}.md
             </div>
 
             <h3 className="text-lg font-display font-bold text-white tracking-tight">
               {activeArticle.title}
             </h3>
 
-            <p className="text-xs text-zinc-300 leading-relaxed font-sans border-l border-emerald-500/60 pl-3.5">
+            <p className="text-xs text-zinc-300 leading-relaxed font-sans border-l-2 border-emerald-400 pl-3.5 bg-emerald-950/20 py-2 rounded-r-lg">
               {activeArticle.lead}
             </p>
 
-            <div className="space-y-3 font-sans text-xs text-zinc-400 leading-relaxed">
+            <div className="space-y-3 font-sans text-xs text-zinc-300 leading-relaxed">
               {activeArticle.fullParagraphs.map((para, i) => (
                 <p key={i}>{para}</p>
               ))}
@@ -510,15 +694,15 @@ export default function NewsSandbox() {
 
           {/* Metrics & Benchmarks */}
           <div className="lg:col-span-3 space-y-4">
-            <div className="p-4 rounded-3xl bg-zinc-900/60 border border-zinc-800">
+            <div className="p-4 rounded-3xl bg-zinc-950/90 border border-emerald-500/40 shadow-lg">
               <div className="text-[10px] uppercase font-bold text-emerald-400 tracking-[0.2em] mb-3 flex items-center gap-1.5">
                 <Table className="w-3.5 h-3.5" /> Benchmarks
               </div>
 
               <div className="space-y-2 text-xs">
                 {activeArticle.benchmarks.map((b, idx) => (
-                  <div key={idx} className="p-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800/70">
-                    <div className="text-[10px] text-zinc-500">{b.metric}</div>
+                  <div key={idx} className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
+                    <div className="text-[10px] text-zinc-400">{b.metric}</div>
                     <div className="flex justify-between items-center mt-1">
                       <span className="text-zinc-500 text-[11px]">{b.baseline}</span>
                       <span className="text-zinc-200 font-bold">{b.optimized}</span>
@@ -529,14 +713,14 @@ export default function NewsSandbox() {
               </div>
             </div>
 
-            <div className="p-4 rounded-3xl bg-zinc-900/60 border border-zinc-800">
+            <div className="p-4 rounded-3xl bg-zinc-950/90 border border-zinc-800">
               <div className="text-[10px] uppercase font-bold text-zinc-400 tracking-[0.2em] mb-2">
                 Nomenclature
               </div>
               <div className="space-y-2 text-xs">
                 {activeArticle.glossary.map((g, idx) => (
                   <div key={idx} className="text-zinc-400 text-[11px] leading-relaxed">
-                    <strong className="text-zinc-200">{g.term}:</strong> {g.definition}
+                    <strong className="text-emerald-400">{g.term}:</strong> {g.definition}
                   </div>
                 ))}
               </div>
@@ -556,15 +740,15 @@ export default function NewsSandbox() {
                 depth={8}
                 onMouseEnter={() => handleMouseEnterArticle(art.id)}
                 onMouseLeave={() => handleMouseLeaveArticle(art.id)}
-                className="p-6 flex flex-col justify-between"
+                className="p-6 flex flex-col justify-between border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 shadow-lg"
               >
                 <div>
                   <div className="flex items-center justify-between text-xs font-mono mb-3">
-                    <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
                       {art.category}
                     </span>
                     <span className="text-zinc-400 text-[11px] flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {art.readTime}
+                      <Clock className="w-3 h-3 text-sky-500" /> {art.readTime}
                     </span>
                   </div>
 
@@ -577,20 +761,20 @@ export default function NewsSandbox() {
                   </p>
 
                   {/* 3-Bullet AI TL;DR Card */}
-                  <div className="p-4 rounded-2xl bg-zinc-50/80 dark:bg-zinc-900/70 border border-zinc-200/60 dark:border-zinc-800 mb-3 space-y-2.5">
-                    <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                      <Sparkles className="w-3 h-3" /> AI Core Digest
+                  <div className="p-4 rounded-2xl bg-sky-500/5 dark:bg-sky-950/20 border border-sky-500/30 mb-3 space-y-2.5">
+                    <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-sky-600 dark:text-sky-400 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-sky-500" /> AI Core Digest (TL;DR)
                     </div>
                     {art.tldrBullets.map((bullet, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-xs text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed">
-                        <span className="text-emerald-500 font-bold shrink-0">&rsaquo;</span>
+                        <span className="text-sky-500 font-bold shrink-0">&rsaquo;</span>
                         <span>{bullet}</span>
                       </div>
                     ))}
                   </div>
 
                   {isExpanded && (
-                    <div className="space-y-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 font-sans leading-relaxed">
+                    <div className="space-y-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 font-sans leading-relaxed">
                       {art.fullParagraphs.map((p, i) => (
                         <p key={i}>{p}</p>
                       ))}
@@ -600,7 +784,7 @@ export default function NewsSandbox() {
 
                 <button
                   onClick={() => toggleExpandArticle(art.id)}
-                  className="mt-4 pt-3 border-t border-zinc-200/60 dark:border-zinc-800 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-between w-full hover:underline"
+                  className="mt-4 pt-3 border-t border-zinc-200/60 dark:border-zinc-800 text-xs font-mono font-bold text-sky-600 dark:text-sky-400 flex items-center justify-between w-full hover:underline"
                 >
                   <span>{isExpanded ? 'Collapse' : 'Expand Full Paper'}</span>
                   {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -611,22 +795,23 @@ export default function NewsSandbox() {
         </div>
       )}
 
-      {/* ── VARIANT 3: FOCUS READER (MINIMALIST 68ch EDITORIAL) ── */}
+      {/* ── VARIANT 3: FOCUS READER (MINIMALIST 68ch EDITORIAL SEPIA) ── */}
       {layoutShell === 'centered_editorial' && (
-        <div className="max-w-[68ch] mx-auto py-8 space-y-8 font-sans">
-          <div className="flex items-center justify-between pb-4 border-b border-[#EADFCB] dark:border-[#38332A] text-xs font-mono">
-            <span className="font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">
-              Focus Reading Room
+        <div className="max-w-[68ch] mx-auto py-6 space-y-8 font-sans">
+          <div className="flex items-center justify-between pb-4 border-b border-[#E3D3BE] dark:border-[#382F24] text-xs font-mono">
+            <span className="font-bold text-amber-700 dark:text-amber-400 uppercase tracking-[0.2em] flex items-center gap-2">
+              <BookOpen className="w-4 h-4" /> Editorial Reading Room
             </span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-zinc-400 text-[11px] mr-1">Jump:</span>
               {filteredArticles.map((a, i) => (
                 <button
                   key={a.id}
                   onClick={() => setSelectedArticleId(a.id)}
-                  className={`w-6 h-6 rounded-full font-bold text-[11px] transition-all ${
+                  className={`w-7 h-7 rounded-full font-bold text-xs transition-all ${
                     selectedArticleId === a.id
-                      ? 'bg-emerald-500 text-black font-mono'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                      ? 'bg-amber-600 text-white font-mono shadow-md scale-110'
+                      : 'bg-[#ECE0D0] dark:bg-[#25201A] text-zinc-700 dark:text-zinc-300 hover:bg-amber-200'
                   }`}
                 >
                   {i + 1}
@@ -635,31 +820,31 @@ export default function NewsSandbox() {
             </div>
           </div>
 
-          <header className="space-y-3">
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">
-              {activeArticle.category} &bull; {activeArticle.readTime}
+          <header className="space-y-4">
+            <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400 font-bold">
+              {activeArticle.category} &bull; {activeArticle.readTime} &bull; {activeArticle.date}
             </div>
-            <h1 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-serif font-bold tracking-tight leading-snug">
               {activeArticle.title}
             </h1>
-            <p className="text-base text-zinc-600 dark:text-zinc-300 leading-relaxed pt-2 border-l-2 border-emerald-500 pl-4">
+            <p className="text-lg text-zinc-700 dark:text-zinc-300 leading-relaxed pt-2 border-l-4 border-amber-500 pl-4 italic">
               {activeArticle.lead}
             </p>
           </header>
 
-          <article className="space-y-6 text-[18px] leading-[1.85] text-zinc-800 dark:text-zinc-200 font-serif">
+          <article className="space-y-6 text-[19px] sm:text-[20px] leading-[1.9] text-zinc-800 dark:text-zinc-200 font-serif">
             {activeArticle.fullParagraphs.map((para, i) => (
               <p key={i}>{para}</p>
             ))}
           </article>
 
-          <div className="p-6 rounded-3xl glass-panel space-y-3 font-sans text-sm">
-            <h5 className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-              <BookOpen className="w-3.5 h-3.5" /> Synthesis
+          <div className="p-6 rounded-3xl bg-[#F4ECE1] dark:bg-[#25201A] border border-[#DECFBD] dark:border-[#3D3325] space-y-3 font-sans text-sm shadow-sm">
+            <h5 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 flex items-center gap-2">
+              <Sparkles className="w-4 h-4" /> Core Synthesis
             </h5>
             {activeArticle.tldrBullets.map((bullet, idx) => (
-              <div key={idx} className="flex items-start gap-2.5 text-zinc-700 dark:text-zinc-300 text-xs leading-relaxed">
-                <span className="text-emerald-500 font-bold">&bull;</span>
+              <div key={idx} className="flex items-start gap-2.5 text-zinc-800 dark:text-zinc-200 text-sm leading-relaxed">
+                <span className="text-amber-500 font-bold text-lg leading-none">&bull;</span>
                 <span>{bullet}</span>
               </div>
             ))}
@@ -667,33 +852,33 @@ export default function NewsSandbox() {
         </div>
       )}
 
-      {/* ── VARIANT 4: ACCESSIBLE HIGH-CONTRAST ── */}
+      {/* ── VARIANT 4: ACCESSIBLE HIGH-CONTRAST (AAA) ── */}
       {layoutShell === 'accessible_single' && (
         <div className="max-w-3xl mx-auto space-y-8">
-          <div className="p-4 rounded-2xl border-2 border-black dark:border-white bg-zinc-100 dark:bg-zinc-900 font-mono text-xs font-bold flex items-center gap-2.5">
-            <HelpCircle className="w-5 h-5 text-emerald-500 shrink-0" />
-            <span>High-Contrast Accessibility Mode: Enlarged targets, high clearance, text-to-speech.</span>
+          <div className="p-5 rounded-2xl border-4 border-black dark:border-white bg-zinc-100 dark:bg-zinc-900 font-mono text-sm font-bold flex items-center gap-3 shadow-md">
+            <HelpCircle className="w-6 h-6 text-rose-500 shrink-0" />
+            <span>High-Contrast Accessibility Mode: Enlarged targets (48px+), 20px accessible font, text-to-speech audio synthesis.</span>
           </div>
 
           {filteredArticles.map((art) => (
             <div
               key={art.id}
-              className="p-8 rounded-3xl border-2 border-black dark:border-white space-y-5 bg-white dark:bg-black"
+              className="p-8 rounded-3xl border-4 border-black dark:border-white space-y-6 bg-white dark:bg-black shadow-2xl"
             >
-              <div className="flex items-center justify-between text-sm font-mono font-bold">
-                <span className="px-3 py-1 rounded-full bg-black text-white dark:bg-white dark:text-black">
+              <div className="flex items-center justify-between text-base font-mono font-bold">
+                <span className="px-4 py-1.5 rounded-full bg-black text-white dark:bg-white dark:text-black text-sm">
                   {art.category}
                 </span>
-                <span>{art.readTime}</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{art.readTime}</span>
               </div>
 
-              <h3 className="text-2xl font-display font-bold">
+              <h3 className="text-2xl sm:text-3xl font-display font-extrabold tracking-tight">
                 {art.title}
               </h3>
 
-              <div className="space-y-4 text-lg font-sans leading-relaxed">
+              <div className="space-y-4 text-xl font-sans leading-relaxed font-medium">
                 {art.fullParagraphs.map((para, i) => (
-                  <p key={i} className="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700">
+                  <p key={i} className="p-5 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-400 dark:border-zinc-600">
                     {para}
                   </p>
                 ))}
@@ -701,10 +886,10 @@ export default function NewsSandbox() {
 
               <button
                 onClick={() => handleToggleSpeech(art.title + '. ' + art.lead)}
-                className="w-full min-h-[48px] py-3 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-sm flex items-center justify-center gap-2 shadow-md"
+                className="w-full min-h-[52px] py-4 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-extrabold text-base flex items-center justify-center gap-3 shadow-lg active:scale-98 transition-all"
               >
-                <Volume2 className="w-4 h-4" />
-                Read Aloud
+                <Volume2 className="w-5 h-5" />
+                <span>{isSpeaking ? 'Halt Audio Synthesis' : 'Read Aloud with Audio Synthesis'}</span>
               </button>
             </div>
           ))}
@@ -720,7 +905,7 @@ export default function NewsSandbox() {
               depth={6}
               onMouseEnter={() => handleMouseEnterArticle(art.id)}
               onMouseLeave={() => handleMouseLeaveArticle(art.id)}
-              className="p-6 flex flex-col justify-between"
+              className="p-6 flex flex-col justify-between border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 shadow-md"
             >
               <div>
                 <div className="flex items-center justify-between text-xs font-mono text-zinc-400 mb-3">
@@ -741,7 +926,7 @@ export default function NewsSandbox() {
                 onClick={() => setSelectedArticleId(art.id)}
                 className="pt-3 border-t border-zinc-200/50 dark:border-zinc-800 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center justify-between"
               >
-                <span>Examine</span>
+                <span>Read Full Article</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </button>
             </TiltCard>
@@ -755,10 +940,10 @@ export default function NewsSandbox() {
           <div className="flex items-center gap-3">
             <Activity className="w-4 h-4 text-emerald-500" />
             <h4 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-zinc-900 dark:text-zinc-100">
-              Kinetic ML Brain & Real-Time Telemetry
+              Live Behavioral Micro-Telemetry & ML Weights
             </h4>
             <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold border border-emerald-500/20">
-              Flush: {hudCountdown}s
+              {isSimulationLocked ? 'Simulation Mode' : `Next Flush: ${hudCountdown}s`}
             </span>
           </div>
 
@@ -766,7 +951,7 @@ export default function NewsSandbox() {
             onClick={() => setShowHud(!showHud)}
             className="text-xs font-mono text-zinc-400 hover:text-zinc-200 flex items-center gap-1"
           >
-            {showHud ? 'Minimize' : 'Expand'}
+            {showHud ? 'Minimize HUD' : 'Expand HUD'}
             {showHud ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
         </div>
@@ -774,52 +959,52 @@ export default function NewsSandbox() {
         {showHud && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center animate-in fade-in duration-300">
             {/* 3D Neural Lattice Sphere Visualization */}
-            <div className="lg:col-span-4 h-48 rounded-3xl glass-panel relative flex items-center justify-center p-2">
+            <div className="lg:col-span-4 h-48 rounded-3xl bg-zinc-900/60 border border-zinc-800 relative flex items-center justify-center p-2 shadow-inner">
               <NeuralLattice3D className="w-full h-full" />
               <div className="absolute bottom-2 left-4 text-[10px] font-mono text-zinc-400 uppercase tracking-widest pointer-events-none">
-                3D Neural Polyhedron
+                3D Behavioral Lattice
               </div>
             </div>
 
             {/* Live Metrics Grid */}
             <div className="lg:col-span-8 space-y-3 font-mono">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
-                <div className="p-3 rounded-2xl glass-card">
+                <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Tempo</div>
                   <div className="text-sm font-bold text-zinc-100 mt-0.5">
                     {liveFeatures.clicks_per_min} <span className="text-[9px] text-zinc-500">c/m</span>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl glass-card">
+                <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Velocity</div>
                   <div className="text-sm font-bold text-emerald-400 mt-0.5">
                     {Math.round(liveFeatures.scroll_speed * 1000)} <span className="text-[9px] text-zinc-500">px/s</span>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl glass-card">
+                <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Selections</div>
                   <div className="text-sm font-bold text-zinc-100 mt-0.5">
                     {liveFeatures.text_selections_count || 0}
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl glass-card">
+                <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Friction</div>
                   <div className="text-sm font-bold text-rose-400 mt-0.5">
                     {liveFeatures.rage_click_count || 0}
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl glass-card">
+                <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Dwell</div>
                   <div className="text-sm font-bold text-amber-400 mt-0.5">
                     {liveFeatures.mean_dwell_seconds || 0} <span className="text-[9px] text-zinc-500">s</span>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl glass-card">
+                <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Switches</div>
                   <div className="text-sm font-bold text-zinc-100 mt-0.5">
                     {liveFeatures.view_switches_per_min}
@@ -827,43 +1012,20 @@ export default function NewsSandbox() {
                 </div>
               </div>
 
-              {/* Simulation Testing Buttons */}
-              <div className="p-3.5 rounded-2xl glass-panel flex flex-wrap items-center justify-between gap-2.5 text-xs">
-                <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400">
-                  Simulate Persona:
+              {/* Status and Diagnostics */}
+              <div className="p-3.5 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+                <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400 flex items-center gap-1.5">
+                  <Cpu className="w-3.5 h-3.5 text-emerald-500" />
+                  ML State: <strong className="text-white">{activeState}</strong>
                 </span>
 
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <button
-                    onClick={() => simulateState('fast_scanner')}
-                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-emerald-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
-                  >
-                    Skimmer
-                  </button>
-                  <button
-                    onClick={() => simulateState('deep_reader')}
-                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-amber-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
-                  >
-                    Reader
-                  </button>
-                  <button
-                    onClick={() => simulateState('power_user')}
-                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-indigo-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
-                  >
-                    Terminal
-                  </button>
-                  <button
-                    onClick={() => simulateState('assistive_mode')}
-                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-rose-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
-                  >
-                    Assistive
-                  </button>
-                  <button
-                    onClick={() => simulateState('balanced')}
-                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
-                  >
-                    Reset
-                  </button>
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-zinc-400 font-mono">
+                    Layout Shell: <code className="text-emerald-400">{layoutShell}</code>
+                  </span>
+                  <span className="text-[11px] text-zinc-400 font-mono">
+                    Theme: <code className="text-amber-400">{activeTheme}</code>
+                  </span>
                 </div>
               </div>
             </div>

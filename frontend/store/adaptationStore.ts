@@ -329,6 +329,7 @@ export interface AdaptationState {
   clearOverride: (key: string) => void;
   clearAllOverrides: () => void;
   simulateState: (targetState: string) => void;
+  unlockAutoMode: () => void;
   toggleXaiModal: (open?: boolean, event?: AdaptationHistoryItem) => void;
   clearToast: () => void;
   recordFeedback: (chosenSetting: any, isThumbsUp?: boolean) => Promise<boolean>;
@@ -378,6 +379,11 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
         if (prevState.pausedUntil && now < prevState.pausedUntil) {
           return prevState; // Paused
         }
+      }
+
+      // If user has locked a simulation or override, ignore automated background flushes
+      if ('state' in prevState.userOverrides) {
+        return prevState;
       }
 
       const targetState = signal.state || signal.detectedClass || 'balanced';
@@ -451,8 +457,8 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
       if ('showNotes' in prevState.userOverrides) finalAdaptation.showNotes = prevState.userOverrides.showNotes!;
 
       return {
-        state: 'state' in prevState.userOverrides ? prevState.state : targetState,
-        detectedClass: 'state' in prevState.userOverrides ? prevState.state : targetState,
+        state: targetState,
+        detectedClass: targetState,
         confidence: typeof signal.confidence === 'number' ? signal.confidence : prevState.confidence,
         reasons: Array.isArray(signal.reasons) && signal.reasons.length > 0 ? signal.reasons : preset.reasons,
         changes: Array.isArray(signal.changes) && signal.changes.length > 0 ? signal.changes : preset.changes,
@@ -585,12 +591,13 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
   simulateState: (targetState: string) => {
     const preset = STATE_PRESETS[targetState] || STATE_PRESETS.balanced;
     set((prevState) => {
+      const isReset = targetState === 'balanced';
       const historyItem: AdaptationHistoryItem = {
         id: 'sim_' + Date.now().toString(36),
         timestamp: new Date(),
         fromState: prevState.state,
         toState: targetState,
-        confidence: 0.94,
+        confidence: 0.95,
         inferenceTimeMs: 1.2,
         explanations: [
           {
@@ -600,7 +607,7 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
             unit: 'clicks/min',
             impact: 42,
             direction: 'above',
-            reason: 'High interaction density matching simulation target',
+            reason: `Simulation preset active: ${targetState.replace('_', ' ')}`,
           },
         ],
         tokens: { ...preset.tokens },
@@ -610,7 +617,7 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
       return {
         state: targetState,
         detectedClass: targetState,
-        confidence: 0.94,
+        confidence: 0.95,
         reasons: preset.reasons,
         changes: preset.changes,
         adaptation: { ...preset.adaptation },
@@ -622,15 +629,54 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
         navMode: preset.tokens.navMode,
         motionLevel: preset.tokens.motionLevel,
         explainBanner: preset.tokens.explainBanner,
+        userOverrides: isReset
+          ? {}
+          : {
+              ...prevState.userOverrides,
+              state: targetState,
+              contentMode: preset.tokens.contentMode,
+              layoutShell: preset.tokens.layoutShell,
+              typographyScale: preset.tokens.typographyScale,
+              navMode: preset.tokens.navMode,
+              theme: preset.tokens.theme,
+              motionLevel: preset.tokens.motionLevel,
+            },
         lastUpdated: new Date(),
         adaptationsCount: prevState.adaptationsCount + 1,
         adaptationHistory: [historyItem, ...prevState.adaptationHistory].slice(0, 30),
         activeReportEvent: historyItem,
         toastNotification: {
-          message: `Simulated ${targetState.replace('_', ' ')} (94% conf)`,
+          message: isReset ? 'Reset to Balanced Default' : `Simulated ${targetState.replace('_', ' ')} (Locked)`,
           state: targetState,
         },
       };
+    });
+  },
+
+  unlockAutoMode: () => {
+    const balanced = STATE_PRESETS.balanced;
+    set({
+      userOverrides: {},
+      isPaused: false,
+      pausedUntil: null,
+      state: 'balanced',
+      detectedClass: 'balanced',
+      confidence: 0.88,
+      reasons: balanced.reasons,
+      changes: balanced.changes,
+      adaptation: { ...balanced.adaptation },
+      layoutDensity: balanced.layoutDensity,
+      theme: balanced.tokens.theme,
+      contentMode: balanced.tokens.contentMode,
+      layoutShell: balanced.tokens.layoutShell,
+      typographyScale: balanced.tokens.typographyScale,
+      navMode: balanced.tokens.navMode,
+      motionLevel: balanced.tokens.motionLevel,
+      explainBanner: 'Auto ML Mode Active — observing live user interactions.',
+      toastNotification: {
+        message: 'Auto ML Mode Active — observing live behavior',
+        state: 'balanced',
+      },
     });
   },
 

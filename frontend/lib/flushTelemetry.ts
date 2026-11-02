@@ -1,20 +1,25 @@
 import axios from 'axios';
 import { useTelemetryStore } from '../store/telemetryStore';
 import { computeRollingFeatures, hasConsent } from './telemetry';
+import { classifyBehaviorClient } from './clientClassifier';
 
 export async function flushTelemetry(): Promise<void> {
   if (typeof window === 'undefined') return;
 
-  // 1. Consent Check: When off, NOTHING is sent
+  // 1. Consent Check: When off, NOTHING is evaluated or sent
   if (!hasConsent()) {
     return;
   }
 
-  const token = localStorage.getItem('token');
-  if (!token) {
+  const { useAdaptationStore } = await import('../store/adaptationStore');
+  const adaptationState = useAdaptationStore.getState();
+
+  // If user has locked a state override or simulation, DO NOT overwrite it automatically
+  if ('state' in adaptationState.userOverrides || adaptationState.isPaused) {
     return;
   }
 
+  const token = localStorage.getItem('token');
   const store = useTelemetryStore.getState();
   const buffer = store.flushAndGetBuffer();
   const sessionDuration = store.getSessionDuration();
@@ -29,6 +34,7 @@ export async function flushTelemetry(): Promise<void> {
 
   const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
+  // 2. Try sending to the backend / ML service if token or endpoint is reachable
   try {
     const res = await axios.post(
       `${backendUrl}/api/telemetry`,
@@ -62,29 +68,20 @@ export async function flushTelemetry(): Promise<void> {
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
           'Content-Type': 'application/json',
         },
-        timeout: 4000,
+        timeout: 2500,
       }
     );
 
-    // Fallback: If HTTP returned adaptation, sync to adaptation store
     if (res.data?.adaptation) {
-      const { useAdaptationStore } = await import('../store/adaptationStore');
       useAdaptationStore.getState().setAdaptation(res.data.adaptation);
+      return;
     }
   } catch (error) {
-    // Mark connection degraded if backend is unreachable
-    try {
-      const { useAdaptationStore } = await import('../store/adaptationStore');
-      useAdaptationStore.getState().setAdaptation({
-        mlServiceAvailable: false,
-        state: 'balanced',
-        reasons: ['Inference connection unreachable — standard layout maintained'],
-      });
-    } catch {
-      // Ignore
-    }
+    // Backend offline / Vercel guest mode fallback: Run Client-Side Behavioral Classifier
+    const clientSignal = classifyBehaviorClient(features);
+    useAdaptationStore.getState().setAdaptation(clientSignal);
   }
 }
