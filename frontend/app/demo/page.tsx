@@ -16,6 +16,7 @@ type AuthMode = 'login' | 'register';
 type WorkspaceMode = 'sandbox' | 'tasks';
 
 export default function DemoPage() {
+  const [mounted, setMounted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
@@ -36,6 +37,7 @@ export default function DemoPage() {
   const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
   useEffect(() => {
+    setMounted(true);
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('username');
     if (token) {
@@ -179,8 +181,8 @@ export default function DemoPage() {
                     required
                     value={usernameInput}
                     onChange={(e) => setUsernameInput(e.target.value)}
-                    placeholder="shivam_yadav"
-                    className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 text-zinc-900 dark:text-white text-sm focus:outline-hidden focus:border-emerald-500 transition-colors font-mono"
+                    placeholder="architect"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                   />
                 </div>
               )}
@@ -194,8 +196,8 @@ export default function DemoPage() {
                   required
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="student@amity.edu"
-                  className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 text-zinc-900 dark:text-white text-sm focus:outline-hidden focus:border-emerald-500 transition-colors font-mono"
+                  placeholder="analyst@domain.com"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                 />
               </div>
 
@@ -209,34 +211,24 @@ export default function DemoPage() {
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 text-zinc-900 dark:text-white text-sm focus:outline-hidden focus:border-emerald-500 transition-colors font-mono"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={authLoading}
-                className="w-full mt-2 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/20 transition-all duration-200 active:scale-98 disabled:opacity-50"
+                className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-mono font-bold text-xs shadow-md transition-all mt-4 disabled:opacity-50"
               >
-                {authLoading ? 'Authenticating...' : authMode === 'login' ? 'Proceed to Workspace' : 'Create Credentials'}
+                {authLoading ? 'Verifying...' : authMode === 'login' ? 'Authenticate' : 'Create Account'}
               </button>
             </form>
-
-            <div className="mt-4 text-center">
-              <button
-                type="button"
-                onClick={() => setShowAuthModal(false)}
-                className="text-[11px] font-mono text-zinc-500 hover:text-zinc-300 underline"
-              >
-                Remain in Guest Mode (Ephemeral local session)
-              </button>
-            </div>
           </div>
         </div>
       )}
 
-      {/* ════════════════════ ARCHITECTURAL HEADER ════════════════════ */}
-      <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#FAF9F6]/80 dark:bg-[#070709]/80 border-b border-zinc-200/60 dark:border-zinc-800/60 transition-colors">
+      {/* ════════════════════ TOP ARCHITECTURAL HEADER ════════════════════ */}
+      <header className="border-b border-zinc-200/60 dark:border-zinc-800/60 backdrop-blur-md sticky top-0 z-40 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
@@ -274,7 +266,7 @@ export default function DemoPage() {
               </span>
             </div>
 
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <div className="flex items-center gap-2.5 pl-2 border-l border-zinc-200 dark:border-zinc-800">
                 <span className="text-xs font-mono text-zinc-400 hidden sm:inline-block">
                   {currentUser}
@@ -361,8 +353,8 @@ export default function DemoPage() {
             <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">
               Buffered Events
             </div>
-            <div className="text-xl sm:text-2xl font-display font-extrabold text-zinc-900 dark:text-white mt-1">
-              {events.length}
+            <div suppressHydrationWarning className="text-xl sm:text-2xl font-display font-extrabold text-zinc-900 dark:text-white mt-1">
+              {mounted ? events.length : 0}
             </div>
           </div>
 
@@ -370,8 +362,8 @@ export default function DemoPage() {
             <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">
               Adaptations
             </div>
-            <div className="text-xl sm:text-2xl font-display font-extrabold text-emerald-500 mt-1">
-              {adaptationsCount}
+            <div suppressHydrationWarning className="text-xl sm:text-2xl font-display font-extrabold text-emerald-500 mt-1">
+              {mounted ? adaptationsCount : 0}
             </div>
           </div>
 
@@ -379,7 +371,7 @@ export default function DemoPage() {
             <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">
               Confidence
             </div>
-            <div className="text-xl sm:text-2xl font-display font-extrabold text-indigo-400 mt-1">
+            <div suppressHydrationWarning className="text-xl sm:text-2xl font-display font-extrabold text-indigo-400 mt-1">
               {Math.round((confidence || 0.85) * 100)}%
             </div>
           </div>
@@ -388,7 +380,7 @@ export default function DemoPage() {
             <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">
               Active Persona
             </div>
-            <div className={`mt-1 text-xs font-bold px-2 py-0.5 rounded-full border inline-block w-fit ${currentBadge.color}`}>
+            <div suppressHydrationWarning className={`mt-1 text-xs font-bold px-2 py-0.5 rounded-full border inline-block w-fit ${currentBadge.color}`}>
               {currentBadge.label}
             </div>
           </div>

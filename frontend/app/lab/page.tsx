@@ -97,6 +97,20 @@ interface StepResult {
   features: any;
 }
 
+const INITIAL_FEATURES = {
+  clicks_per_min: 0,
+  unique_click_ratio: 1,
+  repeat_click_ratio: 0,
+  scroll_speed: 0,
+  max_scroll_depth: 0,
+  key_presses_per_min: 0,
+  idle_ratio: 1,
+  view_switches_per_min: 0,
+  text_selections_count: 0,
+  rage_click_count: 0,
+  mean_dwell_seconds: 0,
+};
+
 export default function LabPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -118,7 +132,8 @@ export default function LabPage() {
   const [newItemText, setNewItemText] = useState('');
 
   // Live telemetry features
-  const [liveFeatures, setLiveFeatures] = useState(computeRollingFeatures());
+  const [mounted, setMounted] = useState(false);
+  const [liveFeatures, setLiveFeatures] = useState<any>(INITIAL_FEATURES);
   const [stepResults, setStepResults] = useState<StepResult[]>([]);
   const [evaluatingML, setEvaluatingML] = useState(false);
   const [lastPrediction, setLastPrediction] = useState<{ state: string; confidence: number; isMatch: boolean } | null>(null);
@@ -126,8 +141,9 @@ export default function LabPage() {
   const sessionId = useTelemetryStore((s) => s.sessionId);
   const currentTask = GUIDED_TASKS[currentStep];
 
-  // Poll rolling features every 800ms
   useEffect(() => {
+    setMounted(true);
+    setLiveFeatures(computeRollingFeatures());
     const interval = setInterval(() => {
       setLiveFeatures(computeRollingFeatures());
     }, 800);
@@ -411,7 +427,7 @@ export default function LabPage() {
                   {/* Stopwatch Badge */}
                   <div className="px-3.5 py-1.5 rounded-xl glass-card font-mono text-sm font-bold flex items-center gap-2 shrink-0">
                     <span className={`w-2 h-2 rounded-full ${isTimerRunning ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'}`} />
-                    <span>{Math.floor(secondsElapsed / 60)}:{(secondsElapsed % 60).toString().padStart(2, '0')}</span>
+                    <span suppressHydrationWarning>{mounted ? `${Math.floor(secondsElapsed / 60)}:${(secondsElapsed % 60).toString().padStart(2, "0")}` : "0:00"}</span>
                   </div>
                 </div>
 

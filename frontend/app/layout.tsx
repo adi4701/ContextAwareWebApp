@@ -55,7 +55,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${spaceGrotesk.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen antialiased bg-[#FAF9F6] dark:bg-[#070709] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-emerald-500/20 selection:text-emerald-700 dark:selection:text-emerald-300">
+      <body suppressHydrationWarning className="min-h-screen antialiased bg-[#FAF9F6] dark:bg-[#070709] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-emerald-500/20 selection:text-emerald-700 dark:selection:text-emerald-300">
         <AdaptationProvider>
           <ThemeWrapper>
             {children}

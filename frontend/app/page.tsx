@@ -639,7 +639,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
                 <span className="text-xs text-zinc-500 font-medium">Held-Out Accuracy</span>
-                <div className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 mt-1">
+                <div suppressHydrationWarning className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 mt-1">
                   {(currentMetrics.test_accuracy * 100).toFixed(1)}%
                 </div>
                 <span className="text-[11px] text-zinc-400">
@@ -668,7 +668,7 @@ export default function LandingPage() {
                 <div className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 mt-1">
                   {isReal && currentMetrics.n_real_samples_total
                     ? `${currentMetrics.n_real_samples_total} human`
-                    : currentMetrics.n_samples.toLocaleString()}
+                    : currentMetrics.n_samples.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                 </div>
                 <span className="text-[11px] text-zinc-400">20-second feature windows</span>
               </div>

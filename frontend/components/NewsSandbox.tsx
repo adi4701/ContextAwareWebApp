@@ -27,7 +27,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { useAdaptationStore } from '../store/adaptationStore';
-import { useTelemetryStore } from '../store/telemetryStore';
+import { useTelemetryStore, TelemetryFeatures } from '../store/telemetryStore';
 import { trackDwell, trackViewSwitch, computeRollingFeatures } from '../lib/telemetry';
 import TiltCard from './TiltCard';
 import NeuralLattice3D from './NeuralLattice3D';
@@ -215,7 +215,22 @@ const ARTICLES: Article[] = [
   },
 ];
 
+const INITIAL_FEATURES: TelemetryFeatures = {
+  clicks_per_min: 0,
+  unique_click_ratio: 1,
+  repeat_click_ratio: 0,
+  scroll_speed: 0,
+  max_scroll_depth: 0,
+  key_presses_per_min: 0,
+  idle_ratio: 1,
+  view_switches_per_min: 0,
+  text_selections_count: 0,
+  rage_click_count: 0,
+  mean_dwell_seconds: 0,
+};
+
 export default function NewsSandbox() {
+  const [mounted, setMounted] = useState(false);
   const {
     state: activeState,
     confidence,
@@ -237,12 +252,18 @@ export default function NewsSandbox() {
   const [expandedArticles, setExpandedArticles] = useState<Record<string, boolean>>({ [ARTICLES[0].id]: true });
   const [showHud, setShowHud] = useState(true);
   const [hudCountdown, setHudCountdown] = useState(5);
-  const [liveFeatures, setLiveFeatures] = useState(computeRollingFeatures());
+  const [liveFeatures, setLiveFeatures] = useState<TelemetryFeatures>(INITIAL_FEATURES);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
 
   const dwellStartRef = useRef<{ id: string; time: number } | null>(null);
   const isSimulationLocked = 'state' in userOverrides;
+
+  // Mount effect & client feature initialization
+  useEffect(() => {
+    setMounted(true);
+    setLiveFeatures(computeRollingFeatures());
+  }, []);
 
   // Clean speech synthesis on unmount
   useEffect(() => {
@@ -375,7 +396,7 @@ export default function NewsSandbox() {
   };
 
   return (
-    <div className={`w-full rounded-3xl p-5 sm:p-7 lg:p-9 border ${themeContainerStyles[activeTheme] || themeContainerStyles.light} ${motionClasses[motionLevel] || motionClasses.smooth_350} relative overflow-hidden`}>
+    <div suppressHydrationWarning className={`w-full rounded-3xl p-5 sm:p-7 lg:p-9 border ${themeContainerStyles[activeTheme] || themeContainerStyles.light} ${motionClasses[motionLevel] || motionClasses.smooth_350} relative overflow-hidden`}>
       {/* Pinned Top Reading Progress Bar for Focus Reader */}
       {layoutShell === 'centered_editorial' && (
         <div className="fixed top-0 left-0 right-0 z-50 h-1.5 bg-[#E4D5C2]/40">
@@ -408,7 +429,7 @@ export default function NewsSandbox() {
           <div className="flex items-center gap-3">
             {isSimulationLocked ? (
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-mono font-bold flex items-center gap-1.5">
+                <span suppressHydrationWarning className="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-mono font-bold flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5" />
                   <span>Simulation Locked ({activeState.replace('_', ' ')})</span>
                 </span>
@@ -423,7 +444,7 @@ export default function NewsSandbox() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[11px] font-mono font-bold flex items-center gap-1.5">
+                <span suppressHydrationWarning className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[11px] font-mono font-bold flex items-center gap-1.5">
                   <Activity className="w-3.5 h-3.5 animate-pulse" />
                   <span>Auto ML Active (Flush: {hudCountdown}s)</span>
                 </span>
@@ -562,17 +583,17 @@ export default function NewsSandbox() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
           </span>
-          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
+          <span suppressHydrationWarning className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
             {activeState ? activeState.replace('_', ' ') : 'Balanced'}
           </span>
           <span className="text-zinc-300 dark:text-zinc-700">|</span>
-          <span className="font-sans font-medium">
+          <span suppressHydrationWarning className="font-sans font-medium">
             {explainBanner}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[10px] text-zinc-400">Confidence: {Math.round((confidence || 0.85) * 100)}%</span>
+          <span suppressHydrationWarning className="font-mono text-[10px] text-zinc-400">Confidence: {Math.round((confidence || 0.85) * 100)}%</span>
           <button
             onClick={() => toggleXaiModal(true)}
             className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-mono text-[11px] font-bold flex items-center gap-1.5 transition-all shadow-xs"
@@ -942,7 +963,7 @@ export default function NewsSandbox() {
             <h4 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-zinc-900 dark:text-zinc-100">
               Live Behavioral Micro-Telemetry & ML Weights
             </h4>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold border border-emerald-500/20">
+            <span suppressHydrationWarning className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold border border-emerald-500/20">
               {isSimulationLocked ? 'Simulation Mode' : `Next Flush: ${hudCountdown}s`}
             </span>
           </div>
@@ -971,43 +992,43 @@ export default function NewsSandbox() {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
                 <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Tempo</div>
-                  <div className="text-sm font-bold text-zinc-100 mt-0.5">
-                    {liveFeatures.clicks_per_min} <span className="text-[9px] text-zinc-500">c/m</span>
+                  <div suppressHydrationWarning className="text-sm font-bold text-zinc-100 mt-0.5">
+                    {mounted ? liveFeatures.clicks_per_min : 0} <span className="text-[9px] text-zinc-500">c/m</span>
                   </div>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Velocity</div>
-                  <div className="text-sm font-bold text-emerald-400 mt-0.5">
-                    {Math.round(liveFeatures.scroll_speed * 1000)} <span className="text-[9px] text-zinc-500">px/s</span>
+                  <div suppressHydrationWarning className="text-sm font-bold text-emerald-400 mt-0.5">
+                    {mounted ? Math.round(liveFeatures.scroll_speed * 1000) : 0} <span className="text-[9px] text-zinc-500">px/s</span>
                   </div>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Selections</div>
-                  <div className="text-sm font-bold text-zinc-100 mt-0.5">
-                    {liveFeatures.text_selections_count || 0}
+                  <div suppressHydrationWarning className="text-sm font-bold text-zinc-100 mt-0.5">
+                    {mounted ? (liveFeatures.text_selections_count || 0) : 0}
                   </div>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Friction</div>
-                  <div className="text-sm font-bold text-rose-400 mt-0.5">
-                    {liveFeatures.rage_click_count || 0}
+                  <div suppressHydrationWarning className="text-sm font-bold text-rose-400 mt-0.5">
+                    {mounted ? (liveFeatures.rage_click_count || 0) : 0}
                   </div>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Dwell</div>
-                  <div className="text-sm font-bold text-amber-400 mt-0.5">
-                    {liveFeatures.mean_dwell_seconds || 0} <span className="text-[9px] text-zinc-500">s</span>
+                  <div suppressHydrationWarning className="text-sm font-bold text-amber-400 mt-0.5">
+                    {mounted ? (liveFeatures.mean_dwell_seconds || 0) : 0} <span className="text-[9px] text-zinc-500">s</span>
                   </div>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800">
                   <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Switches</div>
-                  <div className="text-sm font-bold text-zinc-100 mt-0.5">
-                    {liveFeatures.view_switches_per_min}
+                  <div suppressHydrationWarning className="text-sm font-bold text-zinc-100 mt-0.5">
+                    {mounted ? liveFeatures.view_switches_per_min : 0}
                   </div>
                 </div>
               </div>
@@ -1016,15 +1037,15 @@ export default function NewsSandbox() {
               <div className="p-3.5 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex flex-wrap items-center justify-between gap-2.5 text-xs">
                 <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400 flex items-center gap-1.5">
                   <Cpu className="w-3.5 h-3.5 text-emerald-500" />
-                  ML State: <strong className="text-white">{activeState}</strong>
+                  ML State: <strong suppressHydrationWarning className="text-white">{activeState}</strong>
                 </span>
 
                 <div className="flex items-center gap-3">
                   <span className="text-[11px] text-zinc-400 font-mono">
-                    Layout Shell: <code className="text-emerald-400">{layoutShell}</code>
+                    Layout Shell: <code suppressHydrationWarning className="text-emerald-400">{layoutShell}</code>
                   </span>
                   <span className="text-[11px] text-zinc-400 font-mono">
-                    Theme: <code className="text-amber-400">{activeTheme}</code>
+                    Theme: <code suppressHydrationWarning className="text-amber-400">{activeTheme}</code>
                   </span>
                 </div>
               </div>
