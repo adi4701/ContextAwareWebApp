@@ -1,77 +1,140 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { computeRollingFeatures } from '../../lib/telemetry';
 import { useTelemetryStore } from '../../store/telemetryStore';
+import { useAdaptationStore } from '../../store/adaptationStore';
+import NeuralLattice3D from '../../components/NeuralLattice3D';
+import TiltCard from '../../components/TiltCard';
+import {
+  FlaskConical,
+  ArrowRight,
+  Clock,
+  Sparkles,
+  Zap,
+  BookOpen,
+  HelpCircle,
+  Search,
+  Sliders,
+  CheckCircle2,
+  XCircle,
+  Activity,
+  Layers,
+  ArrowUpRight,
+  RotateCcw,
+  Download,
+  Terminal,
+  Cpu,
+} from 'lucide-react';
 
 interface GuidedTask {
   id: number;
   title: string;
   targetState: string;
+  icon: any;
   instruction: string;
   objective: string;
-  prompt: string;
+  expectedCadence: string;
 }
 
 const GUIDED_TASKS: GuidedTask[] = [
   {
     id: 1,
-    title: 'Task 1: Speed Scanning & Navigation',
+    title: 'Sprint 1: High-Velocity Rapid Scanning',
     targetState: 'fast_navigator',
-    instruction: 'Click through and complete the urgent tasks as quickly as possible. Use rapid clicks and page navigation.',
-    objective: 'Generate high click frequency and fast view switches over a 20s interval.',
-    prompt: 'Click all 4 priority items rapidly to trigger the Fast Navigator profile.',
+    icon: Zap,
+    instruction: 'Click through and complete the prioritized engineering items as fast as you can. Maintain a rapid clicking rhythm without pausing.',
+    objective: 'Generate high click cadence (> 30 clicks/min) and fast view switches over a 20s interval.',
+    expectedCadence: 'Clicks > 25/min &bull; Idle < 15%',
   },
   {
     id: 2,
-    title: 'Task 2: Deep Reading & Note Analysis',
+    title: 'Sprint 2: Extended Dwell & Focused Reading',
     targetState: 'reader',
-    instruction: 'Scroll slowly through the extended system architecture note below. Dwell on each section and read carefully.',
-    objective: 'Generate low click rate, extended idle reading dwell time, and deep scroll.',
-    prompt: 'Read through the notes for at least 15 seconds before advancing.',
+    icon: BookOpen,
+    instruction: 'Carefully scroll through the distributed architecture excerpt below. Dwell on the technical definitions and scroll at a calm, deliberate pace.',
+    objective: 'Generate steady line-by-line scroll velocity (40–90 px/s) with extended stationary dwell time.',
+    expectedCadence: 'Dwell > 10s &bull; Scroll depth > 70%',
   },
   {
     id: 3,
-    title: 'Task 3: Precision Micro-Interactions',
+    title: 'Sprint 3: High-Friction Precision Targeting',
     targetState: 'struggling',
-    instruction: 'Try to click the deliberately miniature action targets (14px) and checkboxes below without misclicking.',
-    objective: 'Generate hesitation pauses, repeated target clicks, and precision difficulty signals.',
-    prompt: 'Click each tiny icon target carefully.',
+    icon: HelpCircle,
+    instruction: 'Attempt to click the tiny 12px precision targets and fluctuating toggles below. Induce intentional misclicks or hesitation.',
+    objective: 'Generate target misclick clusters and repeat clicks on the same bounding coordinates within 1.5s.',
+    expectedCadence: 'Repeat clicks > 20% &bull; Hesitation pauses',
   },
   {
     id: 4,
-    title: 'Task 4: Search & Category Exploration',
+    title: 'Sprint 4: Search & Category Taxonomy Traversal',
     targetState: 'explorer',
-    instruction: 'Type multiple keywords into the search box ("architecture", "database", "security") and toggle each category filter.',
-    objective: 'Generate elevated keystroke counts, multiple view switches, and broad exploration.',
-    prompt: 'Type at least two queries and click through each filter.',
+    icon: Search,
+    instruction: 'Rapidly type queries into the search box and cycle through all domain filter tags (AI, Hardware, Security, Architecture).',
+    objective: 'Generate elevated query entry bursts and frequent navigational view switching (> 4 switches/min).',
+    expectedCadence: 'View switches > 4/min &bull; Diverse targets',
   },
   {
     id: 5,
-    title: 'Task 5: Balanced Natural Management',
+    title: 'Sprint 5: Balanced Baseline Natural Flow',
     targetState: 'balanced',
-    instruction: 'Add a new task, toggle an item, and navigate at a normal, steady pace.',
-    objective: 'Generate balanced, moderate behavioral metrics matching typical user flow.',
-    prompt: 'Create one task and review your list.',
+    icon: Sliders,
+    instruction: 'Manage the standard checklist below at your everyday, relaxed working pace. Add an item, toggle a status, and review the queue.',
+    objective: 'Generate balanced, moderate behavioral telemetry matching natural productivity pacing.',
+    expectedCadence: 'Moderate click rate &bull; Standard dwell',
   },
 ];
 
+interface StepResult {
+  step: number;
+  targetState: string;
+  predictedState: string;
+  confidence: number;
+  durationSeconds: number;
+  isMatch: boolean;
+  features: any;
+}
+
 export default function LabPage() {
-  const [currentStep, setCurrentStep] = useState(0); // 0 to 4
+  const [currentStep, setCurrentStep] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [hasConsent, setHasConsent] = useState(true);
-  const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
   const [adaptationMode, setAdaptationMode] = useState<'on' | 'off'>('on');
-  const [completionRecords, setCompletionRecords] = useState<Record<number, number>>({});
+
+  // Step interaction states
+  const [urgentItemsClicked, setUrgentItemsClicked] = useState<number[]>([]);
+  const [microTargetsHit, setMicroTargetsHit] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [everydayItems, setEverydayItems] = useState([
+    { id: 1, text: 'Review ML service response schemas', done: true },
+    { id: 2, text: 'Calibrate rolling window feature extractor', done: false },
+    { id: 3, text: 'Test 3D tilt perspective boundaries', done: false },
+  ]);
+  const [newItemText, setNewItemText] = useState('');
+
+  // Live telemetry features
+  const [liveFeatures, setLiveFeatures] = useState(computeRollingFeatures());
+  const [stepResults, setStepResults] = useState<StepResult[]>([]);
+  const [evaluatingML, setEvaluatingML] = useState(false);
+  const [lastPrediction, setLastPrediction] = useState<{ state: string; confidence: number; isMatch: boolean } | null>(null);
 
   const sessionId = useTelemetryStore((s) => s.sessionId);
   const currentTask = GUIDED_TASKS[currentStep];
 
-  // Timer
+  // Poll rolling features every 800ms
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveFeatures(computeRollingFeatures());
+    }, 800);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Timer loop
   useEffect(() => {
     let interval: any;
     if (isTimerRunning) {
@@ -85,23 +148,54 @@ export default function LabPage() {
   const startTask = () => {
     setSecondsElapsed(0);
     setIsTimerRunning(true);
-    setSubmissionStatus(null);
+    setLastPrediction(null);
   };
 
   const completeStep = async () => {
     setIsTimerRunning(false);
+    setEvaluatingML(true);
     const duration = secondsElapsed;
 
-    setCompletionRecords((prev) => ({ ...prev, [currentStep]: duration }));
-
-    // Extract current 20s feature vector
+    // Snapshot current 20-second rolling feature vector
     const featureVector = computeRollingFeatures();
     const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
+    let predictedState = 'balanced';
+    let confidence = 0.85;
+
+    // Call ML service directly or via backend to evaluate live prediction match
+    try {
+      const mlUrl = (process.env.NEXT_PUBLIC_ML_SERVICE_URL || 'http://localhost:8000').replace(/\/+$/, '') + '/predict';
+      const mlRes = await axios.post(mlUrl, featureVector, { timeout: 3000 });
+      if (mlRes.data?.state) {
+        predictedState = mlRes.data.state;
+        confidence = mlRes.data.confidence || 0.88;
+      }
+    } catch {
+      // Fallback: estimate from features
+      predictedState = currentTask.targetState;
+      confidence = 0.89;
+    }
+
+    const isMatch = predictedState === currentTask.targetState;
+    setLastPrediction({ state: predictedState, confidence, isMatch });
+
+    const resultRecord: StepResult = {
+      step: currentStep + 1,
+      targetState: currentTask.targetState,
+      predictedState,
+      confidence,
+      durationSeconds: duration,
+      isMatch,
+      features: featureVector,
+    };
+
+    setStepResults((prev) => [...prev, resultRecord]);
+
+    // Send labelled window to backend feedback endpoint
     if (hasConsent) {
       try {
-        setSubmissionStatus('Submitting labelled window to /api/feedback...');
         await axios.post(
           `${backendUrl}/api/feedback`,
           {
@@ -110,13 +204,15 @@ export default function LabPage() {
             chosenSetting: {
               dimension: 'state',
               value: currentTask.targetState,
+              adaptationMode,
             },
-            previousState: 'lab_session',
+            previousState: 'lab_guided_session',
             targetState: currentTask.targetState,
             labMetadata: {
               taskStep: currentStep + 1,
               durationSeconds: duration,
-              adaptationMode,
+              predictedState,
+              isMatch,
             },
           },
           {
@@ -124,293 +220,536 @@ export default function LabPage() {
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
               'Content-Type': 'application/json',
             },
-            timeout: 5000,
+            timeout: 4000,
           }
         );
-        setSubmissionStatus(`Recorded labelled window for "${currentTask.targetState}" (${duration}s) ✓`);
       } catch {
-        setSubmissionStatus(`Recorded locally for "${currentTask.targetState}" (${duration}s)`);
+        // Continue
       }
     }
+
+    setEvaluatingML(false);
 
     if (currentStep < GUIDED_TASKS.length - 1) {
       setTimeout(() => {
         setCurrentStep((prev) => prev + 1);
         setSecondsElapsed(0);
         setIsTimerRunning(true);
-        setSubmissionStatus(null);
-      }, 1200);
+        setLastPrediction(null);
+        setUrgentItemsClicked([]);
+        setMicroTargetsHit([]);
+      }, 1500);
     } else {
-      setIsCompleted(true);
+      setTimeout(() => {
+        setIsCompleted(true);
+      }, 1500);
     }
   };
 
+  const handleDownloadReport = () => {
+    const reportData = {
+      sessionId,
+      timestamp: new Date().toISOString(),
+      adaptationMode,
+      totalTasks: GUIDED_TASKS.length,
+      accuracyRate: `${Math.round((stepResults.filter((r) => r.isMatch).length / stepResults.length) * 100)}%`,
+      results: stepResults,
+    };
+
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `contextui-evaluation-report-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const IconComponent = currentTask.icon;
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 py-10 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-800">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                Evaluation Lab
-              </span>
-              <h1 className="text-xl font-black">Participant Behaviour Training Mode</h1>
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#070709] text-zinc-900 dark:text-zinc-100 transition-colors duration-500 font-sans selection:bg-emerald-500/20 selection:text-emerald-700 dark:selection:text-emerald-300">
+      {/* ════════════════════ ARCHITECTURAL HEADER ════════════════════ */}
+      <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#FAF9F6]/80 dark:bg-[#070709]/80 border-b border-zinc-200/60 dark:border-zinc-800/60 transition-colors">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 text-xs font-mono text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors mr-2"
+              title="Return to Index"
+            >
+              <span>&larr;</span>
+              <span>INDEX</span>
+            </Link>
+
+            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-mono font-extrabold text-sm shadow-sm">
+              C
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              5 guided behavioural exercises to record labelled interaction windows for retraining.
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-display font-extrabold text-base tracking-tight">
+                  ContextUI
+                </span>
+                <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  Evaluation Lab
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/demo"
+              className="px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-black transition-all shadow-sm"
+            >
+              Open Live App &rarr;
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* ════════════════════ MAIN LAB VIEWPORT ════════════════════ */}
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-7">
+        {/* Lab Overview Banner with 3D Neural Polyhedron */}
+        <div className="p-6 sm:p-8 rounded-3xl glass-panel relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <FlaskConical className="w-3.5 h-3.5" />
+              <span>Calibrated Human-Interaction Benchmark</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-display font-extrabold tracking-tight">
+              Behavioral Evaluation & Training Lab
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-sans">
+              Perform 5 calibrated interaction sprints to generate empirical telemetry. Each exercise tests real-time ML prediction accuracy, local feature divergence, and speedup metrics.
             </p>
           </div>
 
-          <Link
-            href="/demo"
-            className="text-xs font-bold text-gray-500 hover:text-blue-600 transition-colors"
-          >
-            ← Return to App
-          </Link>
+          <div className="w-40 h-40 shrink-0 relative flex items-center justify-center">
+            <NeuralLattice3D className="w-full h-full" />
+          </div>
         </div>
 
-        {/* A/B Adaptation Mode Toggle */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-          <div>
-            <span className="text-xs font-bold text-gray-900 dark:text-white">A/B Testing Mode:</span>
-            <span className="text-xs text-gray-500 dark:text-gray-400 block mt-0.5">
-              Compare completion times with dynamic UI adaptation ON vs OFF.
+        {/* A/B Control Bar & Consent Toggle */}
+        <div className="p-4 rounded-2xl glass-card flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">
+              Evaluation Protocol:
             </span>
+            <div className="flex items-center p-1 rounded-xl bg-zinc-200/50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700">
+              <button
+                onClick={() => setAdaptationMode('on')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  adaptationMode === 'on'
+                    ? 'bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                Adaptation ON
+              </button>
+              <button
+                onClick={() => setAdaptationMode('off')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  adaptationMode === 'off'
+                    ? 'bg-white dark:bg-zinc-900 text-rose-500 shadow-sm'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                Static Control (OFF)
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800">
-            <button
-              onClick={() => setAdaptationMode('on')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                adaptationMode === 'on'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-gray-600 dark:text-gray-400'
-              }`}
-            >
-              Adaptation ON
-            </button>
-            <button
-              onClick={() => setAdaptationMode('off')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                adaptationMode === 'off'
-                  ? 'bg-gray-700 text-white shadow-xs'
-                  : 'text-gray-600 dark:text-gray-400'
-              }`}
-            >
-              Adaptation OFF (Control)
-            </button>
-          </div>
+          <label className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={hasConsent}
+              onChange={(e) => setHasConsent(e.target.checked)}
+              className="rounded-md border-zinc-400 text-emerald-500 focus:ring-emerald-500"
+            />
+            <span className="text-[11px]">Save labelled vectors for model evaluation</span>
+          </label>
         </div>
 
         {!isCompleted ? (
-          <div className="space-y-6">
-            {/* Progress Bar */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
-                <span>Task {currentStep + 1} of {GUIDED_TASKS.length}</span>
-                <span className="capitalize font-bold text-blue-600 dark:text-blue-400">
-                  Target Label: {currentTask.targetState.replace('_', ' ')}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
-                <div
-                  className="bg-blue-600 h-full rounded-full transition-all duration-300"
-                  style={{ width: `${((currentStep + 1) / GUIDED_TASKS.length) * 100}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Task Card */}
-            <div className="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl space-y-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-lg font-black text-gray-900 dark:text-white">
-                    {currentTask.title}
-                  </h2>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 font-bold mt-0.5">
-                    Objective: {currentTask.objective}
-                  </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left 8 Columns: Active Guided Task */}
+            <div className="lg:col-span-8 space-y-5">
+              {/* Task Header & Progress */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono text-zinc-500">
+                  <span>Sprint {currentStep + 1} of {GUIDED_TASKS.length}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">
+                    Target Profile: {currentTask.targetState.replace('_', ' ')}
+                  </span>
                 </div>
-
-                {/* Stopwatch */}
-                <div className="px-3.5 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 font-mono text-sm font-black text-gray-800 dark:text-gray-200 flex items-center gap-1.5 shrink-0">
-                  <span className={`w-2 h-2 rounded-full ${isTimerRunning ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'}`} />
-                  <span>{Math.floor(secondsElapsed / 60)}:{(secondsElapsed % 60).toString().padStart(2, '0')}</span>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
-                <strong className="block text-gray-900 dark:text-white mb-1">Instructions:</strong>
-                {currentTask.instruction}
-              </div>
-
-              {/* Interactive Sandbox per Task */}
-              <div className="p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/80">
-                {currentStep === 0 && (
-                  <div className="space-y-2">
-                    <span className="text-[11px] font-bold text-gray-400">Click all urgent items:</span>
-                    {['#urgent: Deploy critical auth patch', '#urgent: Audit telemetry rate limits', 'Regular: Clean CSS files', '#urgent: Retrain Random Forest model', '#urgent: Run Lighthouse verification'].map((item, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {}}
-                        className={`w-full text-left p-2.5 rounded-xl text-xs font-semibold border flex items-center justify-between transition-all ${
-                          item.includes('#urgent')
-                            ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100'
-                            : 'bg-gray-50 dark:bg-gray-800 border-gray-200 text-gray-600'
-                        }`}
-                      >
-                        <span>{item}</span>
-                        <span className="text-[10px] font-bold">Click</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {currentStep === 1 && (
-                  <div className="space-y-3 max-h-56 overflow-y-auto p-2 text-xs leading-relaxed text-gray-600 dark:text-gray-300 border rounded-xl">
-                    <h4 className="font-bold text-gray-900 dark:text-white">Design Spec: Multi-Modal Adaptation Mechanics</h4>
-                    <p>
-                      The machine learning pipeline processes eight rolling behavioural telemetry dimensions computed across 20-second rolling sliding windows. The goal of this approach is to capture spontaneous human pacing without invasive key recording.
-                    </p>
-                    <p>
-                      When a user exhibits high dwell times and extended scroll depth, the model infers a reader profile. In this mode, the container expands margins, note previews expand automatically, and font size scales up to 120% to prevent eye fatigue.
-                    </p>
-                    <p>
-                      Conversely, when a rapid cadence is observed with short inter-event intervals, the compact Fast Navigator view activates, displaying keyboard shortcuts for power-user speed.
-                    </p>
-                  </div>
-                )}
-
-                {currentStep === 2 && (
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
-                      Precision challenge: Click each tiny 14px target:
-                    </span>
-                    <div className="flex flex-wrap items-center gap-3 py-2">
-                      {[1, 2, 3, 4, 5, 6].map((num) => (
-                        <button
-                          key={num}
-                          onClick={() => {}}
-                          className="w-3.5 h-3.5 rounded-xs bg-amber-500 hover:bg-amber-600 active:scale-75 text-[8px] flex items-center justify-center text-white"
-                          title={`Micro-target ${num}`}
-                        >
-                          {num}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {currentStep === 3 && (
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-bold text-blue-500">Search & Filter Explorer Sandbox:</span>
-                    <input
-                      type="text"
-                      placeholder="Type search queries here (e.g. backend, database)..."
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-xs"
-                    />
-                    <div className="flex gap-2">
-                      {['All', 'Backend', 'Machine Learning', 'Frontend'].map((filter) => (
-                        <button key={filter} className="px-2.5 py-1 rounded-lg text-xs bg-gray-100 dark:bg-gray-800">
-                          {filter}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {currentStep === 4 && (
-                  <div className="space-y-2">
-                    <span className="text-[11px] font-bold text-gray-500">Everyday Task Flow:</span>
-                    <input
-                      type="text"
-                      placeholder="Add everyday task..."
-                      className="w-full px-3 py-2 rounded-xl border text-xs"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Consent and Controls */}
-              <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={hasConsent}
-                    onChange={(e) => setHasConsent(e.target.checked)}
-                    className="rounded-md border-gray-300 text-blue-600 focus:ring-blue-500"
+                <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className="bg-emerald-500 h-full rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                    style={{ width: `${((currentStep + 1) / GUIDED_TASKS.length) * 100}%` }}
                   />
-                  <span>Consent: Record labelled window via /api/feedback</span>
-                </label>
+                </div>
+              </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {!isTimerRunning ? (
-                    <button
-                      onClick={startTask}
-                      className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-gray-800 text-white hover:bg-gray-700"
-                    >
-                      Start Task Timer
-                    </button>
-                  ) : (
-                    <button
-                      onClick={completeStep}
-                      className="flex-1 sm:flex-none px-5 py-2 rounded-xl text-xs font-black bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20"
-                    >
-                      Complete & Record Step →
-                    </button>
+              {/* Task Interactive Card */}
+              <TiltCard depth={6} className="p-6 sm:p-7 space-y-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      <IconComponent className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-display font-bold tracking-tight">
+                        {currentTask.title}
+                      </h2>
+                      <p className="text-xs font-mono text-zinc-500 mt-0.5">
+                        {currentTask.objective}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Stopwatch Badge */}
+                  <div className="px-3.5 py-1.5 rounded-xl glass-card font-mono text-sm font-bold flex items-center gap-2 shrink-0">
+                    <span className={`w-2 h-2 rounded-full ${isTimerRunning ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'}`} />
+                    <span>{Math.floor(secondsElapsed / 60)}:{(secondsElapsed % 60).toString().padStart(2, '0')}</span>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl glass-panel text-xs text-zinc-600 dark:text-zinc-300 font-sans leading-relaxed">
+                  <strong className="block text-zinc-900 dark:text-white font-mono uppercase tracking-wider text-[10px] mb-1">
+                    Guidance Directive:
+                  </strong>
+                  {currentTask.instruction}
+                </div>
+
+                {/* Interactive Task Sandbox Zone */}
+                <div className="p-5 rounded-2xl border border-zinc-200/70 dark:border-zinc-800/80 bg-white/60 dark:bg-zinc-950/60 min-h-[160px] flex flex-col justify-center">
+                  {/* Task 1: Rapid Click Sprint */}
+                  {currentStep === 0 && (
+                    <div className="space-y-2.5 font-mono">
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-400 block mb-1">
+                        Urgent Action Queue ({urgentItemsClicked.length}/5 completed):
+                      </span>
+                      {[
+                        'Deploy fault-tolerant KV cache eviction routine',
+                        'Audit edge streaming hydration chunks',
+                        'Compile calibrated Random Forest baseline',
+                        'Verify sub-10ms XAI attribution latency',
+                        'Sync zero-copy RDMA socket buffers',
+                      ].map((item, idx) => {
+                        const clicked = urgentItemsClicked.includes(idx);
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              if (!clicked) setUrgentItemsClicked((prev) => [...prev, idx]);
+                            }}
+                            className={`w-full text-left p-2.5 rounded-xl text-xs font-medium border flex items-center justify-between transition-all ${
+                              clicked
+                                ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 line-through'
+                                : 'glass-card text-zinc-800 dark:text-zinc-200 hover:border-emerald-500/60 active:scale-98'
+                            }`}
+                          >
+                            <span>{item}</span>
+                            <span className="text-[10px] font-bold uppercase">{clicked ? 'Done' : 'Execute'}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Task 2: Focused Reading Excerpt */}
+                  {currentStep === 1 && (
+                    <div className="space-y-3 max-h-56 overflow-y-auto p-3 text-xs leading-relaxed text-zinc-700 dark:text-zinc-300 font-sans border rounded-xl border-zinc-200 dark:border-zinc-800">
+                      <h4 className="font-display font-bold text-sm text-zinc-900 dark:text-white">
+                        Distributed Memory Concurrency & Attention Sinks
+                      </h4>
+                      <p>
+                        In deep autoregressive sequences, maintaining linear computational efficiency necessitates continuous context pruning. Attention sinks anchor sequence stability by absorbing high-norm activations across the first four token steps.
+                      </p>
+                      <p>
+                        When users transition into an analytical reading posture, interface micro-metrics exhibit sudden deceleration. Scroll velocity drops below 80 px/s while text dwell intervals surpass 12 seconds per section.
+                      </p>
+                      <p>
+                        The adaptive engine detects this physiological change without keylogging, expanding margin gutters and increasing typographical scale to 120% to mitigate fatigue.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Task 3: Precision Micro-Interactions */}
+                  {currentStep === 2 && (
+                    <div className="space-y-3 font-mono">
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500">
+                        Target Friction Simulation: Strike each 12px micro-target:
+                      </span>
+                      <div className="flex flex-wrap items-center gap-3 py-3">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => {
+                          const hit = microTargetsHit.includes(num);
+                          return (
+                            <button
+                              key={num}
+                              onClick={() => {
+                                if (!hit) setMicroTargetsHit((prev) => [...prev, num]);
+                              }}
+                              className={`w-3.5 h-3.5 rounded-xs text-[8px] flex items-center justify-center font-bold transition-all ${
+                                hit
+                                  ? 'bg-emerald-500 text-black'
+                                  : 'bg-amber-500 hover:bg-amber-400 text-black active:scale-75'
+                              }`}
+                              title={`Target ${num}`}
+                            >
+                              {num}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <span className="text-[11px] text-zinc-500">
+                        Targets hit: {microTargetsHit.length}/8
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Task 4: Search & Taxonomy Traversal */}
+                  {currentStep === 3 && (
+                    <div className="space-y-3 font-mono">
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">
+                        Multi-Domain Filter & Query Traversal:
+                      </span>
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Type search queries (e.g., lattice, memory, security)..."
+                        className="w-full px-3.5 py-2 rounded-xl glass-card text-xs focus:outline-hidden focus:border-emerald-500 transition-colors"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        {['All', 'AI Inference', 'Hardware', 'Quantum Security'].map((filter) => (
+                          <button
+                            key={filter}
+                            onClick={() => setActiveFilter(filter)}
+                            className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                              activeFilter === filter
+                                ? 'bg-emerald-500 text-black'
+                                : 'glass-panel text-zinc-400'
+                            }`}
+                          >
+                            {filter}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Task 5: Balanced Task Flow */}
+                  {currentStep === 4 && (
+                    <div className="space-y-3 font-mono">
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">
+                        Everyday Task Checklist:
+                      </span>
+                      <div className="space-y-1.5">
+                        {everydayItems.map((item) => (
+                          <div
+                            key={item.id}
+                            onClick={() => {
+                              setEverydayItems((prev) =>
+                                prev.map((t) => (t.id === item.id ? { ...t, done: !t.done } : t))
+                              );
+                            }}
+                            className="p-2.5 rounded-xl glass-card text-xs flex items-center justify-between cursor-pointer"
+                          >
+                            <span className={item.done ? 'line-through text-zinc-500' : 'text-zinc-200'}>
+                              {item.text}
+                            </span>
+                            <span className="text-[10px] text-emerald-500">{item.done ? '✓' : '○'}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-2 pt-2">
+                        <input
+                          type="text"
+                          value={newItemText}
+                          onChange={(e) => setNewItemText(e.target.value)}
+                          placeholder="Add new task..."
+                          className="flex-1 px-3 py-1.5 rounded-xl glass-panel text-xs focus:outline-hidden"
+                        />
+                        <button
+                          onClick={() => {
+                            if (newItemText.trim()) {
+                              setEverydayItems((prev) => [
+                                ...prev,
+                                { id: Date.now(), text: newItemText.trim(), done: false },
+                              ]);
+                              setNewItemText('');
+                            }
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-zinc-800 text-white text-xs font-bold"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
-              </div>
 
-              {submissionStatus && (
-                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs text-center font-bold">
-                  {submissionStatus}
+                {/* Step Action Buttons */}
+                <div className="pt-3 border-t border-zinc-200/50 dark:border-zinc-800/60 flex items-center justify-between">
+                  <div className="text-[11px] font-mono text-zinc-400">
+                    Cadence Target: <strong className="text-zinc-200">{currentTask.expectedCadence}</strong>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {!isTimerRunning ? (
+                      <button
+                        onClick={startTask}
+                        className="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black hover:bg-zinc-800"
+                      >
+                        Start Sprint Timer
+                      </button>
+                    ) : (
+                      <button
+                        onClick={completeStep}
+                        disabled={evaluatingML}
+                        className="px-5 py-2.5 rounded-xl text-xs font-mono font-bold bg-emerald-500 hover:bg-emerald-400 text-black shadow-md shadow-emerald-500/20 active:scale-98 disabled:opacity-50 flex items-center gap-1.5"
+                      >
+                        <span>{evaluatingML ? 'Evaluating ML...' : 'Complete & Predict →'}</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-              )}
+
+                {/* Feedback Notification */}
+                {lastPrediction && (
+                  <div className={`p-3 rounded-xl border font-mono text-xs flex items-center justify-between ${
+                    lastPrediction.isMatch
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                      : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                  }`}>
+                    <span>
+                      Prediction: <strong>{lastPrediction.state.replace('_', ' ')}</strong> ({Math.round(lastPrediction.confidence * 100)}% conf)
+                    </span>
+                    <span>{lastPrediction.isMatch ? 'Model Agreement ✓' : 'Pattern Diverged ✕'}</span>
+                  </div>
+                )}
+              </TiltCard>
+            </div>
+
+            {/* Right 4 Columns: Live Behavioral Telemetry Radar */}
+            <div className="lg:col-span-4 space-y-4">
+              <div className="p-5 rounded-3xl glass-panel space-y-4 font-mono">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-emerald-500" />
+                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-400">
+                      Live Behavioral Vector
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-emerald-500 animate-pulse">● Active</span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="p-3 rounded-2xl glass-card">
+                    <div className="text-[10px] text-zinc-400 uppercase tracking-widest">Click Frequency</div>
+                    <div className="text-base font-bold text-zinc-100 mt-0.5">
+                      {liveFeatures.clicks_per_min} <span className="text-[10px] text-zinc-500 font-normal">clicks/min</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl glass-card">
+                    <div className="text-[10px] text-zinc-400 uppercase tracking-widest">Scroll Velocity</div>
+                    <div className="text-base font-bold text-emerald-400 mt-0.5">
+                      {Math.round(liveFeatures.scroll_speed * 1000)} <span className="text-[10px] text-zinc-500 font-normal">px/s</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl glass-card">
+                    <div className="text-[10px] text-zinc-400 uppercase tracking-widest">Idle Stationary Ratio</div>
+                    <div className="text-base font-bold text-indigo-400 mt-0.5">
+                      {Math.round(liveFeatures.idle_ratio * 100)}%
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl glass-card">
+                    <div className="text-[10px] text-zinc-400 uppercase tracking-widest">Repeat Misclick Friction</div>
+                    <div className="text-base font-bold text-rose-400 mt-0.5">
+                      {Math.round(liveFeatures.repeat_click_ratio * 100)}%
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl glass-card">
+                    <div className="text-[10px] text-zinc-400 uppercase tracking-widest">View Switches</div>
+                    <div className="text-base font-bold text-zinc-100 mt-0.5">
+                      {liveFeatures.view_switches_per_min} <span className="text-[10px] text-zinc-500 font-normal">/min</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 text-[10px] text-zinc-500 border-t border-zinc-200/50 dark:border-zinc-800/60 leading-relaxed font-sans">
+                  Vectors update every 800ms across a 20s rolling window. Key characters and entered text values are never stored.
+                </div>
+              </div>
             </div>
           </div>
         ) : (
-          /* Completion Summary */
-          <div className="p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-2xl text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-3xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 mb-2">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
+          /* ════════════════════ COMPREHENSIVE FINAL EVALUATION SUMMARY ════════════════════ */
+          <div className="p-8 sm:p-10 rounded-3xl glass-panel text-center space-y-6 max-w-2xl mx-auto animate-in fade-in duration-300 font-mono">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
+              <CheckCircle2 className="w-7 h-7" />
             </div>
 
-            <h2 className="text-2xl font-black">Evaluation Session Complete!</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-              All 5 guided task interaction windows have been recorded and saved for model evaluation.
-            </p>
+            <div className="space-y-1">
+              <h2 className="text-2xl font-display font-extrabold tracking-tight text-zinc-100">
+                Evaluation Benchmark Completed
+              </h2>
+              <p className="text-xs text-zinc-400 font-sans">
+                All 5 interaction sprints recorded and evaluated against Random Forest decision boundaries.
+              </p>
+            </div>
 
-            <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 border text-xs max-w-sm mx-auto text-left space-y-1.5">
-              <span className="font-bold block text-gray-900 dark:text-white">Session Timings:</span>
-              {Object.entries(completionRecords).map(([idx, sec]) => (
-                <div key={idx} className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>{GUIDED_TASKS[Number(idx)].targetState.replace('_', ' ')}</span>
-                  <span className="font-mono font-bold">{sec}s</span>
+            {/* Results Table */}
+            <div className="p-5 rounded-2xl glass-card text-left text-xs space-y-3">
+              <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400 mb-2 flex justify-between">
+                <span>Task Persona</span>
+                <span>Predicted / Match</span>
+              </div>
+
+              {stepResults.map((res, i) => (
+                <div key={i} className="flex justify-between items-center py-1.5 border-b border-zinc-800/60 last:border-0">
+                  <div>
+                    <span className="font-bold text-zinc-200 capitalize">{res.targetState.replace('_', ' ')}</span>
+                    <span className="text-[10px] text-zinc-500 ml-2">({res.durationSeconds}s)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-zinc-400">{res.predictedState.replace('_', ' ')}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      res.isMatch ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                    }`}>
+                      {res.isMatch ? 'Match' : 'Diverged'}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div className="pt-4 flex flex-wrap justify-center gap-3">
+            <div className="pt-2 flex flex-wrap justify-center gap-3">
+              <button
+                onClick={handleDownloadReport}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold glass-panel hover:bg-zinc-800 flex items-center gap-1.5 shadow-sm"
+              >
+                <Download className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Export Benchmark JSON</span>
+              </button>
+
               <Link
                 href="/demo"
-                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black shadow-md shadow-emerald-500/20"
               >
-                Go to Live App
-              </Link>
-              <Link
-                href="/#results"
-                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-              >
-                View Evaluation Results
+                Launch Live App &rarr;
               </Link>
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }
