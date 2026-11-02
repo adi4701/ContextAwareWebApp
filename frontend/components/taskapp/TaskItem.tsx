@@ -13,7 +13,7 @@ interface TaskItemProps {
 export default function TaskItem({ task, isSelected }: TaskItemProps) {
   const { toggleTask, deleteTask, updateTask } = useTaskStore();
   const state = useAdaptationStore((s) => s.state);
-  const layoutDensity = useAdaptationStore((s) => s.layoutDensity);
+  const adaptation = useAdaptationStore((s) => s.adaptation);
   const lastAiSignal = useAdaptationStore((s) => s.lastAiSignal);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -24,7 +24,7 @@ export default function TaskItem({ task, isSelected }: TaskItemProps) {
   // Adaptation parameters
   const isReader = state === 'reader';
   const isStruggling = state === 'struggling';
-  const isCompact = layoutDensity === 'compact' || state === 'fast_navigator';
+  const isCompact = adaptation?.density === 'compact' || state === 'fast_navigator';
   const showNotesAdaptive = isReader || Boolean(lastAiSignal?.adaptation?.showNotes);
   const targetSizeLarge = isStruggling || lastAiSignal?.adaptation?.targetSize === 'large';
 

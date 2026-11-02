@@ -16,7 +16,7 @@ export default function TaskList() {
     isLoading,
   } = useTaskStore();
 
-  const layoutDensity = useAdaptationStore((s) => s.layoutDensity);
+  const adaptation = useAdaptationStore((s) => s.adaptation);
   const state = useAdaptationStore((s) => s.state);
 
   // Filter tasks based on status and search query
@@ -96,8 +96,8 @@ export default function TaskList() {
     );
   }
 
-  const isCompact = layoutDensity === 'compact' || state === 'fast_navigator';
-  const isSpacious = layoutDensity === 'spacious' || state === 'reader';
+  const isCompact = adaptation?.density === 'compact' || state === 'fast_navigator';
+  const isSpacious = adaptation?.density === 'spacious' || state === 'reader';
 
   const spacingClass = isCompact ? 'space-y-2' : isSpacious ? 'space-y-4' : 'space-y-3';
 

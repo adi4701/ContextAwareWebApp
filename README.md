@@ -1,249 +1,233 @@
-# Context-Aware Web Application with Real-Time ML UI Adaptation
+# ContextUI: Intelligent Real-Time Adaptive Task Manager
 
-> **Minor Project** — B.Tech CSE (Data Science), Amity University, Noida — 2026
+> **Minor Project** &mdash; B.Tech Computer Science & Engineering (Data Science), Amity University, Noida &bull; 2026
 
-A web application that watches user behavior in real time, feeds it into a Machine Learning model every 5 seconds, and automatically adapts the UI (theme, layout, section order) based on the predicted user profile — with smooth animations and manual override support.
+ContextUI is an intelligent task workspace and embeddable behavioral adaptation layer that continuously senses user interaction cadence&mdash;click rates, target repetition, scroll momentum, dwell pauses, and anonymous typing cadences&mdash;and morphs its interface density, typography, touch targets, and controls in real time using machine learning.
+
+[![Next.js 16](https://img.shields.io/badge/Frontend-Next.js%2016-black?logo=next.js)](https://nextjs.org)
+[![FastAPI](https://img.shields.io/badge/ML%20Service-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com)
+[![scikit-learn](https://img.shields.io/badge/Engine-Random%20Forest-F7931E?logo=scikit-learn)](https://scikit-learn.org)
+[![Express](https://img.shields.io/badge/Backend-Node%20Express-lightgrey?logo=express)](https://expressjs.com)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB%207.0-green?logo=mongodb)](https://mongodb.com)
+[![Tailwind CSS v4](https://img.shields.io/badge/Design-Tailwind%20v4%20%2B%20Shadcn-38B2AC?logo=tailwindcss)](https://tailwindcss.com)
+[![Privacy First](https://img.shields.io/badge/Privacy-Zero%20Keystrokes%20Logged-emerald)](#zero-knowledge-privacy-architecture)
+[![Held-out Accuracy](https://img.shields.io/badge/Real%20Data%20Accuracy-93.8%25-blue)](#empirical-evaluation-results)
+
+---
+
+## Key Highlights & Innovations
+
+- **The 4 Real-World Adaptive Personas**: Dynamically morphs between `fast_navigator`, `reader`, `struggling`, `explorer`, and safe `balanced` default based on live interaction ergonomics.
+- **Strict Zero-Knowledge Privacy**: Event streams collect anonymous timestamps and counts only. **Keystrokes, text input, form entries, and passwords are structurally ignored and rejected.**
+- **Anti-Flicker Temporal Smoothing**: In-memory 2-consecutive-state confirmation filter suppresses UI flickering during natural activity transitions.
+- **Graceful Subsystem Reliability**: Health probes actively verify MongoDB and ML microservice connectivity. Telemetry falls back safely to balanced mode with zero unhandled exceptions if the ML service is offline.
+- **Empirical Validation**: Contrasts synthetic benchmarks (99.7% F1) against held-out real participant lab sessions (93.8% accuracy, 93.7% macro-F1), delivering a measured **22.4% ergonomic task speedup**.
+- **Embeddable JavaScript SDK**: Single-tag `<script src="adaptive-ui.js"></script>` integration for external applications using declarative CSS Custom Properties.
+
+---
+
+## The 4 Behaviour States
+
+| Behaviour State | Key Ergonomic Signature | Interface Adaptation | Ergonomic Benefit |
+| :--- | :--- | :--- | :--- |
+| **`fast_navigator`** | High click velocity, low idle gaps, frequent view switches | Compact density, row padding collapses, keyboard shortcut cheat-bar (`n`, `/`, `j`, `k`, `x`) enabled | Maximizes screen density and keyboard-first operational throughput |
+| **`reader`** | Low scroll speed, high scroll depth, prolonged dwell intervals | Spacious density, typography scaled to 120%, task notes auto-unfolded | Reduces ocular strain and enhances comprehension for long notes |
+| **`struggling`** | Repeat clicks on the same elements within 1.5s, hesitation | Action buttons enlarged to **48px touch targets** with explicit labels, contextual help banner | Reduces misclicks by **34.0%** for users with motor fatigue or small targets |
+| **`explorer`** | High query typing bursts, rapid filter tab switching | Search input pinned with glowing focus ring, quick category filters elevated | Accelerates discovery across broad information architectures |
+| **`balanced`** | Standard balanced interaction or model confidence < 0.45 | Standard density, 1.0x text scale, 36px buttons, notes collapsed | Safe baseline when behavioral signals are ambiguous or low confidence |
 
 ---
 
 ## System Architecture
 
-```
-Browser (Next.js 15 — Port 3000)
-  │  tracks clicks, scrolls, navigation
-  │  every 5 seconds: POST /api/telemetry
-  ▼
-Express Backend (Node.js — Port 5000)
-  │  computes features, saves to MongoDB
-  │  POST /predict
-  ▼
-FastAPI ML Service (Python — Port 8000)
-  │  Random Forest → predicts user class
-  │  returns { theme, layoutDensity, componentOrder }
-  ▼
-Socket.io 'adaptation:update' → Frontend
-  │  Zustand store updates
-  ▼
-Framer Motion animations → UI adapts instantly
-```
+```mermaid
+flowchart TD
+    subgraph Client ["Client Layer (Browser)"]
+        UI["Interactive Task App / Next.js 16"]
+        Collector["Passive Collector (20s Rolling Window)"]
+        CSSVars["Reactive CSS Custom Properties\n--adaptive-density, --adaptive-target-size"]
+        WhyPanel["Explainability Panel & Undo Sovereignty"]
+    end
 
-### 4 User Behavior Profiles
+    subgraph Backend ["Backend API (Node/Express Port 5000)"]
+        Ingest["POST /api/telemetry\n(Strict Input Validation & Rate Limiter)"]
+        Sanitize["Zero-Knowledge Privacy Check\n(Rejects key/text fields)"]
+        FeatureEngine["Feature Aggregator (8 Dimensions)"]
+        Smoother["2-Consecutive-State Smoothing Filter"]
+        DB[(MongoDB 7.0 / Mongoose)]
+        SocketIO["Socket.io 'adaptation:update' Emission"]
+    end
 
-| Profile | Theme | Layout | Description |
-|---|---|---|---|
-| `power_user` | Dark | Compact | High click rate, deep navigation, work hours |
-| `casual_browser` | Light | Spacious | Low clicks, random hours, long sessions |
-| `mobile_constrained` | Light | Compact | Medium clicks, evening usage, quick sessions |
-| `accessibility_focused` | Light | Spacious | Methodical clicks, morning usage, long sessions |
+    subgraph MLService ["Machine Learning Service (FastAPI Port 8000)"]
+        Inference["POST /predict\nRandomForestClassifier (100 Trees)"]
+        Explain["Explainability Engine\n(Confidence & Reason Attribution)"]
+        Fallback["Confidence Check (Threshold < 0.45)"]
+    end
+
+    UI -->|Clicks, Scrolls, Cadence| Collector
+    Collector -->|Every 5s Flush| Ingest
+    Ingest --> Sanitize --> FeatureEngine
+    FeatureEngine -->|POST Feature Vector| Inference
+    Inference --> Fallback --> Explain
+    Explain -->|Raw Signal| Smoother
+    Smoother -->|Persist Document| DB
+    Smoother -->|Real-Time Push| SocketIO
+    SocketIO -->|Adaptation Signal| UI
+    UI --> CSSVars
+    UI --> WhyPanel
+```
 
 ---
 
-## Prerequisites
+## Empirical Evaluation Results
 
-- **Node.js** 18+ — [nodejs.org](https://nodejs.org)
-- **Python** 3.11+ — [python.org](https://python.org)
-- **MongoDB Community Edition** running locally on port 27017 — [mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
+All statistics in ContextUI are computed directly from trained models and held-out test sets (`metrics.json` and `metrics_real.json`):
+
+| Evaluation Metric | Chance Baseline | Synthetic Benchmark (N=8,000) | Held-Out Real Lab Benchmark (N=48) |
+| :--- | :--- | :--- | :--- |
+| **Accuracy** | 25.00% | 99.69% | **93.75%** |
+| **Macro F1 Score** | 0.1000 | 0.9969 | **0.9372** |
+| **Explorer F1** | &mdash; | 0.9938 | **0.9091** |
+| **Fast Navigator F1**| &mdash; | 0.9937 | **0.9231** |
+| **Focused Reader F1**| &mdash; | 1.0000 | **0.9600** |
+| **Assisted Mode F1** | &mdash; | 1.0000 | **0.9565** |
+| **A/B Task Speedup** | &mdash; | &mdash; | **+22.4% faster (29.8s vs 38.4s)** |
+| **Misclick Reduction**| &mdash; | &mdash; | **-34.0% repeat misclicks** |
+
+For the complete evaluation paper, methodology, confusion matrix, and feature importances, see [docs/EVALUATION.md](docs/EVALUATION.md).
+
+---
+
+## Zero-Knowledge Privacy Architecture
+
+ContextUI was engineered with hardcoded architectural safeguards to ensure that behavioral intelligence never compromises personal privacy:
+1. **Keystroke Blindness**: Key events capture timestamp counts only (`{ type: 'keypress', timestamp }`) to estimate typing rate. Character codes, typed text, passwords, and form inputs are never inspected or stored.
+2. **Strict Ingestion Validation**: `backend/src/middleware/validate.js` inspects every incoming telemetry event. Any payload containing `key`, `keyValue`, `text`, or `value` is immediately rejected with an HTTP 400 Privacy Violation error.
+3. **Explicit User Consent**: A visible toggle in the client allows users to disable telemetry at any time. When disabled, zero events are buffered and zero network calls are made.
+4. **Instant 2-Minute Undo**: The user always retains full sovereignty. Clicking "Undo" immediately resets the interface to `balanced` and pauses automated adaptation for 2 minutes.
+
+---
+
+## Quickstart & Local Setup
+
+### Prerequisites
+- **Node.js**: v18+ (Node 20 recommended)
+- **Python**: v3.11+
+- **MongoDB**: Community Edition running on port 27017
 
 Verify MongoDB is running:
-```bash
-# Windows PowerShell
+```powershell
 Get-Service -Name MongoDB
-# or
-mongosh --eval "db.runCommand({ connectionStatus: 1 })"
 ```
 
 ---
 
-## Setup & Run
-
-### Step 1 — Train the ML Model (do this only ONCE)
-
+### Step 1: Clone and Set Up ML Service (Port 8000)
 ```bash
 cd context-aware-app/ml-service
 pip install -r requirements.txt
-python generate_data.py
-# Output: training_data.csv with 10,000 rows
 
+# Train baseline model and generate model artifacts
 python train.py
-# Output: ~85% cross-validation accuracy
-#         model.joblib + label_encoder.joblib created
+
+# Launch FastAPI microservice
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
+Verify: [`http://127.0.0.1:8000/health`](http://127.0.0.1:8000/health) &rarr; `{"status":"ok","model_loaded":true}`
 
-### Step 2 — Start the ML Microservice (Terminal 1)
+---
 
-```bash
-cd context-aware-app/ml-service
-uvicorn main:app --reload --port 8000
-```
-
-Verify: http://localhost:8000/health → `{"status":"ok","model_loaded":true}`
-
-### Step 3 — Start the Backend (Terminal 2)
-
+### Step 2: Set Up Backend API & Socket.io (Port 5000)
 ```bash
 cd context-aware-app/backend
 npm install
 npm run dev
 ```
+Verify: [`http://127.0.0.1:5000/api/health`](http://127.0.0.1:5000/api/health) &rarr; `{"status":"ok","services":{"backend":"ok","mongodb":"connected","mlService":"connected"},"fallbackActive":false}`
 
-Verify: http://localhost:5000/health → `{"status":"ok","timestamp":"..."}`
+---
 
-### Step 4 — Start the Frontend (Terminal 3)
-
+### Step 3: Launch Next.js 16 Web Application (Port 3000)
 ```bash
 cd context-aware-app/frontend
 npm install
 npm run dev
 ```
-
-Open: http://localhost:3000
-
----
-
-## How It Works End-to-End
-
-1. **Register / Login** — First visit shows an auth modal. Create an account or log in.
-2. **Telemetry collection** — Every click, scroll, and navigation event is silently captured in a Zustand store buffer.
-3. **5-second flush** — `flushTelemetry()` fires every 5 seconds, POSTing the buffer to the Express backend with a JWT token.
-4. **Feature engineering** — The backend computes `clickDensity`, `scrollRate`, `navigationDepth`, `hourOfDay` from raw events.
-5. **ML prediction** — The feature vector is forwarded to the FastAPI `/predict` endpoint. The Random Forest classifier returns a user class.
-6. **Real-time push** — The backend emits `adaptation:update` via Socket.io to the user's private room (`user:<userId>`).
-7. **UI adaptation** — The Zustand store updates `theme`, `layoutDensity`, and `componentOrder`. Framer Motion animates section reordering with layout animations.
-8. **Manual override** — The ⚙️ panel (bottom-right) lets the user lock any dimension manually. Overrides persist until cleared.
+Open [`http://localhost:3000`](http://localhost:3000) in your browser:
+- **Marketing Landing Page**: [`http://localhost:3000`](http://localhost:3000)
+- **Interactive Task Workspace Demo**: [`http://localhost:3000/demo`](http://localhost:3000/demo)
+- **Interactive 5-Stage Evaluation Lab**: [`http://localhost:3000/lab`](http://localhost:3000/lab)
+- **Standalone SDK External Demo**: [`http://localhost:3000/sdk/example.html`](http://localhost:3000/sdk/example.html)
 
 ---
 
-## Project Structure
+## Embeddable SDK Usage
 
-```
-context-aware-app/
-├── README.md
-├── ml-service/               # Python FastAPI ML microservice
-│   ├── generate_data.py      # Synthetic training data generator
-│   ├── train.py              # Model training script
-│   ├── model_utils.py        # Model loading + prediction logic
-│   ├── schemas.py            # Pydantic request/response schemas
-│   ├── main.py               # FastAPI app
-│   ├── requirements.txt
-│   ├── training_data.csv     # Generated by generate_data.py
-│   ├── model.joblib          # Trained Random Forest pipeline
-│   └── label_encoder.joblib  # Label encoder
-│
-├── backend/                  # Node.js Express API
-│   ├── src/
-│   │   ├── index.js          # Entry point
-│   │   ├── models/
-│   │   │   ├── User.js       # Mongoose user schema
-│   │   │   └── Telemetry.js  # Mongoose telemetry schema
-│   │   ├── routes/
-│   │   │   ├── auth.js       # Register + Login endpoints
-│   │   │   └── telemetry.js  # POST /api/telemetry endpoint
-│   │   ├── middleware/
-│   │   │   ├── authMiddleware.js  # JWT verification
-│   │   │   └── rateLimiter.js    # express-rate-limit configs
-│   │   ├── socket/
-│   │   │   └── index.js     # Socket.io server setup
-│   │   └── utils/
-│   │       └── logger.js    # Winston logger
-│   ├── .env
-│   └── package.json
-│
-└── frontend/                 # Next.js 15 App Router
-    ├── app/
-    │   ├── layout.tsx        # Root layout with providers
-    │   ├── page.tsx          # Main page with auth modal + hero
-    │   └── globals.css       # Tailwind directives
-    ├── components/
-    │   ├── AdaptationProvider.tsx  # Mounts tracking + socket listener
-    │   ├── AdaptiveLayout.tsx      # Framer Motion section reordering
-    │   ├── ThemeWrapper.tsx        # Dark/light theme wrapper
-    │   ├── OverridePanel.tsx       # Manual override floating panel
-    │   └── sections/
-    │       ├── DashboardSection.tsx
-    │       ├── AnalyticsSection.tsx
-    │       ├── SettingsSection.tsx
-    │       └── NotificationsSection.tsx
-    ├── store/
-    │   ├── adaptationStore.ts  # Zustand: theme, layout, overrides
-    │   └── telemetryStore.ts   # Zustand: event buffer, session
-    ├── lib/
-    │   ├── socket.ts           # Socket.io singleton
-    │   ├── telemetry.ts        # Click/scroll/navigate tracking
-    │   └── flushTelemetry.ts   # 5-second batch upload
-    ├── .env.local
-    ├── next.config.js
-    └── package.json
+Any third-party website can embed the behavioral adaptation engine with a single script tag:
+
+```html
+<!-- Load the SDK -->
+<script src="http://localhost:5000/sdk/adaptive-ui.js"></script>
+<script>
+  // Initialize the tracker
+  const tracker = AdaptiveUI.init({
+    endpoint: 'http://localhost:5000/api/telemetry',
+    flushIntervalMs: 5000,
+    applyCssVariables: true,
+    showFloatingBadge: true,
+    onAdaptation: (signal) => {
+      console.log('Adapted to:', signal.state, signal.confidence);
+    }
+  });
+</script>
 ```
 
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 15 (App Router), TypeScript, Tailwind CSS |
-| Animations | Framer Motion (layout animations, section reorder) |
-| State | Zustand (adaptation config + telemetry buffer) |
-| Real-time | Socket.io (WebSocket push from backend to UI) |
-| Backend | Node.js + Express.js (CommonJS) |
-| Database | MongoDB + Mongoose |
-| Auth | JWT (jsonwebtoken) + bcryptjs |
-| ML Service | Python FastAPI + uvicorn |
-| ML Model | scikit-learn RandomForestClassifier in a Pipeline |
-| Data | 10,000 synthetic sessions generated with NumPy |
-
----
-
-## API Reference
-
-### Backend (Port 5000)
-
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/health` | No | Health check |
-| POST | `/api/auth/register` | No | Create account |
-| POST | `/api/auth/login` | No | Login, get JWT |
-| POST | `/api/telemetry` | JWT | Submit telemetry, get adaptation |
-
-### ML Service (Port 8000)
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/health` | Model status |
-| POST | `/predict` | Predict user class from 8 features |
-
-**Feature vector (POST /predict):**
-```json
-{
-  "click_count": 85,
-  "unique_elements_clicked": 60,
-  "avg_scroll_depth": 75,
-  "session_duration": 180,
-  "click_density": 28.3,
-  "navigation_depth": 8,
-  "scroll_rate": 0.42,
-  "hour_of_day": 14
+The SDK automatically injects responsive CSS variables:
+```css
+/* Style your layout using standard CSS variables */
+body {
+  font-size: calc(15px * var(--adaptive-text-scale));
+}
+button {
+  min-height: var(--adaptive-target-size);
+}
+.shortcut-bar {
+  display: var(--adaptive-show-shortcuts);
 }
 ```
+For full details, see [docs/SDK.md](docs/SDK.md).
 
-**Adaptation signal response:**
-```json
-{
-  "theme": "dark",
-  "layoutDensity": "compact",
-  "componentOrder": ["dashboard", "analytics", "notifications", "settings"],
-  "detectedClass": "power_user"
-}
+---
+
+## Test Suites
+
+```bash
+# 1. ML Service Contract Pytests (11 tests)
+cd context-aware-app/ml-service
+python -m pytest tests/test_predict.py -v
+
+# 2. Backend Jest Unit, Validation & SDK Tests (48 tests)
+cd context-aware-app/backend
+npm test
+
+# 3. Frontend Next.js Production Build
+cd context-aware-app/frontend
+npm run build
 ```
 
 ---
 
-## Troubleshooting
+## Documentation Index
 
-| Problem | Fix |
-|---|---|
-| `MongoDB connection error` | Ensure MongoDB is running: `net start MongoDB` |
-| `ML service unavailable` | Start uvicorn in the ml-service directory first |
-| `model.joblib not found` | Run `python generate_data.py && python train.py` first |
-| `Socket not connecting` | Check backend is on port 5000, CORS allows localhost:3000 |
-| Frontend build errors | Run `npm install` in the frontend directory |
+- [docs/CONTRACT.md](docs/CONTRACT.md): Authoritative telemetry request and adaptation signal JSON schemas.
+- [docs/EVALUATION.md](docs/EVALUATION.md): In-depth research paper on synthetic baseline vs real participant lab trials.
+- [docs/SDK.md](docs/SDK.md): Complete integration and developer guide for the standalone embeddable JavaScript SDK.
+- [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md): 3-minute walkthrough script for live demonstrations and presentations.
+- [docs/INTERVIEW_QA.md](docs/INTERVIEW_QA.md): 5 core technical defense questions and answers for viva preparation.
+
+---
+
+## License & Authorship
+
+Developed for the **B.Tech CSE Data Science Minor Project (2026)** at Amity University, Noida.  
+Licensed under the [MIT License](LICENSE).
