@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdaptiveUI SDK — Embeddable Demo</title>
+  <style>
+    /* ════════════════════ ADAPTIVE CSS SYSTEM ════════════════════ */
+    :root {
+      --adaptive-density: standard;
+      --adaptive-text-scale: 1.0;
+      --adaptive-target-size: 36px;
+      --adaptive-show-shortcuts: none;
+      --adaptive-show-help: none;
+      --adaptive-show-notes: none;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: padding 0.25s ease, font-size 0.25s ease, min-height 0.25s ease;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #09090b;
+      color: #fafafa;
+      line-height: 1.6;
+      padding: 24px;
+      font-size: calc(15px * var(--adaptive-text-scale));
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid #27272a;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .status-badge {
+      font-size: 11px;
+      font-family: monospace;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: #18181b;
+      border: 1px solid #3f3f46;
+      color: #a1a1aa;
+    }
+
+    /* Shortcut Bar (visible when --adaptive-show-shortcuts: block) */
+    .shortcut-bar {
+      display: var(--adaptive-show-shortcuts);
+      background: #1e1b4b;
+      border: 1px solid #4338ca;
+      color: #c7d2fe;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 12px;
+      margin-bottom: 16px;
+      font-family: monospace;
+    }
+
+    /* Help Banner (visible when --adaptive-show-help: block) */
+    .help-banner {
+      display: var(--adaptive-show-help);
+      background: #451a03;
+      border: 1px solid #b45309;
+      color: #fde68a;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* Task / Content Items */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    [data-adaptive-state="fast_navigator"] .task-list {
+      gap: 6px;
+    }
+
+    [data-adaptive-state="reader"] .task-list {
+      gap: 20px;
+    }
+
+    .task-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: calc(14px * var(--adaptive-text-scale));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    [data-adaptive-state="fast_navigator"] .task-card {
+      padding: 8px 12px;
+      border-color: #581c87;
+    }
+
+    [data-adaptive-state="reader"] .task-card {
+      padding: 22px;
+      border-color: #064e3b;
+    }
+
+    [data-adaptive-state="struggling"] .task-card {
+      padding: 18px;
+      border-color: #78350f;
+    }
+
+    .task-title {
+      font-weight: 600;
+      color: #f4f4f5;
+    }
+
+    .task-note {
+      display: var(--adaptive-show-notes);
+      margin-top: 8px;
+      font-size: 13px;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+
+    /* Action Buttons driven by --adaptive-target-size */
+    .btn {
+      min-height: var(--adaptive-target-size);
+      min-width: var(--adaptive-target-size);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #3f3f46;
+      background: #27272a;
+      color: #fafafa;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .btn:hover {
+      background: #3f3f46;
+    }
+
+    .btn-primary {
+      background: #fafafa;
+      color: #09090b;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #e4e4e7;
+    }
+
+    /* Telemetry Debug Panel */
+    .debug-box {
+      margin-top: 36px;
+      background: #121215;
+      border: 1px solid #27272a;
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .debug-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #71717a;
+      margin-bottom: 12px;
+    }
+
+    .sim-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .sim-btn {
+      background: #18181b;
+      border: 1px solid #3f3f46;
+      color: #d4d4d8;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .sim-btn:hover {
+      border-color: #818cf8;
+      color: #fff;
+    }
+
+    pre {
+      background: #09090b;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: monospace;
+      color: #a1a1aa;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body data-adaptive-state="balanced">
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-logo">A</div>
+        <div>
+          <h2>AdaptiveUI Embedded SDK Demo</h2>
+          <p style="font-size: 12px; color: #71717a;">Standalone script running on external host</p>
+        </div>
+      </div>
+      <div class="status-badge" id="sdk-state-pill">
+        State: balanced (confidence: 50%)
+      </div>
+    </header>
+
+    <!-- Contextual Elements shown based on state -->
+    <div class="shortcut-bar" id="shortcut-banner">
+      ⚡ <strong>Fast Navigator Hotkeys Active:</strong> Press [N] New Task &bull; [/] Search &bull; [J/K] Navigate &bull; [X] Complete
+    </div>
+
+    <div class="help-banner" id="help-banner">
+      💡 <strong>Assisted Mode Active:</strong> Button targets enlarged to 48px with explicit action labels to reduce misclicks.
+    </div>
+
+    <!-- Main Content List -->
+    <main class="task-list">
+      <div class="task-card">
+        <div>
+          <div class="task-title">Ship embeddable AdaptiveUI JavaScript SDK</div>
+          <div class="task-note">
+            The SDK operates in any web environment with zero runtime dependencies. It tracks rolling 20s micro-interactions (never keystrokes) and automatically alters CSS Custom Properties on the document.
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-done-1">Done</button>
+      </div>
+
+      <div class="task-card">
+        <div>
+          <div class="task-title">Test anti-flicker temporal smoothing algorithm</div>
+          <div class="task-note">
+            State transitions require 2 consecutive confirmations to prevent erratic layout flickering during natural activity shifts.
+          </div>
+        </div>
+        <button class="btn" id="btn-edit-2">Edit</button>
+      </div>
+
+      <div class="task-card">
+        <div>
+          <div class="task-title">Validate zero-knowledge privacy enforcement</div>
+          <div class="task-note">
+            Key press events track timestamp counts only. Character codes, text values, and passwords are structurally ignored.
+          </div>
+        </div>
+        <button class="btn" id="btn-star-3">Favorite</button>
+      </div>
+    </main>
+
+    <!-- Live Telemetry Monitor & Simulators -->
+    <section class="debug-box">
+      <div class="debug-title">Live Behavioral Simulators & Telemetry Stream</div>
+      <div class="sim-bar">
+        <button class="sim-btn" id="sim-fast">⚡ Simulate Fast Navigator</button>
+        <button class="sim-btn" id="sim-reader">📖 Simulate Deep Reader</button>
+        <button class="sim-btn" id="sim-struggling">⚠️ Simulate Struggling (Repeat Clicks)</button>
+        <button class="sim-btn" id="sim-explorer">🔍 Simulate Explorer</button>
+        <button class="sim-btn" id="sim-undo">↩ Undo & Pause (2 min)</button>
+      </div>
+
+      <div class="debug-title">Computed 20-Second Rolling Vector (Auto-refresh 1s)</div>
+      <pre id="feature-debug">Computing features...</pre>
+    </section>
+  </div>
+
+  <!-- ════════════════════ 1-TAG SDK INTEGRATION ════════════════════ -->
+  <script src="adaptive-ui.js"></script>
+  <script>
+    // Initialize the SDK
+    const tracker = AdaptiveUI.init({
+      endpoint: 'http://localhost:5000/api/telemetry',
+      flushIntervalMs: 5000,
+      applyCssVariables: true,
+      showFloatingBadge: true,
+      debug: true,
+      onAdaptation: function(signal) {
+        const pill = document.getElementById('sdk-state-pill');
+        if (pill) {
+          pill.textContent = `State: ${signal.state} (${Math.round(signal.confidence * 100)}%)`;
+        }
+      }
+    });
+
+    // Real-time debug vector refresh
+    setInterval(() => {
+      const f = AdaptiveUI.computeFeatures();
+      const el = document.getElementById('feature-debug');
+      if (el && f) {
+        el.textContent = JSON.stringify(f, null, 2);
+      }
+    }, 1000);
+
+    // Simulation Handlers
+    document.getElementById('sim-fast').onclick = () => {
+      tracker.applyAdaptation({
+        state: 'fast_navigator',
+        confidence: 0.94,
+        reasons: ['Simulated rapid clicks and shortcut traversal'],
+        changes: ['Compact rows, shortcut bar active'],
+      });
+    };
+
+    document.getElementById('sim-reader').onclick = () => {
+      tracker.applyAdaptation({
+        state: 'reader',
+        confidence: 0.96,
+        reasons: ['Simulated slow scroll depth and dwell time'],
+        changes: ['120% text scale, task notes expanded'],
+      });
+    };
+
+    document.getElementById('sim-struggling').onclick = () => {
+      tracker.applyAdaptation({
+        state: 'struggling',
+        confidence: 0.92,
+        reasons: ['Simulated 3 repeat clicks on the same button within 1.5s'],
+        changes: ['48px target buttons, contextual helper banner'],
+      });
+    };
+
+    document.getElementById('sim-explorer').onclick = () => {
+      tracker.applyAdaptation({
+        state: 'explorer',
+        confidence: 0.91,
+        reasons: ['Simulated search and category traversal'],
+        changes: ['Search emphasized, filter priority'],
+      });
+    };
+
+    document.getElementById('sim-undo').onclick = () => {
+      AdaptiveUI.undo();
+    };
+  </script>
+</body>
+</html>
