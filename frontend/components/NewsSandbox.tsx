@@ -7,26 +7,25 @@ import {
   Zap,
   HelpCircle,
   Search,
-  Sliders,
   Volume2,
   VolumeX,
   Clock,
-  Tag,
   ArrowUpRight,
   ChevronDown,
   ChevronUp,
   Table,
   CheckCircle,
-  Eye,
   Activity,
-  Layers,
   Terminal,
-  CornerDownRight,
   Filter,
+  Eye,
+  Sliders,
 } from 'lucide-react';
 import { useAdaptationStore } from '../store/adaptationStore';
 import { useTelemetryStore } from '../store/telemetryStore';
 import { trackDwell, trackViewSwitch, computeRollingFeatures } from '../lib/telemetry';
+import TiltCard from './TiltCard';
+import NeuralLattice3D from './NeuralLattice3D';
 
 export interface Article {
   id: string;
@@ -49,7 +48,7 @@ export interface Article {
 const ARTICLES: Article[] = [
   {
     id: 'art-moe-scale',
-    title: 'Sparse Mixture-of-Experts (MoE) at Scale: Inference Latency and KV Cache Bottlenecks',
+    title: 'Sparse Mixture-of-Experts (MoE) at Scale: Latency & KV Cache Bottlenecks',
     category: 'Artificial Intelligence',
     readTime: '4 min read',
     date: 'March 2026',
@@ -237,6 +236,15 @@ export default function NewsSandbox() {
 
   const dwellStartRef = useRef<{ id: string; time: number } | null>(null);
 
+  // Clean speech synthesis on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   // 5-second countdown timer for ML evaluation flush
   useEffect(() => {
     const timer = setInterval(() => {
@@ -252,13 +260,19 @@ export default function NewsSandbox() {
     return () => clearInterval(timer);
   }, []);
 
-  // Top reading progress bar listener
+  // Top reading progress bar listener with requestAnimationFrame
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (scrollHeight > 0) {
-        const progress = Math.min(100, Math.max(0, (window.scrollY / scrollHeight) * 100));
-        setReadingProgress(progress);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+          if (scrollHeight > 0) {
+            setReadingProgress(Math.min(100, Math.max(0, (window.scrollY / scrollHeight) * 100)));
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -268,7 +282,6 @@ export default function NewsSandbox() {
   // Keyboard shortcut listener for Analyst Terminal mode ([j], [k], [/])
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger if user is typing in an input
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
 
       const filtered = selectedCategory === 'All'
@@ -278,17 +291,14 @@ export default function NewsSandbox() {
       const currentIndex = filtered.findIndex((a) => a.id === selectedArticleId);
 
       if (e.key === 'j' || e.key === 'J') {
-        // Next article
         e.preventDefault();
         const nextIndex = (currentIndex + 1) % filtered.length;
         setSelectedArticleId(filtered[nextIndex].id);
       } else if (e.key === 'k' || e.key === 'K') {
-        // Previous article
         e.preventDefault();
         const prevIndex = (currentIndex - 1 + filtered.length) % filtered.length;
         setSelectedArticleId(filtered[prevIndex].id);
       } else if (e.key === '/') {
-        // Cycle categories
         e.preventDefault();
         const categories = ['All', 'Artificial Intelligence', 'Hardware', 'Web Architecture', 'Security'];
         const catIndex = categories.indexOf(selectedCategory);
@@ -302,7 +312,6 @@ export default function NewsSandbox() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedArticleId, selectedCategory]);
 
-  // Article dwell time tracker
   const handleMouseEnterArticle = (id: string) => {
     dwellStartRef.current = { id, time: Date.now() };
   };
@@ -319,7 +328,6 @@ export default function NewsSandbox() {
     setExpandedArticles((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Text-To-Speech for Assistive Mode
   const handleToggleSpeech = (text: string) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
@@ -337,7 +345,6 @@ export default function NewsSandbox() {
     }
   };
 
-  // Filtered articles
   const filteredArticles = selectedCategory === 'All'
     ? ARTICLES
     : ARTICLES.filter((a) => a.category === selectedCategory);
@@ -346,17 +353,10 @@ export default function NewsSandbox() {
 
   // Visual Styling Classes derived from 7 tokens
   const themeClasses: Record<string, string> = {
-    dark: 'bg-[#090D16] text-zinc-100 border-zinc-800',
-    light: 'bg-[#F8FAFC] text-zinc-900 border-zinc-200',
-    sepia: 'bg-[#FBF8F1] dark:bg-[#1E1C18] text-[#332F28] dark:text-[#E8E2D5] border-[#EADFCB] dark:border-[#38332A]',
-    high_contrast: 'bg-white dark:bg-black text-black dark:text-white border-4 border-black dark:border-white font-semibold',
-  };
-
-  const typographyClasses: Record<string, string> = {
-    compact_13: 'text-[13.5px] leading-relaxed',
-    standard_15: 'text-[15px] leading-normal',
-    editorial_19: 'text-[18.5px] leading-[1.85] font-serif',
-    accessible_20: 'text-[20px] leading-[1.9] tracking-wide font-sans font-medium',
+    dark: 'bg-[#070709] text-zinc-100 border-zinc-800/80',
+    light: 'bg-[#FAF9F6] text-zinc-900 border-zinc-200/80',
+    sepia: 'bg-[#FBF8F1] dark:bg-[#1A1814] text-[#332F28] dark:text-[#E8E2D5] border-[#EADFCB] dark:border-[#38332A]',
+    high_contrast: 'bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-white font-medium',
   };
 
   const motionClasses: Record<string, string> = {
@@ -367,44 +367,47 @@ export default function NewsSandbox() {
   };
 
   return (
-    <div className={`w-full rounded-3xl p-4 sm:p-6 lg:p-8 shadow-xl border ${themeClasses[activeTheme] || themeClasses.light} ${motionClasses[motionLevel] || motionClasses.smooth_350} relative overflow-hidden`}>
-      {/* ════════════════════ TOP READING PROGRESS BAR (FOCUS READER) ════════════════════ */}
+    <div className={`w-full rounded-3xl p-5 sm:p-7 lg:p-9 shadow-2xl border ${themeClasses[activeTheme] || themeClasses.light} ${motionClasses[motionLevel] || motionClasses.smooth_350} relative overflow-hidden bg-grid-minimal`}>
+      {/* Reading Progress Indicator */}
       {layoutShell === 'centered_editorial' && (
-        <div className="fixed top-0 left-0 right-0 z-50 h-1.5 bg-amber-200/40">
+        <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-amber-200/30">
           <div
-            className="h-full bg-amber-600 transition-all duration-150"
+            className="h-full bg-emerald-500 transition-all duration-150 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
             style={{ width: `${readingProgress}%` }}
           />
         </div>
       )}
 
-      {/* ════════════════════ ADAPTATION EXPLAIN BANNER ════════════════════ */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-xs">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse" />
-          <span className="font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-            {activeState ? activeState.replace('_', ' ') : 'Balanced'} Mode
+      {/* ════════════════════ BESPOKE ADAPTATION EXPLAIN BANNER ════════════════════ */}
+      <div className="mb-7 flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl glass-panel border border-zinc-200/70 dark:border-zinc-800/70 text-xs">
+        <div className="flex items-center gap-3">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
           </span>
-          <span className="hidden sm:inline-block text-zinc-400">|</span>
-          <span className="text-zinc-600 dark:text-zinc-300 font-medium">
+          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
+            {activeState ? activeState.replace('_', ' ') : 'Balanced'}
+          </span>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <span className="text-zinc-600 dark:text-zinc-300 font-sans">
             {explainBanner}
           </span>
         </div>
 
         <button
           onClick={() => toggleXaiModal(true)}
-          className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+          className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-mono text-xs font-bold flex items-center gap-2 transition-all shadow-md active:scale-98"
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          Explain Adaptation
+          <Sparkles className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
+          <span>Inspect Decision</span>
         </button>
       </div>
 
-      {/* ════════════════════ STICKY CATEGORY FILTER PILLS ════════════════════ */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-zinc-200/60 dark:border-zinc-800/80">
+      {/* ════════════════════ MINIMALIST FILTER BAR ════════════════════ */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-zinc-200/50 dark:border-zinc-800/60">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs font-bold text-zinc-500 mr-1 flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" /> Filter:
+          <span className="text-[10px] uppercase font-mono font-bold tracking-[0.18em] text-zinc-400 mr-2">
+            Domain:
           </span>
           {['All', 'Artificial Intelligence', 'Hardware', 'Web Architecture', 'Security'].map((cat) => (
             <button
@@ -413,10 +416,10 @@ export default function NewsSandbox() {
                 setSelectedCategory(cat);
                 trackViewSwitch(`cat_${cat}`);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
                 selectedCategory === cat
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
-                  : 'bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                  ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20'
+                  : 'bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-800'
               }`}
             >
               {cat}
@@ -424,41 +427,39 @@ export default function NewsSandbox() {
           ))}
         </div>
 
-        {/* Hotkey Indicator in Analyst Terminal Mode */}
         {navMode === 'command_hotkeys' && (
-          <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-400 bg-zinc-900/60 px-3 py-1.5 rounded-xl border border-zinc-800">
-            <span>Terminal Hotkeys:</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-blue-400 font-bold">[J]</kbd> Next
-            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-blue-400 font-bold">[K]</kbd> Prev
-            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-blue-400 font-bold">[/]</kbd> Filter
+          <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400 bg-zinc-900/80 px-3 py-1.5 rounded-xl border border-zinc-800">
+            <span className="text-zinc-500 uppercase tracking-widest">Hotkeys</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-emerald-400 font-bold">[J]</kbd> Next
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-emerald-400 font-bold">[K]</kbd> Prev
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-emerald-400 font-bold">[/]</kbd> Filter
           </div>
         )}
 
-        {/* Read-Aloud Button in Assistive Mode */}
         {navMode === 'large_speech_toggle' && (
           <button
             onClick={() => handleToggleSpeech(activeArticle.title + '. ' + activeArticle.lead)}
-            className={`min-h-[48px] px-4 py-2 rounded-2xl font-black text-sm flex items-center gap-2 transition-all ${
+            className={`min-h-[48px] px-5 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2.5 transition-all shadow-md ${
               isSpeaking
-                ? 'bg-red-600 hover:bg-red-700 text-white'
-                : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg'
+                ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-black'
             }`}
           >
             {isSpeaking ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-            {isSpeaking ? 'Stop Reading Aloud' : '🔊 Read Article Aloud'}
+            {isSpeaking ? 'Halt Audio' : 'Play Audio Synthesis'}
           </button>
         )}
       </div>
 
-      {/* ════════════════════ ADAPTIVE LAYOUT VARIATIONS ════════════════════ */}
+      {/* ════════════════════ ADAPTIVE LAYOUT MODES ════════════════════ */}
 
-      {/* ── VARIANT 1: ANALYST TERMINAL (SPLIT 3-COLUMN) ── */}
+      {/* ── VARIANT 1: ANALYST TERMINAL (3-COLUMN SPLIT) ── */}
       {layoutShell === 'split_terminal' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Col 1: Feed List (3 cols) */}
-          <div className="lg:col-span-4 space-y-2.5 max-h-[700px] overflow-y-auto pr-1">
-            <div className="text-[11px] font-mono font-bold uppercase text-blue-400 mb-2 flex items-center gap-1.5">
-              <Terminal className="w-3.5 h-3.5" /> Stream Queue ({filteredArticles.length})
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 font-mono">
+          {/* Feed List */}
+          <div className="lg:col-span-4 space-y-2 max-h-[700px] overflow-y-auto pr-1">
+            <div className="text-[10px] uppercase font-bold tracking-[0.2em] text-emerald-400 mb-2 flex items-center gap-1.5">
+              <Terminal className="w-3.5 h-3.5" /> Telemetry Feed ({filteredArticles.length})
             </div>
             {filteredArticles.map((art) => (
               <div
@@ -466,61 +467,61 @@ export default function NewsSandbox() {
                 onClick={() => setSelectedArticleId(art.id)}
                 onMouseEnter={() => handleMouseEnterArticle(art.id)}
                 onMouseLeave={() => handleMouseLeaveArticle(art.id)}
-                className={`p-3 rounded-xl border font-mono cursor-pointer transition-all ${
+                className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
                   selectedArticleId === art.id
-                    ? 'bg-blue-950/40 border-blue-500/80 shadow-md'
-                    : 'bg-zinc-900/60 border-zinc-800/80 hover:border-zinc-700 text-zinc-400'
+                    ? 'bg-emerald-950/20 border-emerald-500/60 text-white shadow-lg'
+                    : 'bg-zinc-900/40 border-zinc-800/80 hover:border-zinc-700 text-zinc-400'
                 }`}
               >
                 <div className="flex items-center justify-between text-[10px] text-zinc-500 mb-1">
                   <span>{art.category}</span>
                   <span>{art.readTime}</span>
                 </div>
-                <h5 className="text-xs font-bold text-zinc-100 line-clamp-2">
+                <h5 className="text-xs font-bold text-zinc-200 line-clamp-2">
                   {art.title}
                 </h5>
               </div>
             ))}
           </div>
 
-          {/* Col 2: Active Reader (5 cols) */}
-          <div className="lg:col-span-5 p-5 rounded-2xl bg-zinc-900/70 border border-zinc-800/90 space-y-4">
-            <div className="flex items-center justify-between text-xs font-mono text-zinc-400">
-              <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">
+          {/* Reader */}
+          <div className="lg:col-span-5 p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800/90 space-y-4">
+            <div className="flex items-center justify-between text-xs text-zinc-400">
+              <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20 text-[10px] uppercase tracking-wider">
                 {activeArticle.category}
               </span>
-              <span>{activeArticle.date} &bull; {activeArticle.readTime}</span>
+              <span className="text-[11px]">{activeArticle.date} &bull; {activeArticle.readTime}</span>
             </div>
 
-            <h3 className="text-lg font-black text-white">
+            <h3 className="text-lg font-display font-bold text-white tracking-tight">
               {activeArticle.title}
             </h3>
 
-            <p className="text-xs text-zinc-300 leading-relaxed font-sans border-l-2 border-blue-500 pl-3">
+            <p className="text-xs text-zinc-300 leading-relaxed font-sans border-l border-emerald-500/60 pl-3.5">
               {activeArticle.lead}
             </p>
 
-            <div className="space-y-3 font-sans text-xs text-zinc-300 leading-relaxed">
+            <div className="space-y-3 font-sans text-xs text-zinc-400 leading-relaxed">
               {activeArticle.fullParagraphs.map((para, i) => (
                 <p key={i}>{para}</p>
               ))}
             </div>
           </div>
 
-          {/* Col 3: Live Benchmarks & Telemetry (3 cols) */}
+          {/* Metrics & Benchmarks */}
           <div className="lg:col-span-3 space-y-4">
-            <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800">
-              <div className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Table className="w-3.5 h-3.5" /> Hardware Benchmarks
+            <div className="p-4 rounded-3xl bg-zinc-900/60 border border-zinc-800">
+              <div className="text-[10px] uppercase font-bold text-emerald-400 tracking-[0.2em] mb-3 flex items-center gap-1.5">
+                <Table className="w-3.5 h-3.5" /> Benchmarks
               </div>
 
-              <div className="space-y-2 font-mono text-xs">
+              <div className="space-y-2 text-xs">
                 {activeArticle.benchmarks.map((b, idx) => (
-                  <div key={idx} className="p-2 rounded-lg bg-zinc-950 border border-zinc-800/80">
-                    <div className="text-[10px] text-zinc-400">{b.metric}</div>
+                  <div key={idx} className="p-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800/70">
+                    <div className="text-[10px] text-zinc-500">{b.metric}</div>
                     <div className="flex justify-between items-center mt-1">
-                      <span className="text-zinc-500">{b.baseline}</span>
-                      <span className="text-white font-bold">{b.optimized}</span>
+                      <span className="text-zinc-500 text-[11px]">{b.baseline}</span>
+                      <span className="text-zinc-200 font-bold">{b.optimized}</span>
                       <span className="text-emerald-400 font-bold">{b.delta}</span>
                     </div>
                   </div>
@@ -528,13 +529,13 @@ export default function NewsSandbox() {
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800">
-              <div className="text-xs font-mono font-bold text-blue-400 uppercase tracking-wider mb-2">
-                Glossary Terms
+            <div className="p-4 rounded-3xl bg-zinc-900/60 border border-zinc-800">
+              <div className="text-[10px] uppercase font-bold text-zinc-400 tracking-[0.2em] mb-2">
+                Nomenclature
               </div>
               <div className="space-y-2 text-xs">
                 {activeArticle.glossary.map((g, idx) => (
-                  <div key={idx} className="text-zinc-400">
+                  <div key={idx} className="text-zinc-400 text-[11px] leading-relaxed">
                     <strong className="text-zinc-200">{g.term}:</strong> {g.definition}
                   </div>
                 ))}
@@ -544,51 +545,52 @@ export default function NewsSandbox() {
         </div>
       )}
 
-      {/* ── VARIANT 2: SKIMMER FEED (3-COLUMN MASONRY WITH AUTO-COLLAPSED TL;DR) ── */}
+      {/* ── VARIANT 2: SKIMMER FEED (3D TILT MASONRY GRID) ── */}
       {layoutShell === 'masonry_grid' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredArticles.map((art) => {
             const isExpanded = expandedArticles[art.id];
             return (
-              <div
+              <TiltCard
                 key={art.id}
+                depth={8}
                 onMouseEnter={() => handleMouseEnterArticle(art.id)}
                 onMouseLeave={() => handleMouseLeaveArticle(art.id)}
-                className="p-5 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between"
+                className="p-6 flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between text-xs font-bold text-zinc-500 mb-2.5">
-                    <span className="px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+                  <div className="flex items-center justify-between text-xs font-mono mb-3">
+                    <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                       {art.category}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" /> {art.readTime}
+                    <span className="text-zinc-400 text-[11px] flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> {art.readTime}
                     </span>
                   </div>
 
-                  <h4 className="text-base font-black text-zinc-900 dark:text-zinc-100 mb-2 leading-snug">
+                  <h4 className="text-base font-display font-bold text-zinc-900 dark:text-zinc-100 mb-2 leading-snug tracking-tight">
                     {art.title}
                   </h4>
 
-                  <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed mb-4">
-                    <strong className="text-zinc-900 dark:text-zinc-100">{art.lead.split('.')[0]}.</strong>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4 font-sans">
+                    {art.lead}
                   </p>
 
                   {/* 3-Bullet AI TL;DR Card */}
-                  <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/60 mb-3 space-y-2">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" /> AI 3-Bullet Key Findings
+                  <div className="p-4 rounded-2xl bg-zinc-50/80 dark:bg-zinc-900/70 border border-zinc-200/60 dark:border-zinc-800 mb-3 space-y-2.5">
+                    <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3" /> AI Core Digest
                     </div>
                     {art.tldrBullets.map((bullet, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs text-zinc-700 dark:text-zinc-300">
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                      <div key={idx} className="flex items-start gap-2 text-xs text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed">
+                        <span className="text-emerald-500 font-bold shrink-0">&rsaquo;</span>
                         <span>{bullet}</span>
                       </div>
                     ))}
                   </div>
 
                   {isExpanded && (
-                    <div className="space-y-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-300">
+                    <div className="space-y-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 font-sans leading-relaxed">
                       {art.fullParagraphs.map((p, i) => (
                         <p key={i}>{p}</p>
                       ))}
@@ -598,36 +600,34 @@ export default function NewsSandbox() {
 
                 <button
                   onClick={() => toggleExpandArticle(art.id)}
-                  className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center justify-between w-full hover:underline"
+                  className="mt-4 pt-3 border-t border-zinc-200/60 dark:border-zinc-800 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-between w-full hover:underline"
                 >
-                  <span>{isExpanded ? 'Collapse Full Article' : 'Read Full Research & Benchmarks'}</span>
-                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  <span>{isExpanded ? 'Collapse' : 'Expand Full Paper'}</span>
+                  {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
-              </div>
+              </TiltCard>
             );
           })}
         </div>
       )}
 
-      {/* ── VARIANT 3: FOCUS READER (CENTERED 68ch EDITORIAL) ── */}
+      {/* ── VARIANT 3: FOCUS READER (MINIMALIST 68ch EDITORIAL) ── */}
       {layoutShell === 'centered_editorial' && (
-        <div className="max-w-[68ch] mx-auto py-6 space-y-8 font-serif">
-          {/* Article Selector Navigation */}
-          <div className="flex items-center justify-between pb-4 border-b border-[#EADFCB] dark:border-[#38332A] text-xs font-sans">
-            <span className="font-bold text-amber-800 dark:text-amber-400 uppercase tracking-widest">
-              Focus Reader &bull; Distraction-Free
+        <div className="max-w-[68ch] mx-auto py-8 space-y-8 font-sans">
+          <div className="flex items-center justify-between pb-4 border-b border-[#EADFCB] dark:border-[#38332A] text-xs font-mono">
+            <span className="font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">
+              Focus Reading Room
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {filteredArticles.map((a, i) => (
                 <button
                   key={a.id}
                   onClick={() => setSelectedArticleId(a.id)}
-                  className={`w-7 h-7 rounded-full font-bold text-xs transition-colors ${
+                  className={`w-6 h-6 rounded-full font-bold text-[11px] transition-all ${
                     selectedArticleId === a.id
-                      ? 'bg-amber-800 text-white dark:bg-amber-600'
-                      : 'bg-amber-100 dark:bg-zinc-800 text-amber-900 dark:text-zinc-300'
+                      ? 'bg-emerald-500 text-black font-mono'
+                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
                   }`}
-                  title={a.title}
                 >
                   {i + 1}
                 </button>
@@ -636,31 +636,30 @@ export default function NewsSandbox() {
           </div>
 
           <header className="space-y-3">
-            <div className="text-xs font-sans uppercase tracking-widest text-amber-700 dark:text-amber-400 font-bold">
+            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">
               {activeArticle.category} &bull; {activeArticle.readTime}
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight leading-tight">
               {activeArticle.title}
             </h1>
-            <p className="text-lg font-sans text-amber-900/80 dark:text-amber-200/80 leading-relaxed pt-2 border-l-4 border-amber-600 pl-4">
+            <p className="text-base text-zinc-600 dark:text-zinc-300 leading-relaxed pt-2 border-l-2 border-emerald-500 pl-4">
               {activeArticle.lead}
             </p>
           </header>
 
-          <article className="space-y-6 text-[18.5px] leading-[1.85]">
+          <article className="space-y-6 text-[18px] leading-[1.85] text-zinc-800 dark:text-zinc-200 font-serif">
             {activeArticle.fullParagraphs.map((para, i) => (
               <p key={i}>{para}</p>
             ))}
           </article>
 
-          {/* Unfolded Takeaways */}
-          <div className="p-6 rounded-3xl bg-[#F4EFE6] dark:bg-[#25221C] border border-[#E0D4BE] dark:border-[#423C30] space-y-3 font-sans text-sm">
-            <h5 className="font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider text-xs flex items-center gap-2">
-              <BookOpen className="w-4 h-4" /> Editorial Key Takeaways
+          <div className="p-6 rounded-3xl glass-panel space-y-3 font-sans text-sm">
+            <h5 className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+              <BookOpen className="w-3.5 h-3.5" /> Synthesis
             </h5>
             {activeArticle.tldrBullets.map((bullet, idx) => (
-              <div key={idx} className="flex items-start gap-2 text-zinc-800 dark:text-zinc-200">
-                <span className="text-amber-700 font-bold">&bull;</span>
+              <div key={idx} className="flex items-start gap-2.5 text-zinc-700 dark:text-zinc-300 text-xs leading-relaxed">
+                <span className="text-emerald-500 font-bold">&bull;</span>
                 <span>{bullet}</span>
               </div>
             ))}
@@ -668,208 +667,204 @@ export default function NewsSandbox() {
         </div>
       )}
 
-      {/* ── VARIANT 4: COGNITIVE ASSIST (HIGH CLEARANCE, 48PX BUTTONS, GLOSSARY TOOLTIPS) ── */}
+      {/* ── VARIANT 4: ACCESSIBLE HIGH-CONTRAST ── */}
       {layoutShell === 'accessible_single' && (
         <div className="max-w-3xl mx-auto space-y-8">
-          <div className="p-5 rounded-3xl bg-amber-500/10 border-4 border-amber-500 text-amber-900 dark:text-amber-200 text-sm font-bold flex items-center gap-3">
-            <HelpCircle className="w-7 h-7 text-amber-600 shrink-0" />
-            <span>
-              Cognitive Assist Active: Simplified paragraphs, 2px borders, large hit targets, and audio reader enabled.
-            </span>
+          <div className="p-4 rounded-2xl border-2 border-black dark:border-white bg-zinc-100 dark:bg-zinc-900 font-mono text-xs font-bold flex items-center gap-2.5">
+            <HelpCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+            <span>High-Contrast Accessibility Mode: Enlarged targets, high clearance, text-to-speech.</span>
           </div>
 
           {filteredArticles.map((art) => (
             <div
               key={art.id}
-              className="p-6 sm:p-8 rounded-3xl border-4 border-black dark:border-white space-y-5 bg-white dark:bg-zinc-950"
+              className="p-8 rounded-3xl border-2 border-black dark:border-white space-y-5 bg-white dark:bg-black"
             >
-              <div className="flex items-center justify-between text-sm font-bold">
-                <span className="px-3 py-1.5 rounded-xl bg-black text-white dark:bg-white dark:text-black font-black">
+              <div className="flex items-center justify-between text-sm font-mono font-bold">
+                <span className="px-3 py-1 rounded-full bg-black text-white dark:bg-white dark:text-black">
                   {art.category}
                 </span>
                 <span>{art.readTime}</span>
               </div>
 
-              <h3 className="text-2xl font-black leading-snug">
+              <h3 className="text-2xl font-display font-bold">
                 {art.title}
               </h3>
 
-              <div className="space-y-4 text-lg font-medium leading-relaxed">
+              <div className="space-y-4 text-lg font-sans leading-relaxed">
                 {art.fullParagraphs.map((para, i) => (
-                  <p key={i} className="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border-2 border-zinc-300 dark:border-zinc-700">
+                  <p key={i} className="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700">
                     {para}
                   </p>
                 ))}
               </div>
 
-              {/* Step-by-Step Glossary */}
-              <div className="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border-2 border-blue-400 space-y-2">
-                <h5 className="font-bold text-blue-900 dark:text-blue-300 text-sm">
-                  📚 Key Term Definitions:
-                </h5>
-                {art.glossary.map((g, idx) => (
-                  <div key={idx} className="text-sm">
-                    <strong>{g.term}:</strong> {g.definition}
-                  </div>
-                ))}
-              </div>
-
-              {/* Large 48px Speech Button */}
               <button
                 onClick={() => handleToggleSpeech(art.title + '. ' + art.lead)}
-                className="w-full min-h-[48px] py-3 px-6 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-base flex items-center justify-center gap-3 shadow-md"
+                className="w-full min-h-[48px] py-3 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-sm flex items-center justify-center gap-2 shadow-md"
               >
-                <Volume2 className="w-5 h-5" />
-                Listen to This Article
+                <Volume2 className="w-4 h-4" />
+                Read Aloud
               </button>
             </div>
           ))}
         </div>
       )}
 
-      {/* ── VARIANT 5: BALANCED STANDARD GRID (DEFAULT) ── */}
+      {/* ── VARIANT 5: BALANCED STANDARD (DEFAULT) ── */}
       {layoutShell === 'standard_grid' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredArticles.map((art) => (
-            <div
+            <TiltCard
               key={art.id}
+              depth={6}
               onMouseEnter={() => handleMouseEnterArticle(art.id)}
               onMouseLeave={() => handleMouseLeaveArticle(art.id)}
-              className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col justify-between"
+              className="p-6 flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center justify-between text-xs font-bold text-zinc-500 mb-2">
-                  <span className="px-2.5 py-1 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                <div className="flex items-center justify-between text-xs font-mono text-zinc-400 mb-3">
+                  <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[10px] uppercase font-bold tracking-wider text-zinc-600 dark:text-zinc-300">
                     {art.category}
                   </span>
-                  <span>{art.readTime}</span>
+                  <span className="text-[11px]">{art.readTime}</span>
                 </div>
-                <h4 className="text-base font-bold text-zinc-900 dark:text-white mb-2">
+                <h4 className="text-base font-display font-bold text-zinc-900 dark:text-white mb-2 tracking-tight">
                   {art.title}
                 </h4>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4 font-sans">
                   {art.lead}
                 </p>
               </div>
 
               <button
                 onClick={() => setSelectedArticleId(art.id)}
-                className="pt-3 border-t border-zinc-100 dark:border-zinc-800 text-xs font-bold text-blue-600 hover:underline flex items-center justify-between"
+                className="pt-3 border-t border-zinc-200/50 dark:border-zinc-800 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center justify-between"
               >
-                <span>Read Full Article</span>
-                <ArrowUpRight className="w-4 h-4" />
+                <span>Examine</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </button>
-            </div>
+            </TiltCard>
           ))}
         </div>
       )}
 
-      {/* ════════════════════ COLLAPSIBLE LIVE TELEMETRY & ML BRAIN HUD ════════════════════ */}
-      <div className="mt-8 pt-6 border-t border-zinc-200/60 dark:border-zinc-800/80">
+      {/* ════════════════════ 3D NEURAL BRAIN & LIVE TELEMETRY HUD ════════════════════ */}
+      <div className="mt-10 pt-6 border-t border-zinc-200/60 dark:border-zinc-800/80">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Activity className="w-4 h-4 text-emerald-500" />
-            <h4 className="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
-              Live Telemetry & ML Brain HUD
+            <h4 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-zinc-900 dark:text-zinc-100">
+              Kinetic ML Brain & Real-Time Telemetry
             </h4>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold">
-              Next ML Flush in {hudCountdown}s
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold border border-emerald-500/20">
+              Flush: {hudCountdown}s
             </span>
           </div>
 
           <button
             onClick={() => setShowHud(!showHud)}
-            className="text-xs font-bold text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 flex items-center gap-1"
+            className="text-xs font-mono text-zinc-400 hover:text-zinc-200 flex items-center gap-1"
           >
-            {showHud ? 'Collapse HUD' : 'Expand HUD'}
+            {showHud ? 'Minimize' : 'Expand'}
             {showHud ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
         </div>
 
         {showHud && (
-          <div className="space-y-4 animate-in fade-in duration-200">
-            {/* Live Metrics Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 text-xs">
-              <div className="p-3 rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60">
-                <div className="text-[10px] text-zinc-500 uppercase font-bold">Click Rate</div>
-                <div className="text-base font-black text-blue-600 dark:text-blue-400 mt-0.5">
-                  {liveFeatures.clicks_per_min} <span className="text-[10px] font-normal text-zinc-400">/min</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60">
-                <div className="text-[10px] text-zinc-500 uppercase font-bold">Scroll Speed</div>
-                <div className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
-                  {Math.round(liveFeatures.scroll_speed * 1000)} <span className="text-[10px] font-normal text-zinc-400">px/s</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60">
-                <div className="text-[10px] text-zinc-500 uppercase font-bold">Text Selections</div>
-                <div className="text-base font-black text-purple-600 dark:text-purple-400 mt-0.5">
-                  {liveFeatures.text_selections_count || 0} <span className="text-[10px] font-normal text-zinc-400">events</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60">
-                <div className="text-[10px] text-zinc-500 uppercase font-bold">Rage Clicks</div>
-                <div className="text-base font-black text-red-500 mt-0.5">
-                  {liveFeatures.rage_click_count || 0} <span className="text-[10px] font-normal text-zinc-400">bursts</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60">
-                <div className="text-[10px] text-zinc-500 uppercase font-bold">Mean Dwell Time</div>
-                <div className="text-base font-black text-amber-600 dark:text-amber-400 mt-0.5">
-                  {liveFeatures.mean_dwell_seconds || 0} <span className="text-[10px] font-normal text-zinc-400">s</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60">
-                <div className="text-[10px] text-zinc-500 uppercase font-bold">View Switches</div>
-                <div className="text-base font-black text-cyan-600 dark:text-cyan-400 mt-0.5">
-                  {liveFeatures.view_switches_per_min} <span className="text-[10px] font-normal text-zinc-400">/min</span>
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center animate-in fade-in duration-300">
+            {/* 3D Neural Lattice Sphere Visualization */}
+            <div className="lg:col-span-4 h-48 rounded-3xl glass-panel relative flex items-center justify-center p-2">
+              <NeuralLattice3D className="w-full h-full" />
+              <div className="absolute bottom-2 left-4 text-[10px] font-mono text-zinc-400 uppercase tracking-widest pointer-events-none">
+                3D Neural Polyhedron
               </div>
             </div>
 
-            {/* Simulation Shortcuts Bar */}
-            <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <span className="font-bold text-zinc-600 dark:text-zinc-400">
-                ⚡ Instant Behavioral State Simulation (For Evaluator Testing):
-              </span>
+            {/* Live Metrics Grid */}
+            <div className="lg:col-span-8 space-y-3 font-mono">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
+                <div className="p-3 rounded-2xl glass-card">
+                  <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Tempo</div>
+                  <div className="text-sm font-bold text-zinc-100 mt-0.5">
+                    {liveFeatures.clicks_per_min} <span className="text-[9px] text-zinc-500">c/m</span>
+                  </div>
+                </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  onClick={() => simulateState('fast_scanner')}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-xs"
-                >
-                  Skimmer Feed (Fast Scanner)
-                </button>
-                <button
-                  onClick={() => simulateState('deep_reader')}
-                  className="px-3 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-600 text-white font-bold transition-all shadow-xs"
-                >
-                  Focus Reader (Deep Reader)
-                </button>
-                <button
-                  onClick={() => simulateState('power_user')}
-                  className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-xs"
-                >
-                  Analyst Terminal (Power User)
-                </button>
-                <button
-                  onClick={() => simulateState('assistive_mode')}
-                  className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold transition-all shadow-xs"
-                >
-                  Cognitive Assist (Assistive Mode)
-                </button>
-                <button
-                  onClick={() => simulateState('balanced')}
-                  className="px-3 py-1.5 rounded-xl bg-zinc-600 hover:bg-zinc-500 text-white font-bold transition-all shadow-xs"
-                >
-                  Reset Balanced
-                </button>
+                <div className="p-3 rounded-2xl glass-card">
+                  <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Velocity</div>
+                  <div className="text-sm font-bold text-emerald-400 mt-0.5">
+                    {Math.round(liveFeatures.scroll_speed * 1000)} <span className="text-[9px] text-zinc-500">px/s</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl glass-card">
+                  <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Selections</div>
+                  <div className="text-sm font-bold text-zinc-100 mt-0.5">
+                    {liveFeatures.text_selections_count || 0}
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl glass-card">
+                  <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Friction</div>
+                  <div className="text-sm font-bold text-rose-400 mt-0.5">
+                    {liveFeatures.rage_click_count || 0}
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl glass-card">
+                  <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Dwell</div>
+                  <div className="text-sm font-bold text-amber-400 mt-0.5">
+                    {liveFeatures.mean_dwell_seconds || 0} <span className="text-[9px] text-zinc-500">s</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl glass-card">
+                  <div className="text-[9px] text-zinc-400 uppercase tracking-widest">Switches</div>
+                  <div className="text-sm font-bold text-zinc-100 mt-0.5">
+                    {liveFeatures.view_switches_per_min}
+                  </div>
+                </div>
+              </div>
+
+              {/* Simulation Testing Buttons */}
+              <div className="p-3.5 rounded-2xl glass-panel flex flex-wrap items-center justify-between gap-2.5 text-xs">
+                <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400">
+                  Simulate Persona:
+                </span>
+
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    onClick={() => simulateState('fast_scanner')}
+                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-emerald-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
+                  >
+                    Skimmer
+                  </button>
+                  <button
+                    onClick={() => simulateState('deep_reader')}
+                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-amber-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
+                  >
+                    Reader
+                  </button>
+                  <button
+                    onClick={() => simulateState('power_user')}
+                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-indigo-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
+                  >
+                    Terminal
+                  </button>
+                  <button
+                    onClick={() => simulateState('assistive_mode')}
+                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-rose-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
+                  >
+                    Assistive
+                  </button>
+                  <button
+                    onClick={() => simulateState('balanced')}
+                    className="px-3 py-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-400 text-[11px] font-bold border border-zinc-700/60 transition-all"
+                  >
+                    Reset
+                  </button>
+                </div>
               </div>
             </div>
           </div>

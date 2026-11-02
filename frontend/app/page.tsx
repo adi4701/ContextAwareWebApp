@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
+import NeuralLattice3D from '../components/NeuralLattice3D';
+import TiltCard from '../components/TiltCard';
 import {
   ArrowRight,
   Sparkles,
@@ -169,6 +171,11 @@ export default function LandingPage() {
         <p className="mt-5 text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
           ContextUI continuously senses interaction cadence—click velocity, repeat targets, scroll momentum, and dwell time—to morph interface density, typography, and controls in real time using machine learning.
         </p>
+
+        {/* 3D Neural Orbital Centerpiece */}
+        <div className="relative mx-auto w-64 h-64 sm:w-80 sm:h-80 -my-4 pointer-events-auto">
+          <NeuralLattice3D className="w-full h-full" />
+        </div>
 
         {/* Hero CTAs (Shadcn Button Variants) */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
