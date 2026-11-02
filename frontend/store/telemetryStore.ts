@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 
 export interface TelemetryEvent {
-  type: 'click' | 'scroll' | 'keypress' | 'navigate' | 'view_switch' | string;
+  type: 'click' | 'scroll' | 'keypress' | 'navigate' | 'view_switch' | 'text_selection' | 'rage_click' | 'dwell' | string;
   timestamp: number | Date; // epoch ms or Date
   elementId?: string;
   depth?: number;
   route?: string;
   x?: number;
   y?: number;
+  dwellMs?: number;
 }
 
 export interface TelemetryFeatures {
@@ -19,6 +20,10 @@ export interface TelemetryFeatures {
   key_presses_per_min: number;
   idle_ratio: number;
   view_switches_per_min: number;
+  // Extended v2.0 micro-signals (optional for ML vector, informative for HUD)
+  text_selections_count?: number;
+  rage_click_count?: number;
+  mean_dwell_seconds?: number;
 }
 
 export interface TelemetryState {
@@ -33,9 +38,18 @@ export interface TelemetryState {
   cumulativeNavigationDepth: number;
   consentGiven: boolean;
 
+  // Micro-interaction counters for ContextPulse
+  textSelectionsCount: number;
+  rageClickCount: number;
+  totalDwellMs: number;
+  dwellEventsCount: number;
+
   setConsent: (consent: boolean) => void;
   addEvent: (event: Omit<TelemetryEvent, 'timestamp'> & { timestamp?: number | Date }) => void;
   trackViewSwitch: (viewName?: string) => void;
+  trackTextSelection: () => void;
+  trackRageClick: (x: number, y: number) => void;
+  trackDwell: (elementId: string, dwellMs: number) => void;
   flushAndGetBuffer: () => TelemetryEvent[];
   clearEvents: () => void;
   getSessionDuration: () => number;
@@ -73,6 +87,11 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
   maxScrollDepth: 0,
   cumulativeNavigationDepth: 1,
   consentGiven: getInitialConsent(),
+
+  textSelectionsCount: 0,
+  rageClickCount: 0,
+  totalDwellMs: 0,
+  dwellEventsCount: 0,
 
   setConsent: (consent: boolean) => {
     if (typeof window !== 'undefined') {
@@ -112,6 +131,13 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
         ? state.cumulativeNavigationDepth + 1
         : state.cumulativeNavigationDepth;
 
+      const nextSelections = event.type === 'text_selection' ? state.textSelectionsCount + 1 : state.textSelectionsCount;
+      const nextRage = event.type === 'rage_click' ? state.rageClickCount + 1 : state.rageClickCount;
+      const nextDwellMs = event.type === 'dwell' && typeof event.dwellMs === 'number'
+        ? state.totalDwellMs + event.dwellMs
+        : state.totalDwellMs;
+      const nextDwellCount = event.type === 'dwell' ? state.dwellEventsCount + 1 : state.dwellEventsCount;
+
       return {
         events: [...state.events, fullEvent],
         cumulativeClicks: nextClicks,
@@ -120,6 +146,10 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
         lastKnownScrollDepth: scrollDepth,
         maxScrollDepth: nextMaxScroll,
         cumulativeNavigationDepth: nextNav,
+        textSelectionsCount: nextSelections,
+        rageClickCount: nextRage,
+        totalDwellMs: nextDwellMs,
+        dwellEventsCount: nextDwellCount,
       };
     });
   },
@@ -129,6 +159,32 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
     get().addEvent({
       type: 'view_switch',
       route: viewName || (typeof window !== 'undefined' ? window.location.pathname : ''),
+    });
+  },
+
+  trackTextSelection: () => {
+    if (!get().consentGiven) return;
+    // CRITICAL PRIVACY RULE: Never log the selected text! Count only.
+    get().addEvent({
+      type: 'text_selection',
+    });
+  },
+
+  trackRageClick: (x: number, y: number) => {
+    if (!get().consentGiven) return;
+    get().addEvent({
+      type: 'rage_click',
+      x,
+      y,
+    });
+  },
+
+  trackDwell: (elementId: string, dwellMs: number) => {
+    if (!get().consentGiven) return;
+    get().addEvent({
+      type: 'dwell',
+      elementId,
+      dwellMs,
     });
   },
 

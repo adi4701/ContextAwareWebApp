@@ -5,16 +5,21 @@ import Link from 'next/link';
 import axios from 'axios';
 import AdaptiveLayout from '../../components/AdaptiveLayout';
 import OverridePanel from '../../components/OverridePanel';
+import NewsSandbox from '../../components/NewsSandbox';
+import AdaptationReportModal from '../../components/AdaptationReportModal';
 import { useAdaptationStore } from '../../store/adaptationStore';
 import { useTelemetryStore } from '../../store/telemetryStore';
 import { getSocket } from '../../lib/socket';
+import { Newspaper, CheckSquare, BarChart2, Sparkles, ExternalLink } from 'lucide-react';
 
 type AuthMode = 'login' | 'register';
+type WorkspaceMode = 'sandbox' | 'tasks';
 
 export default function DemoPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
+  const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceMode>('sandbox');
 
   const [usernameInput, setUsernameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
@@ -25,7 +30,7 @@ export default function DemoPage() {
   const [currentUser, setCurrentUser] = useState('');
 
   // Stores
-  const { state: activeState, confidence, adaptationsCount } = useAdaptationStore();
+  const { state: activeState, confidence, adaptationsCount, toggleXaiModal } = useAdaptationStore();
   const events = useTelemetryStore((s) => s.events);
 
   const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -98,9 +103,13 @@ export default function DemoPage() {
 
   const stateColors: Record<string, string> = {
     fast_navigator: 'bg-purple-600 text-white',
+    power_user: 'bg-purple-600 text-white',
     reader: 'bg-emerald-600 text-white',
+    deep_reader: 'bg-amber-700 text-white',
     struggling: 'bg-amber-600 text-white',
+    assistive_mode: 'bg-red-600 text-white',
     explorer: 'bg-blue-600 text-white',
+    fast_scanner: 'bg-emerald-600 text-white',
     balanced: 'bg-slate-600 text-white',
   };
 
@@ -250,7 +259,7 @@ export default function DemoPage() {
                   ContextUI
                 </span>
                 <span className="text-[10px] uppercase font-black px-1.5 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
-                  Interactive Demo
+                  v2.0 Sandbox
                 </span>
               </div>
             </div>
@@ -294,8 +303,61 @@ export default function DemoPage() {
         </div>
       </header>
 
+      {/* ════════════════════ WORKSPACE MODE SWITCHER (DUAL WORKSPACE) ════════════════════ */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-2 w-full">
+        <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-gray-200/80 dark:border-gray-800">
+          <div className="flex items-center p-1 rounded-2xl bg-gray-200/70 dark:bg-gray-800/80 border border-gray-300/50 dark:border-gray-700">
+            <button
+              onClick={() => setActiveWorkspace('sandbox')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                activeWorkspace === 'sandbox'
+                  ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <Newspaper className="w-4 h-4" />
+              <span>ContextPulse News Sandbox</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold">
+                v2.0
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveWorkspace('tasks')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                activeWorkspace === 'tasks'
+                  ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <CheckSquare className="w-4 h-4" />
+              <span>Adaptive Task Workspace</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => toggleXaiModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800/60 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center gap-1.5 transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+              <span>View Adaptation Report</span>
+            </button>
+
+            <Link
+              href="/lab"
+              className="px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold flex items-center gap-1.5 transition-colors"
+            >
+              <BarChart2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Model Evaluation Lab</span>
+              <ExternalLink className="w-3 h-3 text-gray-400" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ════════════════════ LIVE STATUS BAR (NO HARDCODED NUMBERS) ════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 w-full">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto">
           <div className="p-3 rounded-2xl bg-white dark:bg-gray-800/90 border border-gray-200/80 dark:border-gray-700 shadow-xs">
             <div className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400">
@@ -339,28 +401,37 @@ export default function DemoPage() {
         </div>
       </section>
 
-      {/* ════════════════════ MAIN TASK APP ════════════════════ */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
-        <AdaptiveLayout />
+      {/* ════════════════════ MAIN CONTENT (DUAL WORKSPACE) ════════════════════ */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full flex-1">
+        {activeWorkspace === 'sandbox' ? (
+          <NewsSandbox />
+        ) : (
+          <AdaptiveLayout />
+        )}
       </main>
 
-      {/* ════════════════════ OVERRIDE PANEL ════════════════════ */}
+      {/* ════════════════════ OVERRIDE PANEL & XAI MODAL ════════════════════ */}
       <OverridePanel />
+      <AdaptationReportModal />
 
       {/* ════════════════════ FOOTER ════════════════════ */}
-      <footer className="border-t border-gray-200/80 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-xs py-5 transition-colors">
+      <footer className="border-t border-gray-200/80 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-xs py-5 transition-colors mt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
           <p className="font-semibold text-gray-700 dark:text-gray-300">
-            ContextUI &mdash; Minor Project B.Tech CSE Data Science, Amity University 2026
+            ContextUI v2.0 &mdash; Minor Project B.Tech CSE Data Science, Amity University 2026
           </p>
           <div className="flex items-center justify-center gap-4 text-[11px]">
             <Link href="/" className="hover:underline text-blue-600 dark:text-blue-400">
               Overview & Architecture
             </Link>
             <span>&bull;</span>
+            <Link href="/lab" className="hover:underline text-emerald-600 dark:text-emerald-400">
+              Evaluation Lab
+            </Link>
+            <span>&bull;</span>
             <span>Privacy-First Telemetry</span>
             <span>&bull;</span>
-            <span>Synthetic Random Forest Classifier</span>
+            <span>Explainable AI Adaptation (XAI)</span>
           </div>
         </div>
       </footer>

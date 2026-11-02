@@ -52,6 +52,16 @@ class AdaptationSignal(BaseModel):
     changes: List[str]                  # list of UI changes being applied
     adaptation: Dict[str, object]       # structured hints for the frontend
 
+    # ── v2.0 XAI & Token Enhancements ─────────────────────────────────────────
+    inferenceTimeMs: Optional[float] = None
+    explanations: Optional[List[Dict[str, object]]] = None
+    contentMode: Optional[str] = None
+    layoutShell: Optional[str] = None
+    typographyScale: Optional[str] = None
+    navMode: Optional[str] = None
+    motionLevel: Optional[str] = None
+    explainBanner: Optional[str] = None
+
     # ── Compatibility shims (Phase 1–8) ──────────────────────────────────────
     theme: str = "light"
     componentOrder: List[str] = ["dashboard", "analytics", "settings", "notifications"]
