@@ -15,18 +15,16 @@ export function getSocket(): Socket {
 
   if (socket && typeof window !== 'undefined') {
     const userId = localStorage.getItem('userId');
-    if (userId && userId !== currentAuthedUserId) {
+    const token = localStorage.getItem('token');
+    if (userId && (userId !== currentAuthedUserId || !socket.connected)) {
       currentAuthedUserId = userId;
-      socket.auth = { userId };
+      socket.auth = { userId, token };
       if (socket.connected) {
         socket.disconnect();
       }
       socket.connect();
-    } else if (!socket.connected) {
-      if (userId) {
-        socket.auth = { userId };
-        currentAuthedUserId = userId;
-      }
+    } else if (!socket.connected && token) {
+      socket.auth = { userId, token };
       socket.connect();
     }
   }

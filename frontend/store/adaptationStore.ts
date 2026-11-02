@@ -74,6 +74,7 @@ export interface AdaptationSignal {
   lowConfidence?: boolean;
   mlServiceAvailable?: boolean;
   probabilities?: Record<string, number>;
+  featureImportances?: Record<string, number>;
   reasons?: string[];
   changes?: string[];
   adaptation?: Partial<AdaptationDetails>;
@@ -286,6 +287,9 @@ STATE_PRESETS.assistive_mode = STATE_PRESETS.struggling;
 export interface AdaptationState {
   state: string;
   confidence: number;
+  probabilities: Record<string, number>;
+  featureImportances: Record<string, number>;
+  inferenceTimeMs: number;
   reasons: string[];
   changes: string[];
   adaptation: AdaptationDetails;
@@ -305,7 +309,6 @@ export interface AdaptationState {
 
   // Explainable AI & Audit
   explanations: AdaptationExplanation[];
-  inferenceTimeMs: number;
   adaptationHistory: AdaptationHistoryItem[];
   showXaiModal: boolean;
   activeReportEvent: AdaptationHistoryItem | null;
@@ -340,7 +343,10 @@ const DEFAULT_TOKENS: AdaptationTokens = STATE_PRESETS.balanced.tokens;
 
 export const useAdaptationStore = create<AdaptationState>((set, get) => ({
   state: 'balanced',
-  confidence: 0.85,
+  confidence: 85.4,
+  probabilities: {},
+  featureImportances: {},
+  inferenceTimeMs: 4.2,
   reasons: STATE_PRESETS.balanced.reasons,
   changes: STATE_PRESETS.balanced.changes,
   adaptation: DEFAULT_ADAPTATION,
@@ -358,7 +364,6 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
   explainBanner: DEFAULT_TOKENS.explainBanner,
 
   explanations: [],
-  inferenceTimeMs: 1.4,
   adaptationHistory: [],
   showXaiModal: false,
   activeReportEvent: null,
@@ -460,6 +465,9 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
         state: targetState,
         detectedClass: targetState,
         confidence: typeof signal.confidence === 'number' ? signal.confidence : prevState.confidence,
+        probabilities: signal.probabilities ?? prevState.probabilities,
+        featureImportances: signal.featureImportances ?? prevState.featureImportances,
+        componentOrder: signal.componentOrder && signal.componentOrder.length > 0 ? signal.componentOrder : prevState.componentOrder,
         reasons: Array.isArray(signal.reasons) && signal.reasons.length > 0 ? signal.reasons : preset.reasons,
         changes: Array.isArray(signal.changes) && signal.changes.length > 0 ? signal.changes : preset.changes,
         adaptation: finalAdaptation,

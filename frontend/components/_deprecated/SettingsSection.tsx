@@ -2,9 +2,14 @@
 
 import React, { useState } from 'react';
 import { useAdaptationStore } from '../../store/adaptationStore';
+import { useTelemetryStore } from '../../store/telemetryStore';
 
 export default function SettingsSection() {
   const layoutDensity = useAdaptationStore((state) => state.layoutDensity);
+  const theme = useAdaptationStore((state) => state.theme);
+  const setOverride = useAdaptationStore((state) => state.setOverride);
+  const trackingEnabled = useTelemetryStore((state) => state.trackingEnabled);
+  const setTrackingEnabled = useTelemetryStore((state) => state.setTrackingEnabled);
 
   const paddingClass =
     layoutDensity === 'compact'
@@ -13,25 +18,36 @@ export default function SettingsSection() {
       ? 'p-8'
       : 'p-5';
 
-  const [toggles, setToggles] = useState({
-    notifications: true,
-    darkMode: false,
-    compactView: false,
-    analyticsTracking: true,
-  });
+  const [notifications, setNotifications] = useState(true);
 
-  const toggleHandler = (key: keyof typeof toggles) => {
-    setToggles((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+  const toggleHandler = (key: 'notifications' | 'darkMode' | 'compactView' | 'analyticsTracking') => {
+    if (key === 'darkMode') {
+      setOverride('theme', theme === 'dark' ? 'light' : 'dark');
+    } else if (key === 'compactView') {
+      setOverride('layoutDensity', layoutDensity === 'compact' ? 'standard' : 'compact');
+    } else if (key === 'analyticsTracking') {
+      setTrackingEnabled(!trackingEnabled);
+    } else if (key === 'notifications') {
+      setNotifications(!notifications);
+    }
   };
 
-  const settingsItems: { key: keyof typeof toggles; label: string; desc: string }[] = [
+  const isChecked = (key: 'notifications' | 'darkMode' | 'compactView' | 'analyticsTracking') => {
+    if (key === 'darkMode') return theme === 'dark';
+    if (key === 'compactView') return layoutDensity === 'compact';
+    if (key === 'analyticsTracking') return trackingEnabled;
+    return notifications;
+  };
+
+  const settingsItems: {
+    key: 'notifications' | 'darkMode' | 'compactView' | 'analyticsTracking';
+    label: string;
+    desc: string;
+  }[] = [
     { key: 'notifications', label: 'Push Notifications', desc: 'Receive real-time alerts on adaptations' },
     { key: 'darkMode', label: 'Force Dark Theme', desc: 'Lock UI color theme preference' },
     { key: 'compactView', label: 'Compact Grid View', desc: 'Reduce element spacing for higher information density' },
-    { key: 'analyticsTracking', label: 'Telemetry Telemetry Collection', desc: 'Stream interaction telemetry to ML model' },
+    { key: 'analyticsTracking', label: 'Live Telemetry Collection', desc: 'Stream interaction telemetry to ML model' },
   ];
 
   return (
@@ -70,36 +86,41 @@ export default function SettingsSection() {
             <p className="text-xs text-gray-500 dark:text-gray-400">User preferences & options</p>
           </div>
         </div>
-        <span className="text-xs text-gray-500 dark:text-gray-400">Adaptive Enabled</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+          {trackingEnabled ? 'Tracking Active' : 'Tracking Paused'}
+        </span>
       </div>
 
       {/* Toggle Rows */}
       <div className="space-y-3">
-        {settingsItems.map((item) => (
-          <div
-            key={item.key}
-            className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600/50 hover:bg-gray-100/80 dark:hover:bg-gray-700 transition-colors"
-          >
-            <div className="pr-2">
-              <div className="text-xs font-semibold text-gray-800 dark:text-gray-200">{item.label}</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400">{item.desc}</div>
-            </div>
-            <button
-              type="button"
-              onClick={() => toggleHandler(item.key)}
-              aria-label={`Toggle ${item.label}`}
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                toggles[item.key] ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600'
-              }`}
+        {settingsItems.map((item) => {
+          const active = isChecked(item.key);
+          return (
+            <div
+              key={item.key}
+              className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600/50 hover:bg-gray-100/80 dark:hover:bg-gray-700 transition-colors"
             >
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                  toggles[item.key] ? 'translate-x-5' : 'translate-x-0'
+              <div className="pr-2">
+                <div className="text-xs font-semibold text-gray-800 dark:text-gray-200">{item.label}</div>
+                <div className="text-[11px] text-gray-500 dark:text-gray-400">{item.desc}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => toggleHandler(item.key)}
+                aria-label={`Toggle ${item.label}`}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  active ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600'
                 }`}
-              />
-            </button>
-          </div>
-        ))}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    active ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

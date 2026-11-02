@@ -238,7 +238,7 @@ export function trackDwell(elementId: string, dwellMs: number): void {
   });
 }
 
-function getTs(ts: number | Date | undefined): number {
+function getTs(ts: number | Date | string | undefined): number {
   if (typeof ts === 'number') return ts;
   if (ts instanceof Date) return ts.getTime();
   return Date.now();

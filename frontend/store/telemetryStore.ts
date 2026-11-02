@@ -1,14 +1,15 @@
 import { create } from 'zustand';
 
 export interface TelemetryEvent {
-  type: 'click' | 'scroll' | 'keypress' | 'navigate' | 'view_switch' | 'text_selection' | 'rage_click' | 'dwell' | string;
-  timestamp: number | Date; // epoch ms or Date
+  type: string;
+  timestamp?: Date | string | number;
   elementId?: string;
   depth?: number;
   route?: string;
   x?: number;
   y?: number;
   dwellMs?: number;
+  [key: string]: any;
 }
 
 export interface TelemetryFeatures {
@@ -20,7 +21,6 @@ export interface TelemetryFeatures {
   key_presses_per_min: number;
   idle_ratio: number;
   view_switches_per_min: number;
-  // Extended v2.0 micro-signals (optional for ML vector, informative for HUD)
   text_selections_count?: number;
   rage_click_count?: number;
   mean_dwell_seconds?: number;
@@ -35,45 +35,45 @@ export interface TelemetryState {
   uniqueElementsSet: Set<string>;
   lastKnownScrollDepth: number;
   maxScrollDepth: number;
+  scrollDepthSum: number;
+  scrollSampleCount: number;
   cumulativeNavigationDepth: number;
+  trackingEnabled: boolean;
   consentGiven: boolean;
 
-  // Micro-interaction counters for ContextPulse
+  // Micro-interaction counters
   textSelectionsCount: number;
   rageClickCount: number;
   totalDwellMs: number;
   dwellEventsCount: number;
 
+  addEvent: (event: TelemetryEvent) => void;
+  clearEventsCount: (count: number) => void;
+  flushAndGetBuffer: () => TelemetryEvent[];
+  clearEvents: () => void;
+  getSessionDuration: () => number;
+  setTrackingEnabled: (enabled: boolean) => void;
   setConsent: (consent: boolean) => void;
-  addEvent: (event: Omit<TelemetryEvent, 'timestamp'> & { timestamp?: number | Date }) => void;
   trackViewSwitch: (viewName?: string) => void;
   trackTextSelection: () => void;
   trackRageClick: (x: number, y: number) => void;
   trackDwell: (elementId: string, dwellMs: number) => void;
-  flushAndGetBuffer: () => TelemetryEvent[];
-  clearEvents: () => void;
-  getSessionDuration: () => number;
+  applySimulationPreset: (preset: {
+    clicks: number;
+    uniqueClicks: number;
+    scrollDepth: number;
+    navDepth: number;
+    durationSeconds: number;
+  }) => void;
 }
 
 const getInitialSessionId = (): string => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     try {
       return crypto.randomUUID();
-    } catch {
-      // Fallback
-    }
+    } catch {}
   }
   return 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 9);
-};
-
-const getInitialConsent = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  try {
-    const val = localStorage.getItem('telemetry_consent');
-    return val === 'true';
-  } catch {
-    return false;
-  }
 };
 
 export const useTelemetryStore = create<TelemetryState>((set, get) => ({
@@ -85,36 +85,19 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
   uniqueElementsSet: new Set<string>(),
   lastKnownScrollDepth: 0,
   maxScrollDepth: 0,
+  scrollDepthSum: 0,
+  scrollSampleCount: 0,
   cumulativeNavigationDepth: 1,
-  consentGiven: getInitialConsent(),
+  trackingEnabled: true,
+  consentGiven: true,
 
   textSelectionsCount: 0,
   rageClickCount: 0,
   totalDwellMs: 0,
   dwellEventsCount: 0,
 
-  setConsent: (consent: boolean) => {
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('telemetry_consent', consent ? 'true' : 'false');
-      } catch {
-        // Storage unavailable
-      }
-    }
-    set({
-      consentGiven: consent,
-      // If turning off, clear buffered events immediately
-      ...(consent ? {} : { events: [] }),
-    });
-  },
-
-  addEvent: (event) => {
-    // If no consent, NEVER record anything
-    if (!get().consentGiven) return;
-
-    const timestamp = event.timestamp ?? Date.now();
-    const fullEvent: TelemetryEvent = { ...event, timestamp };
-
+  addEvent: (event: TelemetryEvent) => {
+    if (!get().trackingEnabled) return;
     set((state) => {
       const nextClicks = event.type === 'click' ? state.cumulativeClicks + 1 : state.cumulativeClicks;
       const nextKeypresses = event.type === 'keypress' ? state.cumulativeKeypresses + 1 : state.cumulativeKeypresses;
@@ -122,10 +105,19 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
       if (event.type === 'click' && event.elementId) {
         nextUnique.add(event.elementId);
       }
-      const scrollDepth = event.type === 'scroll' && typeof event.depth === 'number'
-        ? event.depth
-        : state.lastKnownScrollDepth;
-      const nextMaxScroll = Math.max(state.maxScrollDepth, scrollDepth);
+
+      let nextScrollSum = state.scrollDepthSum;
+      let nextScrollCount = state.scrollSampleCount;
+      let nextAvgScroll = state.lastKnownScrollDepth;
+      if (event.type === 'scroll' && typeof event.depth === 'number') {
+        nextScrollSum += event.depth;
+        nextScrollCount += 1;
+        nextAvgScroll = Math.round(nextScrollSum / nextScrollCount);
+      }
+
+      const nextMaxScroll = typeof event.depth === 'number'
+        ? Math.max(state.maxScrollDepth, event.depth)
+        : state.maxScrollDepth;
 
       const nextNav = (event.type === 'navigate' || event.type === 'view_switch')
         ? state.cumulativeNavigationDepth + 1
@@ -139,12 +131,14 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
       const nextDwellCount = event.type === 'dwell' ? state.dwellEventsCount + 1 : state.dwellEventsCount;
 
       return {
-        events: [...state.events, fullEvent],
+        events: [...state.events, { ...event, timestamp: event.timestamp || new Date() }],
         cumulativeClicks: nextClicks,
         cumulativeKeypresses: nextKeypresses,
         uniqueElementsSet: nextUnique,
-        lastKnownScrollDepth: scrollDepth,
+        lastKnownScrollDepth: nextAvgScroll,
         maxScrollDepth: nextMaxScroll,
+        scrollDepthSum: nextScrollSum,
+        scrollSampleCount: nextScrollCount,
         cumulativeNavigationDepth: nextNav,
         textSelectionsCount: nextSelections,
         rageClickCount: nextRage,
@@ -154,38 +148,10 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
     });
   },
 
-  trackViewSwitch: (viewName) => {
-    if (!get().consentGiven) return;
-    get().addEvent({
-      type: 'view_switch',
-      route: viewName || (typeof window !== 'undefined' ? window.location.pathname : ''),
-    });
-  },
-
-  trackTextSelection: () => {
-    if (!get().consentGiven) return;
-    // CRITICAL PRIVACY RULE: Never log the selected text! Count only.
-    get().addEvent({
-      type: 'text_selection',
-    });
-  },
-
-  trackRageClick: (x: number, y: number) => {
-    if (!get().consentGiven) return;
-    get().addEvent({
-      type: 'rage_click',
-      x,
-      y,
-    });
-  },
-
-  trackDwell: (elementId: string, dwellMs: number) => {
-    if (!get().consentGiven) return;
-    get().addEvent({
-      type: 'dwell',
-      elementId,
-      dwellMs,
-    });
+  clearEventsCount: (count: number) => {
+    set((state) => ({
+      events: state.events.slice(count),
+    }));
   },
 
   flushAndGetBuffer: () => {
@@ -200,6 +166,64 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
 
   getSessionDuration: () => {
     const startTime = get().sessionStart.getTime();
-    return Math.max(0, (Date.now() - startTime) / 1000);
+    return Math.max(1, (Date.now() - startTime) / 1000);
+  },
+
+  setTrackingEnabled: (enabled: boolean) => set({ trackingEnabled: enabled }),
+
+  setConsent: (consent: boolean) => set({ consentGiven: consent, trackingEnabled: consent }),
+
+  trackViewSwitch: (viewName) => {
+    if (!get().trackingEnabled) return;
+    get().addEvent({
+      type: 'view_switch',
+      route: viewName || (typeof window !== 'undefined' ? window.location.pathname : ''),
+    });
+  },
+
+  trackTextSelection: () => {
+    if (!get().trackingEnabled) return;
+    get().addEvent({
+      type: 'text_selection',
+    });
+  },
+
+  trackRageClick: (x: number, y: number) => {
+    if (!get().trackingEnabled) return;
+    get().addEvent({
+      type: 'rage_click',
+      x,
+      y,
+    });
+  },
+
+  trackDwell: (elementId: string, dwellMs: number) => {
+    if (!get().trackingEnabled) return;
+    get().addEvent({
+      type: 'dwell',
+      elementId,
+      dwellMs,
+    });
+  },
+
+  applySimulationPreset: ({ clicks, uniqueClicks, scrollDepth, navDepth, durationSeconds }) => {
+    const syntheticSet = new Set<string>();
+    for (let i = 0; i < uniqueClicks; i++) {
+      syntheticSet.add(`sim-el-${i}`);
+    }
+    set((state) => ({
+      cumulativeClicks: clicks,
+      uniqueElementsSet: syntheticSet,
+      lastKnownScrollDepth: scrollDepth,
+      scrollDepthSum: scrollDepth,
+      scrollSampleCount: 1,
+      maxScrollDepth: scrollDepth,
+      cumulativeNavigationDepth: navDepth,
+      sessionStart: new Date(Date.now() - durationSeconds * 1000),
+      events: [
+        ...state.events,
+        { type: 'click', elementId: 'simulation-preset', timestamp: new Date() },
+      ],
+    }));
   },
 }));

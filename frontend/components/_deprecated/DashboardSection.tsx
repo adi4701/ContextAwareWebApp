@@ -31,7 +31,7 @@ export default function DashboardSection() {
     },
     {
       title: 'Adaptations',
-      value: String(47 + adaptationsCount),
+      value: String(adaptationsCount),
       accentColor: 'bg-purple-500',
       textColor: 'text-purple-600 dark:text-purple-400',
       badge: 'Live',

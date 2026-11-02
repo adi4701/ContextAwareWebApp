@@ -4,23 +4,33 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import AdaptiveLayout from '../../components/AdaptiveLayout';
+import AdaptiveDashboard from '../../components/AdaptiveDashboard';
 import OverridePanel from '../../components/OverridePanel';
 import NewsSandbox from '../../components/NewsSandbox';
 import AdaptationReportModal from '../../components/AdaptationReportModal';
 import { useAdaptationStore } from '../../store/adaptationStore';
 import { useTelemetryStore } from '../../store/telemetryStore';
 import { getSocket } from '../../lib/socket';
-import { Newspaper, CheckSquare, BarChart2, Sparkles, ExternalLink, Activity, ArrowUpRight } from 'lucide-react';
+import {
+  Newspaper,
+  CheckSquare,
+  BarChart2,
+  Sparkles,
+  ExternalLink,
+  Activity,
+  ArrowUpRight,
+  LayoutGrid,
+} from 'lucide-react';
 
 type AuthMode = 'login' | 'register';
-type WorkspaceMode = 'sandbox' | 'tasks';
+type WorkspaceMode = 'dashboard' | 'sandbox' | 'tasks';
 
 export default function DemoPage() {
   const [mounted, setMounted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceMode>('sandbox');
+  const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceMode>('dashboard');
 
   const [usernameInput, setUsernameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
@@ -31,7 +41,7 @@ export default function DemoPage() {
   const [currentUser, setCurrentUser] = useState('');
 
   // Stores
-  const { state: activeState, confidence, adaptationsCount, toggleXaiModal } = useAdaptationStore();
+  const { state: activeState, detectedClass, confidence, adaptationsCount, toggleXaiModal } = useAdaptationStore();
   const events = useTelemetryStore((s) => s.events);
 
   const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -101,19 +111,31 @@ export default function DemoPage() {
     window.location.reload();
   };
 
+  const handleNavClick = (tab: string) => {
+    setActiveWorkspace('dashboard');
+    useTelemetryStore.getState().addEvent({ type: 'navigate', route: tab.toLowerCase() });
+    setTimeout(() => {
+      const el = document.getElementById(tab.toLowerCase());
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 80);
+  };
+
   const stateBadges: Record<string, { label: string; color: string }> = {
+    power_user: { label: 'Power User', color: 'text-purple-400 bg-purple-500/10 border-purple-500/30' },
+    casual_browser: { label: 'Casual Browser', color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' },
+    mobile_constrained: { label: 'Mobile Constrained', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
+    accessibility_focused: { label: 'Accessibility Focused', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
     fast_navigator: { label: 'Terminal / Power', color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30' },
-    power_user: { label: 'Analyst Terminal', color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30' },
     reader: { label: 'Focus Reader', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
-    deep_reader: { label: 'Deep Reader', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
     struggling: { label: 'Cognitive Assist', color: 'text-rose-400 bg-rose-500/10 border-rose-500/30' },
-    assistive_mode: { label: 'Cognitive Assist', color: 'text-rose-400 bg-rose-500/10 border-rose-500/30' },
     explorer: { label: 'Skimmer Feed', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
-    fast_scanner: { label: 'Fast Scanner', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
     balanced: { label: 'Balanced Baseline', color: 'text-zinc-400 bg-zinc-500/10 border-zinc-500/30' },
   };
 
-  const currentBadge = stateBadges[activeState] || stateBadges.balanced;
+  const currentKey = detectedClass || activeState || 'balanced';
+  const currentBadge = stateBadges[currentKey] || stateBadges.balanced;
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#FAF9F6] dark:bg-[#070709] text-zinc-900 dark:text-zinc-100 transition-colors duration-500 font-sans selection:bg-emerald-500/20 selection:text-emerald-700 dark:selection:text-emerald-300">
@@ -189,14 +211,14 @@ export default function DemoPage() {
 
               <div>
                 <label className="block text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400 mb-1">
-                  Email
+                  Email Address
                 </label>
                 <input
                   type="email"
                   required
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="analyst@domain.com"
+                  placeholder="student@amity.edu"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                 />
               </div>
@@ -249,11 +271,24 @@ export default function DemoPage() {
                   ContextUI
                 </span>
                 <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                  v2.0
+                  Adaptive ML
                 </span>
               </div>
             </div>
           </div>
+
+          {/* Center: Navigation tabs with onClick handlers */}
+          <nav className="hidden lg:flex items-center gap-1 bg-zinc-100/80 dark:bg-zinc-800/80 p-1 rounded-xl border border-zinc-200/50 dark:border-zinc-700/50">
+            {['Dashboard', 'Analytics', 'Settings', 'Notifications'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => handleNavClick(tab)}
+                className="px-3 py-1 rounded-lg text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-zinc-700/60 transition-all"
+              >
+                {tab}
+              </button>
+            ))}
+          </nav>
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel border border-emerald-500/30">
@@ -298,23 +333,35 @@ export default function DemoPage() {
       {/* ════════════════════ DUAL WORKSPACE NAVIGATION BAR ════════════════════ */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full">
         <div className="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-zinc-200/60 dark:border-zinc-800/60">
-          {/* Minimalist Switcher Pills */}
+          {/* Workspace Switcher Pills */}
           <div className="flex items-center p-1 rounded-2xl bg-zinc-200/50 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800">
             <button
+              onClick={() => setActiveWorkspace('dashboard')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
+                activeWorkspace === 'dashboard'
+                  ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-zinc-200/60 dark:border-zinc-700'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>7-Card Adaptive Grid</span>
+            </button>
+
+            <button
               onClick={() => setActiveWorkspace('sandbox')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
                 activeWorkspace === 'sandbox'
                   ? 'bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 shadow-sm border border-zinc-200/60 dark:border-zinc-700'
                   : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               <Newspaper className="w-3.5 h-3.5" />
-              <span>ContextPulse News Sandbox</span>
+              <span>News Sandbox</span>
             </button>
 
             <button
               onClick={() => setActiveWorkspace('tasks')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
                 activeWorkspace === 'tasks'
                   ? 'bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 shadow-sm border border-zinc-200/60 dark:border-zinc-700'
                   : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
@@ -372,7 +419,7 @@ export default function DemoPage() {
               Confidence
             </div>
             <div suppressHydrationWarning className="text-xl sm:text-2xl font-display font-extrabold text-indigo-400 mt-1">
-              {Math.round((confidence || 0.85) * 100)}%
+              {confidence ? `${confidence}%` : '85.4%'}
             </div>
           </div>
 
@@ -389,7 +436,9 @@ export default function DemoPage() {
 
       {/* ════════════════════ MAIN VIEWPORT ════════════════════ */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 w-full flex-1">
-        {activeWorkspace === 'sandbox' ? (
+        {activeWorkspace === 'dashboard' ? (
+          <AdaptiveDashboard />
+        ) : activeWorkspace === 'sandbox' ? (
           <NewsSandbox />
         ) : (
           <AdaptiveLayout />

@@ -46,7 +46,10 @@ const DEFAULT_SIGNAL = {
   },
   // Compatibility shims
   theme: 'light',
-  componentOrder: ['dashboard', 'analytics', 'settings', 'notifications'],
+  componentOrder: [
+    'dashboard', 'analytics', 'performance', 'activity',
+    'quickactions', 'notifications', 'settings'
+  ],
   layoutDensity: 'standard',
   detectedClass: '',
 };
@@ -123,8 +126,20 @@ router.post('/telemetry', authMiddleware, telemetryLimiter, validateTelemetry, a
     // ── STEP 3: Call ML service ───────────────────────────────────────────────
     let rawSignal = { ...DEFAULT_SIGNAL, mlServiceAvailable: false };
     const mlUrl = (process.env.ML_SERVICE_URL || 'http://localhost:8000') + '/predict';
+    const mlPayload = {
+      click_count: Number(clickCount) || 0,
+      unique_elements_clicked: Number(uniqueElementsClicked) || 0,
+      avg_scroll_depth: Number(avgScrollDepth) || 0,
+      session_duration: Number(sessionDuration) || 0,
+      click_density: Number(clickDensity) || 0,
+      navigation_depth: Number(navigationDepth) || 0,
+      scroll_rate: Number(scrollRate) || 0,
+      hour_of_day: Number(hourOfDay) || 0,
+      ...(typeof featureVector === 'object' ? featureVector : {}),
+    };
+
     try {
-      const mlResponse = await axios.post(mlUrl, featureVector, { timeout: 2000 });
+      const mlResponse = await axios.post(mlUrl, mlPayload, { timeout: 2000 });
       rawSignal = {
         ...mlResponse.data,
         mlServiceAvailable: true,
@@ -134,7 +149,8 @@ router.post('/telemetry', authMiddleware, telemetryLimiter, validateTelemetry, a
     }
 
     // ── STEP 4: Apply smoothing ───────────────────────────────────────────────
-    const { emit: shouldEmit, state: smoothedState } = smooth(userId, rawSignal.state);
+    const targetState = rawSignal.detectedClass || rawSignal.state || 'balanced';
+    const { emit: shouldEmit, state: smoothedState } = smooth(userId, targetState);
 
     // Build the final signal that the client receives.
     // Always return the raw ML data (confidence, reasons, etc.),

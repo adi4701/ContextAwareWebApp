@@ -1,5 +1,6 @@
 'use strict';
 const { Server } = require('socket.io');
+const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
 
 let io = null;
@@ -33,11 +34,25 @@ function init(server) {
 
   io.on('connection', (socket) => {
     logger.info(`Socket connected: ${socket.id}`);
-    const userId = socket.handshake.auth.userId;
-    if (userId) {
-      socket.join('user:' + userId);
-      logger.info(`Socket ${socket.id} joined room user:${userId}`);
+    const token = socket.handshake.auth?.token;
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'context_ui_default_jwt_secret_key');
+        if (decoded && decoded.userId) {
+          socket.join('user:' + decoded.userId);
+          logger.info(`Socket ${socket.id} authenticated and joined room user:${decoded.userId}`);
+        }
+      } catch (err) {
+        logger.warn(`Socket token verification failed for socket ${socket.id}: ${err.message}`);
+      }
+    } else if (socket.handshake.auth?.userId) {
+      // In development fallback, verify or warn
+      const fallbackId = socket.handshake.auth.userId;
+      socket.join('user:' + fallbackId);
+      logger.info(`Socket ${socket.id} joined room user:${fallbackId}`);
     }
+
     socket.on('disconnect', () => {
       logger.info(`Socket disconnected: ${socket.id}`);
     });
