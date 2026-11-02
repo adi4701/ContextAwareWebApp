@@ -30,7 +30,7 @@ export async function flushTelemetry(): Promise<void> {
   const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
   try {
-    await axios.post(
+    const res = await axios.post(
       `${backendUrl}/api/telemetry`,
       {
         sessionId: store.sessionId,
@@ -68,7 +68,23 @@ export async function flushTelemetry(): Promise<void> {
         timeout: 4000,
       }
     );
+
+    // Fallback: If HTTP returned adaptation, sync to adaptation store
+    if (res.data?.adaptation) {
+      const { useAdaptationStore } = await import('../store/adaptationStore');
+      useAdaptationStore.getState().setAdaptation(res.data.adaptation);
+    }
   } catch (error) {
-    // Silently handle transient backend connection errors
+    // Mark connection degraded if backend is unreachable
+    try {
+      const { useAdaptationStore } = await import('../store/adaptationStore');
+      useAdaptationStore.getState().setAdaptation({
+        mlServiceAvailable: false,
+        state: 'balanced',
+        reasons: ['Inference connection unreachable — standard layout maintained'],
+      });
+    } catch {
+      // Ignore
+    }
   }
 }

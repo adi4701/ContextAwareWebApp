@@ -40,6 +40,7 @@ export default function WhyAdaptedPanel() {
     changes,
     isPaused,
     pausedUntil,
+    mlServiceAvailable,
     undoAdaptation,
     resumeAdaptation,
   } = useAdaptationStore();
@@ -145,6 +146,17 @@ export default function WhyAdaptedPanel() {
                 />
               </div>
             </div>
+
+            {/* ML Service Offline Banner */}
+            {!mlServiceAvailable && (
+              <div className="mt-3 p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-800 dark:text-rose-200 flex items-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-rose-500 animate-pulse shrink-0" />
+                <div>
+                  <span className="font-bold">ML Service Offline: </span>
+                  <span>Adaptation paused in balanced mode. Reconnecting in background...</span>
+                </div>
+              </div>
+            )}
 
             {/* Paused Banner if Undo was triggered */}
             {isPaused && (

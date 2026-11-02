@@ -5,8 +5,10 @@ const express = require('express');
 const http = require('http');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const axios = require('axios');
 
 const logger = require('./utils/logger');
+const { healthLimiter } = require('./middleware/rateLimiter');
 const authRouter = require('./routes/auth');
 const telemetryRouter = require('./routes/telemetry');
 const tasksRouter = require('./routes/tasks');
@@ -49,10 +51,37 @@ app.use('/api', telemetryRouter);
 app.use('/api', feedbackRouter);
 app.use('/api/tasks', tasksRouter);
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date() });
-});
+// Health check with subsystem verification
+const handleHealthCheck = async (req, res) => {
+  const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  let mlStatus = 'offline';
+  try {
+    const mlUrl = (process.env.ML_SERVICE_URL || 'http://localhost:8000') + '/health';
+    const mlRes = await axios.get(mlUrl, { timeout: 1200 });
+    if (mlRes.data && mlRes.data.status === 'ok') {
+      mlStatus = 'connected';
+    }
+  } catch (err) {
+    mlStatus = 'offline';
+  }
+
+  const isDegraded = mongoStatus !== 'connected';
+  const statusCode = isDegraded ? 503 : 200;
+
+  res.status(statusCode).json({
+    status: isDegraded ? 'degraded' : 'ok',
+    timestamp: new Date().toISOString(),
+    services: {
+      backend: 'ok',
+      mongodb: mongoStatus,
+      mlService: mlStatus,
+    },
+    fallbackActive: mlStatus !== 'connected',
+  });
+};
+
+app.get('/health', healthLimiter, handleHealthCheck);
+app.get('/api/health', healthLimiter, handleHealthCheck);
 
 app.get('/', (req, res) => {
   res.send(`

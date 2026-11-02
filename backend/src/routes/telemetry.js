@@ -16,6 +16,7 @@ const express = require('express');
 const axios = require('axios');
 const authMiddleware = require('../middleware/authMiddleware');
 const { telemetryLimiter } = require('../middleware/rateLimiter');
+const { validateTelemetry } = require('../middleware/validate');
 const Telemetry = require('../models/Telemetry');
 const { getIO } = require('../socket/index');
 const logger = require('../utils/logger');
@@ -31,8 +32,9 @@ const DEFAULT_SIGNAL = {
   confidence: 0,
   lowConfidence: true,
   probabilities: {},
-  reasons: ['ML service unavailable — using default layout'],
-  changes: ['Default layout applied'],
+  mlServiceAvailable: false,
+  reasons: ['ML service offline — adaptation gracefully paused in balanced mode'],
+  changes: ['Standard layout active while ML service reconnects'],
   adaptation: {
     density: 'standard',
     textScale: 1.0,
@@ -86,7 +88,7 @@ function smooth(userId, predictedState) {
 
 // ── Route ─────────────────────────────────────────────────────────────────────
 
-router.post('/telemetry', authMiddleware, telemetryLimiter, async (req, res) => {
+router.post('/telemetry', authMiddleware, telemetryLimiter, validateTelemetry, async (req, res) => {
   try {
     const {
       sessionId,
@@ -119,13 +121,16 @@ router.post('/telemetry', authMiddleware, telemetryLimiter, async (req, res) => 
     const featureVector = req.body.features || req.body.featureVector || computedVector;
 
     // ── STEP 3: Call ML service ───────────────────────────────────────────────
-    let rawSignal = DEFAULT_SIGNAL;
+    let rawSignal = { ...DEFAULT_SIGNAL, mlServiceAvailable: false };
     const mlUrl = (process.env.ML_SERVICE_URL || 'http://localhost:8000') + '/predict';
     try {
-      const mlResponse = await axios.post(mlUrl, featureVector, { timeout: 5000 });
-      rawSignal = mlResponse.data;
+      const mlResponse = await axios.post(mlUrl, featureVector, { timeout: 2000 });
+      rawSignal = {
+        ...mlResponse.data,
+        mlServiceAvailable: true,
+      };
     } catch (mlErr) {
-      logger.warn(`ML service unavailable: ${mlErr.message} — using default signal`);
+      logger.warn(`ML service unavailable: ${mlErr.message} — using graceful balanced fallback`);
     }
 
     // ── STEP 4: Apply smoothing ───────────────────────────────────────────────

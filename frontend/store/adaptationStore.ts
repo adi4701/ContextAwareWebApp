@@ -31,6 +31,7 @@ export interface AdaptationSignal {
   predictedState?: string;
   confidence?: number;
   lowConfidence?: boolean;
+  mlServiceAvailable?: boolean;
   probabilities?: Record<string, number>;
   reasons?: string[];
   changes?: string[];
@@ -53,6 +54,7 @@ export interface AdaptationState {
   lastUpdated: Date | null;
   adaptationsCount: number;
   lastAiSignal: AdaptationSignal | null;
+  mlServiceAvailable: boolean;
 
   // Pause / Undo state
   isPaused: boolean;
@@ -211,6 +213,7 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
   lastUpdated: null,
   adaptationsCount: 0,
   lastAiSignal: null,
+  mlServiceAvailable: true,
 
   isPaused: false,
   pausedUntil: null,
@@ -237,6 +240,7 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
         lastUpdated: new Date(),
         adaptationsCount: prevState.adaptationsCount + 1,
         lastAiSignal: signal,
+        mlServiceAvailable: signal.mlServiceAvailable !== false,
         isPaused: false,
         pausedUntil: null,
       };

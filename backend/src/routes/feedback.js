@@ -3,6 +3,8 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const Feedback = require('../models/Feedback');
 const logger = require('../utils/logger');
+const { feedbackLimiter } = require('../middleware/rateLimiter');
+const { validateFeedback } = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -25,7 +27,7 @@ function optionalAuth(req, res, next) {
 }
 
 // POST /api/feedback
-router.post('/feedback', optionalAuth, async (req, res) => {
+router.post('/feedback', feedbackLimiter, optionalAuth, validateFeedback, async (req, res) => {
   try {
     const {
       sessionId = 'guest_session',
