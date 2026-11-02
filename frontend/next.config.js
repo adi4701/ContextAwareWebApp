@@ -1,13 +1,8 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {
-    rules: {
-      '*.css': {
-        loaders: ['@tailwindcss/turbopack'],
-        as: '*.css',
-      },
-    },
-  },
-}
+  outputFileTracingRoot: path.join(__dirname, '../'),
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
