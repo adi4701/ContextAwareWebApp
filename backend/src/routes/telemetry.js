@@ -185,7 +185,7 @@ router.post('/telemetry', authMiddleware, telemetryLimiter, validateTelemetry, a
       });
       await telemetryDoc.save();
     } catch (saveErr) {
-      logger.debug(Telemetry document persistence deferred: );
+      logger.debug('Telemetry document persistence deferred: ' + (saveErr ? saveErr.message : ''));
     }
 
     // ── STEP 6: Emit via Socket.io (only when smoothing threshold crossed) ────
