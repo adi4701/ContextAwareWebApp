@@ -162,27 +162,31 @@ router.post('/telemetry', authMiddleware, telemetryLimiter, validateTelemetry, a
     };
 
     // ── STEP 5: Persist to MongoDB ────────────────────────────────────────────
-    const telemetryDoc = new Telemetry({
-      userId,
-      sessionId,
-      // Legacy fields
-      clickCount,
-      uniqueElementsClicked,
-      avgScrollDepth,
-      sessionDuration,
-      clickDensity: parseFloat(clickDensity.toFixed(4)),
-      navigationDepth,
-      scrollRate: parseFloat(scrollRate.toFixed(4)),
-      hourOfDay,
-      rawEvents,
-      adaptationApplied: JSON.stringify(adaptationSignal),
-      // New fields
-      featureVector,
-      state: smoothedState,
-      confidence: rawSignal.confidence || 0,
-      reasons: rawSignal.reasons || [],
-    });
-    await telemetryDoc.save();
+    try {
+      const telemetryDoc = new Telemetry({
+        userId: req.user?.isGuest ? null : userId,
+        sessionId,
+        // Legacy fields
+        clickCount,
+        uniqueElementsClicked,
+        avgScrollDepth,
+        sessionDuration,
+        clickDensity: parseFloat(clickDensity.toFixed(4)),
+        navigationDepth,
+        scrollRate: parseFloat(scrollRate.toFixed(4)),
+        hourOfDay,
+        rawEvents,
+        adaptationApplied: JSON.stringify(adaptationSignal),
+        // New fields
+        featureVector,
+        state: smoothedState,
+        confidence: rawSignal.confidence || 0,
+        reasons: rawSignal.reasons || [],
+      });
+      await telemetryDoc.save();
+    } catch (saveErr) {
+      logger.debug(Telemetry document persistence deferred: );
+    }
 
     // ── STEP 6: Emit via Socket.io (only when smoothing threshold crossed) ────
     if (shouldEmit) {

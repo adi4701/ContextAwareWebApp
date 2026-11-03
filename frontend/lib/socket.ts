@@ -9,23 +9,40 @@ export function getSocket(): Socket {
   if (!socket && typeof window !== 'undefined') {
     socket = io(backendUrl, {
       autoConnect: false,
-      transports: ['websocket', 'polling'],
+      transports: ['polling', 'websocket'],
+      reconnectionAttempts: 5,
+      timeout: 6000,
+    });
+
+    socket.on('connect_error', (err) => {
+      // Gracefully log without unhandled exception - telemetry falls back to HTTP/client classifier
+      console.debug('Socket connection deferred (backend offline or spinning up):', err.message);
     });
   }
 
   if (socket && typeof window !== 'undefined') {
-    const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
-    if (userId && (userId !== currentAuthedUserId || !socket.connected)) {
+    let userId = localStorage.getItem('userId');
+
+    if (!userId) {
+      userId = localStorage.getItem('guest_session_id');
+      if (!userId) {
+        userId = 'guest_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
+        localStorage.setItem('guest_session_id', userId);
+      }
+    }
+
+    if (userId !== currentAuthedUserId || !socket.connected) {
       currentAuthedUserId = userId;
-      socket.auth = { userId, token };
+      socket.auth = { userId, token: token || undefined };
       if (socket.connected) {
         socket.disconnect();
       }
-      socket.connect();
-    } else if (!socket.connected && token) {
-      socket.auth = { userId, token };
-      socket.connect();
+      try {
+        socket.connect();
+      } catch (e) {
+        console.debug('Socket connect attempt deferred:', e);
+      }
     }
   }
 

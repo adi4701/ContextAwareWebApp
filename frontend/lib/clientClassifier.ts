@@ -22,8 +22,8 @@ export function classifyBehaviorClient(features: TelemetryFeatures): AdaptationS
     text_selections_count = 0,
   } = features;
 
-  // 1. Friction / Hesitation / Rage Clicks → Cognitive Assist (struggling)
-  if (rage_click_count >= 1 || repeat_click_ratio >= 0.25) {
+  // 1. Friction / Hesitation / Rage Clicks → Cognitive Assist (struggling / accessibility_focused)
+  if (rage_click_count >= 1 || repeat_click_ratio >= 0.20) {
     const preset = STATE_PRESETS.struggling;
     return {
       state: 'struggling',
@@ -38,6 +38,7 @@ export function classifyBehaviorClient(features: TelemetryFeatures): AdaptationS
       changes: preset.changes,
       adaptation: preset.adaptation,
       ...preset.tokens,
+      componentOrder: preset.componentOrder,
       inferenceTimeMs: 0.8,
       explanations: [
         {
@@ -62,8 +63,8 @@ export function classifyBehaviorClient(features: TelemetryFeatures): AdaptationS
     };
   }
 
-  // 2. High Tempo & Keyboard Hotkeys → Analyst Terminal (fast_navigator)
-  if (clicks_per_min >= 22 || key_presses_per_min >= 12 || view_switches_per_min >= 4.5) {
+  // 2. High Tempo & Keyboard Hotkeys → Analyst Terminal (fast_navigator / power_user)
+  if (clicks_per_min >= 15 || key_presses_per_min >= 8 || view_switches_per_min >= 3.0) {
     const preset = STATE_PRESETS.fast_navigator;
     return {
       state: 'fast_navigator',
@@ -78,6 +79,7 @@ export function classifyBehaviorClient(features: TelemetryFeatures): AdaptationS
       changes: preset.changes,
       adaptation: preset.adaptation,
       ...preset.tokens,
+      componentOrder: preset.componentOrder,
       inferenceTimeMs: 0.8,
       explanations: [
         {
@@ -102,48 +104,8 @@ export function classifyBehaviorClient(features: TelemetryFeatures): AdaptationS
     };
   }
 
-  // 3. Slow Reading & Dwell Time → Focus Reader (reader)
-  if (mean_dwell_seconds >= 6 || (idle_ratio >= 0.45 && scroll_speed < 0.12 && (max_scroll_depth >= 40 || text_selections_count >= 1))) {
-    const preset = STATE_PRESETS.reader;
-    return {
-      state: 'reader',
-      detectedClass: 'reader',
-      confidence: 0.92,
-      lowConfidence: false,
-      mlServiceAvailable: true,
-      reasons: [
-        'Prolonged stationary dwell time and steady reading scroll rate',
-        'Text selection and focus indicate in-depth content processing',
-      ],
-      changes: preset.changes,
-      adaptation: preset.adaptation,
-      ...preset.tokens,
-      inferenceTimeMs: 0.8,
-      explanations: [
-        {
-          feature: 'dwell_time',
-          userValue: mean_dwell_seconds,
-          baselineValue: 2.5,
-          unit: 's',
-          impact: 52,
-          direction: 'above',
-          reason: 'Extended reading dwell time per article card',
-        },
-        {
-          feature: 'scroll_velocity',
-          userValue: Math.round(scroll_speed * 1000),
-          baselineValue: 140,
-          unit: 'px/s',
-          impact: 32,
-          direction: 'below',
-          reason: 'Deliberate line-by-line reading speed',
-        },
-      ],
-    };
-  }
-
-  // 4. Skimming & Broad Browsing → Skimmer Feed (explorer)
-  if (unique_click_ratio >= 0.65 && scroll_speed >= 0.18 && clicks_per_min >= 6) {
+  // 3. Fast Scrolling & Headline Skimming → Skimmer Feed (explorer / mobile_constrained)
+  if (scroll_speed >= 0.08 || (unique_click_ratio >= 0.55 && clicks_per_min >= 4)) {
     const preset = STATE_PRESETS.explorer;
     return {
       state: 'explorer',
@@ -158,6 +120,7 @@ export function classifyBehaviorClient(features: TelemetryFeatures): AdaptationS
       changes: preset.changes,
       adaptation: preset.adaptation,
       ...preset.tokens,
+      componentOrder: preset.componentOrder,
       inferenceTimeMs: 0.8,
       explanations: [
         {
@@ -182,6 +145,47 @@ export function classifyBehaviorClient(features: TelemetryFeatures): AdaptationS
     };
   }
 
+  // 4. Slow Reading & Dwell Time → Focus Reader (reader / casual_browser)
+  if (mean_dwell_seconds >= 4 || (idle_ratio >= 0.35 && (max_scroll_depth >= 30 || text_selections_count >= 1))) {
+    const preset = STATE_PRESETS.reader;
+    return {
+      state: 'reader',
+      detectedClass: 'reader',
+      confidence: 0.92,
+      lowConfidence: false,
+      mlServiceAvailable: true,
+      reasons: [
+        'Prolonged stationary dwell time and steady reading scroll rate',
+        'Text selection and focus indicate in-depth content processing',
+      ],
+      changes: preset.changes,
+      adaptation: preset.adaptation,
+      ...preset.tokens,
+      componentOrder: preset.componentOrder,
+      inferenceTimeMs: 0.8,
+      explanations: [
+        {
+          feature: 'dwell_time',
+          userValue: mean_dwell_seconds,
+          baselineValue: 2.5,
+          unit: 's',
+          impact: 52,
+          direction: 'above',
+          reason: 'Extended reading dwell time per article card',
+        },
+        {
+          feature: 'scroll_velocity',
+          userValue: Math.round(scroll_speed * 1000),
+          baselineValue: 140,
+          unit: 'px/s',
+          impact: 32,
+          direction: 'below',
+          reason: 'Deliberate line-by-line reading speed',
+        },
+      ],
+    };
+  }
+
   // 5. Default Balanced Baseline
   const balanced = STATE_PRESETS.balanced;
   return {
@@ -194,6 +198,7 @@ export function classifyBehaviorClient(features: TelemetryFeatures): AdaptationS
     changes: balanced.changes,
     adaptation: balanced.adaptation,
     ...balanced.tokens,
+    componentOrder: balanced.componentOrder,
     inferenceTimeMs: 0.5,
     explanations: [
       {

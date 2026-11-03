@@ -114,6 +114,7 @@ export interface StatePreset {
   tokens: AdaptationTokens;
   theme: ThemeMode;
   layoutDensity: 'compact' | 'standard' | 'spacious';
+  componentOrder: string[];
 }
 
 export const STATE_PRESETS: Record<string, StatePreset> = {
@@ -148,6 +149,10 @@ export const STATE_PRESETS: Record<string, StatePreset> = {
     },
     theme: 'dark',
     layoutDensity: 'compact',
+    componentOrder: [
+      'quickactions', 'performance', 'dashboard', 'analytics',
+      'activity', 'notifications', 'settings'
+    ],
   },
   reader: {
     reasons: [
@@ -180,6 +185,10 @@ export const STATE_PRESETS: Record<string, StatePreset> = {
     },
     theme: 'sepia',
     layoutDensity: 'spacious',
+    componentOrder: [
+      'dashboard', 'analytics', 'notifications', 'activity',
+      'quickactions', 'performance', 'settings'
+    ],
   },
   struggling: {
     reasons: [
@@ -211,7 +220,11 @@ export const STATE_PRESETS: Record<string, StatePreset> = {
       explainBanner: 'Cognitive Assist: High-contrast 2px borders, large targets, and text-to-speech enabled.',
     },
     theme: 'high_contrast',
-    layoutDensity: 'standard',
+    layoutDensity: 'spacious',
+    componentOrder: [
+      'settings', 'dashboard', 'activity', 'notifications',
+      'quickactions', 'analytics', 'performance'
+    ],
   },
   explorer: {
     reasons: [
@@ -243,7 +256,11 @@ export const STATE_PRESETS: Record<string, StatePreset> = {
       explainBanner: 'Skimmer Feed: 3-bullet TL;DR summaries and category filter pills active.',
     },
     theme: 'light',
-    layoutDensity: 'standard',
+    layoutDensity: 'compact',
+    componentOrder: [
+      'quickactions', 'dashboard', 'notifications', 'activity',
+      'analytics', 'settings', 'performance'
+    ],
   },
   balanced: {
     reasons: [
@@ -275,11 +292,18 @@ export const STATE_PRESETS: Record<string, StatePreset> = {
     },
     theme: 'light',
     layoutDensity: 'standard',
+    componentOrder: [
+      'dashboard', 'analytics', 'performance', 'activity',
+      'quickactions', 'notifications', 'settings'
+    ],
   },
 };
 
-// Map aliases seamlessly
+// Map aliases seamlessly across all models and classifiers
 STATE_PRESETS.power_user = STATE_PRESETS.fast_navigator;
+STATE_PRESETS.casual_browser = STATE_PRESETS.reader;
+STATE_PRESETS.mobile_constrained = STATE_PRESETS.explorer;
+STATE_PRESETS.accessibility_focused = STATE_PRESETS.struggling;
 STATE_PRESETS.fast_scanner = STATE_PRESETS.explorer;
 STATE_PRESETS.deep_reader = STATE_PRESETS.reader;
 STATE_PRESETS.assistive_mode = STATE_PRESETS.struggling;
@@ -467,13 +491,13 @@ export const useAdaptationStore = create<AdaptationState>((set, get) => ({
         confidence: typeof signal.confidence === 'number' ? signal.confidence : prevState.confidence,
         probabilities: signal.probabilities ?? prevState.probabilities,
         featureImportances: signal.featureImportances ?? prevState.featureImportances,
-        componentOrder: signal.componentOrder && signal.componentOrder.length > 0 ? signal.componentOrder : prevState.componentOrder,
+        componentOrder: signal.componentOrder && signal.componentOrder.length > 0 ? signal.componentOrder : (preset.componentOrder || prevState.componentOrder),
         reasons: Array.isArray(signal.reasons) && signal.reasons.length > 0 ? signal.reasons : preset.reasons,
         changes: Array.isArray(signal.changes) && signal.changes.length > 0 ? signal.changes : preset.changes,
         adaptation: finalAdaptation,
         layoutDensity: finalAdaptation.density,
         lastUpdated: new Date(),
-        adaptationsCount: stateChanged ? prevState.adaptationsCount + 1 : prevState.adaptationsCount,
+        adaptationsCount: (stateChanged || targetState !== 'balanced') ? prevState.adaptationsCount + 1 : prevState.adaptationsCount,
         lastAiSignal: signal,
         mlServiceAvailable: signal.mlServiceAvailable !== false,
         isPaused: false,

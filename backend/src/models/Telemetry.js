@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const TelemetrySchema = new mongoose.Schema({
   // ── Legacy fields (preserved for historical data) ─────────────────────────
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   sessionId: { type: String, required: true },
   clickCount: { type: Number, default: 0 },
   uniqueElementsClicked: { type: Number, default: 0 },

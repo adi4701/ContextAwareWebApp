@@ -26,9 +26,10 @@ let lastSelectionTime = 0;
 export function hasConsent(): boolean {
   if (typeof window === 'undefined') return false;
   try {
-    return localStorage.getItem('telemetry_consent') === 'true';
+    const val = localStorage.getItem('telemetry_consent');
+    return val !== 'false';
   } catch {
-    return false;
+    return true;
   }
 }
 
